@@ -24,6 +24,8 @@ void SIM_CF_ParticleSystemData::initializeSubclass()
 
 	/// Implement Initializations of Your Custom Fields
 	Configured = false;
+	InnerPtr = std::make_shared<CubbyFlow::ParticleSystemData3>();
+	scalar_idx_offset = InnerPtr->AddScalarData();
 }
 
 /**
@@ -35,10 +37,9 @@ void SIM_CF_ParticleSystemData::makeEqualSubclass(const SIM_Data *source)
 	const SIM_CF_ParticleSystemData *src = SIM_DATA_CASTCONST(source, SIM_CF_ParticleSystemData);
 
 	/// Implement Equal Operator of Your Custom Fields
-	static_cast<CubbyFlow::ParticleSystemData3 &>(*this) = static_cast<const CubbyFlow::ParticleSystemData3 &>(*src);
-
-	/// Implement Equal Operator of Your Custom Fields
 	this->Configured = src->Configured;
+	this->InnerPtr = src->InnerPtr;
+	this->scalar_idx_offset = src->scalar_idx_offset;
 }
 
 const char *SIM_CF_ParticleSystemData::DATANAME = "CF_ParticleSystemData";
@@ -56,4 +57,72 @@ const SIM_DopDescription *SIM_CF_ParticleSystemData::GetDescription()
 								   classname(),
 								   PRMS.data());
 	return &DESC;
+}
+
+GA_Offset SIM_CF_ParticleSystemData::GetParticleOffset(size_t index, UT_WorkBuffer &error_msg) const
+{
+	if (!InnerPtr)
+	{
+		error_msg.appendSprintf("ParticleSystemData InnerPtr is nullptr, From %s\n", DATANAME);
+		return -1;
+	}
+
+	if (index >= InnerPtr->NumberOfParticles())
+	{
+		error_msg.appendSprintf("INVALID Index, From %s\n", DATANAME);
+		return -1;
+	}
+
+	return (GA_Offset) InnerPtr->ScalarDataAt(scalar_idx_offset)[index];
+}
+
+void SIM_CF_ParticleSystemData::SetParticleOffset(size_t index, GA_Offset offset, UT_WorkBuffer &error_msg) const
+{
+	if (!InnerPtr)
+	{
+		error_msg.appendSprintf("ParticleSystemData InnerPtr is nullptr, From %s\n", DATANAME);
+		return;
+	}
+
+	if (index >= InnerPtr->NumberOfParticles())
+	{
+		error_msg.appendSprintf("INVALID Index, From %s\n", DATANAME);
+		return;
+	}
+
+	InnerPtr->ScalarDataAt(scalar_idx_offset)[index] = offset;
+}
+
+SIM_CF_ParticleSystemData::ParticleState SIM_CF_ParticleSystemData::GetParticleState(size_t index, UT_WorkBuffer &error_msg) const
+{
+	if (!InnerPtr)
+	{
+		error_msg.appendSprintf("ParticleSystemData InnerPtr is nullptr, From %s\n", DATANAME);
+		return PARTICLE_INVALID;
+	}
+
+	if (index >= InnerPtr->NumberOfParticles())
+	{
+		error_msg.appendSprintf("INVALID Index, From %s\n", DATANAME);
+		return PARTICLE_INVALID;
+	}
+
+	return (ParticleState) InnerPtr->ScalarDataAt(scalar_idx_state)[index];
+}
+
+void SIM_CF_ParticleSystemData::SetParticleState(size_t index, SIM_CF_ParticleSystemData::ParticleState state, UT_WorkBuffer &error_msg) const
+{
+	if (!InnerPtr)
+	{
+		error_msg.appendSprintf("ParticleSystemData InnerPtr is nullptr, From %s\n", DATANAME);
+		return;
+	}
+
+	if (index >= InnerPtr->NumberOfParticles())
+	{
+		error_msg.appendSprintf("INVALID Index, From %s\n", DATANAME);
+		return;
+	}
+
+	InnerPtr->ScalarDataAt(scalar_idx_offset)[index] = state;
 }

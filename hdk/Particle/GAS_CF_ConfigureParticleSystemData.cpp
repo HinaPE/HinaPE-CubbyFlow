@@ -96,7 +96,7 @@ bool GAS_CF_ConfigureParticleSystemData::Solve(SIM_Engine &engine, SIM_Object *o
 		return false;
 	}
 
-	// Config Geometry Sheet
+	// Configure Geometry Sheet
 	{
 		SIM_GeometryAutoWriteLock lock(geo);
 		GU_Detail &gdp = lock.getGdp();

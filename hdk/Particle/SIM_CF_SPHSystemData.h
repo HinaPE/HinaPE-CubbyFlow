@@ -9,7 +9,7 @@
 
 #include "Core/Particle/SPHSystemData.hpp"
 
-class SIM_CF_SPHSystemData : public SIM_Data, public SIM_OptionsUser, public CubbyFlow::SPHSystemData3
+class SIM_CF_SPHSystemData : public SIM_Data, public SIM_OptionsUser
 {
 public:
 	static const char *DATANAME;
@@ -17,6 +17,23 @@ public:
 	static const char *DENSITY_ATTRIBUTE_NAME;
 	static const char *PRESSURE_ATTRIBUTE_NAME;
 	bool Configured = false;
+	CubbyFlow::SPHSystemData3Ptr InnerPtr;
+	size_t scalar_idx_offset = -1;
+	size_t scalar_idx_state = -1;
+
+	GA_Offset GetParticleOffset(size_t index, UT_WorkBuffer &error_msg) const;
+	void SetParticleOffset(size_t index, GA_Offset offset, UT_WorkBuffer &error_msg) const;
+
+	enum ParticleState
+	{
+		PARTICLE_ADDED = 0, // default value
+		PARTICLE_DELETED = 1,
+		PARTICLE_CLEAN = 2,
+		PARTICLE_DIRTY = 3,
+		PARTICLE_INVALID = 99,
+	};
+	ParticleState GetParticleState(size_t index, UT_WorkBuffer &error_msg) const;
+	void SetParticleState(size_t index, ParticleState state, UT_WorkBuffer &error_msg) const;
 
 protected:
 	SIM_CF_SPHSystemData(const SIM_DataFactory *factory) : SIM_Data(factory), SIM_OptionsUser(this) {}

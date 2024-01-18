@@ -30,6 +30,9 @@ add_library(
         hdk/Particle/GAS_CF_ConfigureSPHSystemData.h
         hdk/Particle/GAS_CF_UpdateToGeometrySheet.cpp
         hdk/Particle/GAS_CF_UpdateToGeometrySheet.h
+
+        hdk/Emitter/GAS_CF_PointEmitter.cpp
+        hdk/Emitter/GAS_CF_PointEmitter.h
 )
 
 
@@ -59,6 +62,7 @@ target_include_directories(
         ${CMAKE_CURRENT_BINARY_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_SOURCE_DIR}/install/include
+        hdk
 )
 target_compile_options(
         ${TARGET}

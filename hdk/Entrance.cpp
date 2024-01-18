@@ -6,6 +6,8 @@
 #include "Particle/GAS_CF_ConfigureSPHSystemData.h"
 #include "Particle/GAS_CF_UpdateToGeometrySheet.h"
 
+#include "Emitter/GAS_CF_PointEmitter.h"
+
 void initializeSIM(void *)
 {
 	IMPLEMENT_DATAFACTORY(SIM_CF_ParticleSystemData);
@@ -13,4 +15,6 @@ void initializeSIM(void *)
 	IMPLEMENT_DATAFACTORY(GAS_CF_ConfigureParticleSystemData);
 	IMPLEMENT_DATAFACTORY(GAS_CF_ConfigureSPHSystemData);
 	IMPLEMENT_DATAFACTORY(GAS_CF_UpdateToGeometrySheet);
+
+	IMPLEMENT_DATAFACTORY(GAS_CF_PointEmitter);
 }

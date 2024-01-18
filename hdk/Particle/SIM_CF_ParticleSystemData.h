@@ -13,6 +13,8 @@ class SIM_CF_ParticleSystemData : public SIM_Data, public SIM_OptionsUser, publi
 {
 public:
 	static const char *DATANAME;
+	static const char *FORCE_ATTRIBUTE_NAME;
+	bool Configured = false;
 
 protected:
 	SIM_CF_ParticleSystemData(const SIM_DataFactory *factory) : SIM_Data(factory), SIM_OptionsUser(this) {}

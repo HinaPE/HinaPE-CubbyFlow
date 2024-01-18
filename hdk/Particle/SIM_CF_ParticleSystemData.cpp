@@ -22,7 +22,8 @@ void SIM_CF_ParticleSystemData::initializeSubclass()
 {
 	SIM_Data::initializeSubclass(); // Always remember to call this parent implementation
 
-	/// TODO: Implement Initializations of Your Custom Fields
+	/// Implement Initializations of Your Custom Fields
+	Configured = false;
 }
 
 /**
@@ -31,15 +32,17 @@ void SIM_CF_ParticleSystemData::initializeSubclass()
 void SIM_CF_ParticleSystemData::makeEqualSubclass(const SIM_Data *source)
 {
 	SIM_Data::makeEqualSubclass(source); // Always remember to call this parent implementation
+	const SIM_CF_ParticleSystemData *src = SIM_DATA_CASTCONST(source, SIM_CF_ParticleSystemData);
 
-	/// TODO: Implement Equal Operator of Your Custom Fields
-	{
-		const SIM_CF_ParticleSystemData *src = SIM_DATA_CASTCONST(source, SIM_CF_ParticleSystemData);
-		static_cast<CubbyFlow::ParticleSystemData3 &>(*this) = static_cast<const CubbyFlow::ParticleSystemData3 &>(*src);
-	}
+	/// Implement Equal Operator of Your Custom Fields
+	static_cast<CubbyFlow::ParticleSystemData3 &>(*this) = static_cast<const CubbyFlow::ParticleSystemData3 &>(*src);
+
+	/// Implement Equal Operator of Your Custom Fields
+	this->Configured = src->Configured;
 }
 
 const char *SIM_CF_ParticleSystemData::DATANAME = "CF_ParticleSystemData";
+const char *SIM_CF_ParticleSystemData::FORCE_ATTRIBUTE_NAME = "force";
 const SIM_DopDescription *SIM_CF_ParticleSystemData::GetDescription()
 {
 	static std::array<PRM_Template, 1> PRMS{
@@ -47,8 +50,8 @@ const SIM_DopDescription *SIM_CF_ParticleSystemData::GetDescription()
 	};
 
 	static SIM_DopDescription DESC(true,
-								   "cf_particle_data",
-								   "CF Particle Data",
+								   "cf_particle_system_data",
+								   "CF Particle System Data",
 								   DATANAME,
 								   classname(),
 								   PRMS.data());

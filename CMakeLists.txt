@@ -20,8 +20,16 @@ add_library(
         SHARED
         hdk/Entrance.cpp
 
-        hdk/SIM_CF_ParticleSystemData.cpp
-        hdk/SIM_CF_ParticleSystemData.h
+        hdk/Particle/SIM_CF_ParticleSystemData.cpp
+        hdk/Particle/SIM_CF_ParticleSystemData.h
+        hdk/Particle/SIM_CF_SPHSystemData.cpp
+        hdk/Particle/SIM_CF_SPHSystemData.h
+        hdk/Particle/GAS_CF_ConfigureParticleSystemData.cpp
+        hdk/Particle/GAS_CF_ConfigureParticleSystemData.h
+        hdk/Particle/GAS_CF_ConfigureSPHSystemData.cpp
+        hdk/Particle/GAS_CF_ConfigureSPHSystemData.h
+        hdk/Particle/GAS_CF_UpdateToGeometrySheet.cpp
+        hdk/Particle/GAS_CF_UpdateToGeometrySheet.h
 )
 
 

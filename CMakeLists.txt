@@ -24,25 +24,33 @@ add_library(
         hdk/SIM_CF_ParticleSystemData.h
 )
 
+
+# Config CubbyFlow
+include(install/cmake/FindTBB.cmake)
+include(install/cmake/TaskingSystemOptions.cmake)
+include(install/cmake/CompileOptions.cmake)
+
 # Link Houdini Toolkit
 target_link_libraries(
         ${TARGET}
         PUBLIC
         Houdini
         CubbyFlow
+        ${DEFAULT_LINKER_OPTIONS}
+        ${DEFAULT_LIBRARIES}
 )
 target_link_directories(
         ${TARGET}
         PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
-        install/lib
+        ${CMAKE_SOURCE_DIR}/install/lib
 )
 target_include_directories(
         ${TARGET}
         PUBLIC
         ${CMAKE_CURRENT_BINARY_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}
-        install/include
+        ${CMAKE_SOURCE_DIR}/install/include
 )
 target_compile_options(
         ${TARGET}
@@ -50,3 +58,6 @@ target_compile_options(
         -D_LIBCPP_ENABLE_CXX17_REMOVED_UNARY_BINARY_FUNCTION
 )
 houdini_configure_target(${TARGET})
+
+# Test
+add_subdirectory(test)

@@ -1,0 +1,104 @@
+#include "gtest/gtest.h"
+
+#include <Core/Solver/Grid/GridBlockedBoundaryConditionSolver3.hpp>
+
+using namespace CubbyFlow;
+
+TEST(GridBlockedBoundaryConditionSolver3, ClosedDomain)
+{
+    GridBlockedBoundaryConditionSolver3 bndSolver;
+    Vector3UZ gridSize(10, 10, 10);
+    Vector3D gridSpacing(1.0, 1.0, 1.0);
+    Vector3D gridOrigin(-5.0, -5.0, -5.0);
+
+    bndSolver.UpdateCollider(nullptr, gridSize, gridSpacing, gridOrigin);
+
+    FaceCenteredGrid3 velocity(gridSize, gridSpacing, gridOrigin);
+    velocity.Fill(Vector3D(1.0, 1.0, 1.0));
+
+    bndSolver.ConstrainVelocity(&velocity);
+
+    velocity.ForEachUIndex([&](const Vector3UZ& idx) {
+        if (idx.x == 0 || idx.x == gridSize.x)
+        {
+            EXPECT_DOUBLE_EQ(0.0, velocity.U(idx));
+        }
+        else
+        {
+            EXPECT_DOUBLE_EQ(1.0, velocity.U(idx));
+        }
+    });
+
+    velocity.ForEachVIndex([&](const Vector3UZ& idx) {
+        if (idx.y == 0 || idx.y == gridSize.y)
+        {
+            EXPECT_DOUBLE_EQ(0.0, velocity.V(idx));
+        }
+        else
+        {
+            EXPECT_DOUBLE_EQ(1.0, velocity.V(idx));
+        }
+    });
+
+    velocity.ForEachWIndex([&](const Vector3UZ& idx) {
+        if (idx.z == 0 || idx.z == gridSize.z)
+        {
+            EXPECT_DOUBLE_EQ(0.0, velocity.W(idx));
+        }
+        else
+        {
+            EXPECT_DOUBLE_EQ(1.0, velocity.W(idx));
+        }
+    });
+}
+
+TEST(GridBlockedBoundaryConditionSolver3, OpenDomain)
+{
+    GridBlockedBoundaryConditionSolver3 bndSolver;
+    Vector3UZ gridSize(10, 10, 10);
+    Vector3D gridSpacing(1.0, 1.0, 1.0);
+    Vector3D gridOrigin(-5.0, -5.0, -5.0);
+
+    // Partially open domain
+    bndSolver.SetClosedDomainBoundaryFlag(DIRECTION_LEFT | DIRECTION_UP |
+                                          DIRECTION_FRONT);
+    bndSolver.UpdateCollider(nullptr, gridSize, gridSpacing, gridOrigin);
+
+    FaceCenteredGrid3 velocity(gridSize, gridSpacing, gridOrigin);
+    velocity.Fill(Vector3D(1.0, 1.0, 1.0));
+
+    bndSolver.ConstrainVelocity(&velocity);
+
+    velocity.ForEachUIndex([&](const Vector3UZ& idx) {
+        if (idx.x == 0)
+        {
+            EXPECT_DOUBLE_EQ(0.0, velocity.U(idx));
+        }
+        else
+        {
+            EXPECT_DOUBLE_EQ(1.0, velocity.U(idx));
+        }
+    });
+
+    velocity.ForEachVIndex([&](const Vector3UZ& idx) {
+        if (idx.y == gridSize.y)
+        {
+            EXPECT_DOUBLE_EQ(0.0, velocity.V(idx));
+        }
+        else
+        {
+            EXPECT_DOUBLE_EQ(1.0, velocity.V(idx));
+        }
+    });
+
+    velocity.ForEachWIndex([&](const Vector3UZ& idx) {
+        if (idx.z == gridSize.z)
+        {
+            EXPECT_DOUBLE_EQ(0.0, velocity.W(idx));
+        }
+        else
+        {
+            EXPECT_DOUBLE_EQ(1.0, velocity.W(idx));
+        }
+    });
+}

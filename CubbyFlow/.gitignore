@@ -1,0 +1,33 @@
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+
+## For CubbyFlow
+*.npy
+*.bat
+
+## For Python API
+build/
+dist/
+pyCubbyFlow.egg-info/
+*.pyc
+
+## Except resource files
+!Resources/
+
+## CppDepend files
+CppDependOut/
+*.cdproj
+
+# Visual Studio 2017 cache/options directory
+.vs/
+
+# CLion
+cmake-build-debug
+.idea

@@ -6,6 +6,8 @@
 #include "Particle/GAS_CF_ConfigureSPHSystemData.h"
 #include "Particle/GAS_CF_UpdateToGeometrySheet.h"
 
+#include "Collider/SIM_CF_RigidBodyCollider.h"
+
 #include "Emitter/GAS_CF_PointEmitter.h"
 #include "Emitter/GAS_CF_VolumeParticleEmitter.h"
 
@@ -19,20 +21,27 @@
 
 void initializeSIM(void *)
 {
+	// Particle
 	IMPLEMENT_DATAFACTORY(SIM_CF_ParticleSystemData)
 	IMPLEMENT_DATAFACTORY(SIM_CF_SPHSystemData)
 	IMPLEMENT_DATAFACTORY(GAS_CF_ConfigureParticleSystemData)
 	IMPLEMENT_DATAFACTORY(GAS_CF_ConfigureSPHSystemData)
 	IMPLEMENT_DATAFACTORY(GAS_CF_UpdateToGeometrySheet)
 
+	// Collider
+	IMPLEMENT_DATAFACTORY(SIM_CF_RigidBodyCollider)
+
+	// Emitter
 	IMPLEMENT_DATAFACTORY(GAS_CF_PointEmitter)
 	IMPLEMENT_DATAFACTORY(GAS_CF_VolumeParticleEmitter)
 
+	// Solver
 	IMPLEMENT_DATAFACTORY(GAS_CF_SemiLagrangianAdvector)
 	IMPLEMENT_DATAFACTORY(GAS_CF_BuildNeighborLists)
 	IMPLEMENT_DATAFACTORY(GAS_CF_UpdateDensitySolver)
 	IMPLEMENT_DATAFACTORY(GAS_CF_ClearForce)
 
+	// Geometry
 	IMPLEMENT_DATAFACTORY(SIM_CF_Sphere)
 	IMPLEMENT_DATAFACTORY(SIM_CF_Box)
 }

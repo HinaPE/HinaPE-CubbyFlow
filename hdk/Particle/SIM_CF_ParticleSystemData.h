@@ -41,7 +41,7 @@ protected:
 	static const SIM_DopDescription *GetDescription();
 
 	DECLARE_STANDARD_GETCASTTOTYPE();
-	DECLARE_DATAFACTORY(SIM_CF_ParticleSystemData, SIM_Data, "CubbyFlow ParticleSystemData", GetDescription());
+	DECLARE_DATAFACTORY(SIM_CF_ParticleSystemData, SIM_Data, "CF_ParticleSystemData", GetDescription());
 };
 
 #endif //HINAPE_CUBBYFLOW_SIM_CF_PARTICLESYSTEMDATA_H

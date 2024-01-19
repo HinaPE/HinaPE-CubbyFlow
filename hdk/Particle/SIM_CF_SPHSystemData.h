@@ -43,7 +43,7 @@ protected:
 	static const SIM_DopDescription *GetDescription();
 
 DECLARE_STANDARD_GETCASTTOTYPE();
-DECLARE_DATAFACTORY(SIM_CF_SPHSystemData, SIM_Data, "CubbyFlow SPHSystemData", GetDescription());
+DECLARE_DATAFACTORY(SIM_CF_SPHSystemData, SIM_Data, "CF_SPHSystemData", GetDescription());
 };
 
 #endif //HINAPE_CUBBYFLOW_SIM_CF_SPHSYSTEMDATA_H

@@ -31,6 +31,9 @@ add_library(
         hdk/Particle/GAS_CF_UpdateToGeometrySheet.cpp
         hdk/Particle/GAS_CF_UpdateToGeometrySheet.h
 
+        hdk/Collider/SIM_CF_RigidBodyCollider.cpp
+        hdk/Collider/SIM_CF_RigidBodyCollider.h
+
         hdk/Emitter/GAS_CF_PointEmitter.cpp
         hdk/Emitter/GAS_CF_PointEmitter.h
         hdk/Emitter/GAS_CF_VolumeParticleEmitter.cpp

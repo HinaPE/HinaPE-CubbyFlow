@@ -139,14 +139,14 @@ if(TBB_FOUND)
 	# NOTE - TBB found in CentOS 6/7 package manager does not have debug
 	#		 versions of the library...silently fall-back to using only the
 	#		 libraries which we actually found.
-	if(NOT TBB_LIBRARY_DEBUG)
+#	if(NOT TBB_LIBRARY_DEBUG)
 		set(TBB_LIBRARIES ${TBB_LIBRARY} ${TBB_LIBRARY_MALLOC})
-	else()
-	set(TBB_LIBRARIES
-		optimized ${TBB_LIBRARY} optimized ${TBB_LIBRARY_MALLOC}
-		debug ${TBB_LIBRARY_DEBUG} debug ${TBB_LIBRARY_MALLOC_DEBUG}
-	)
-	endif()
+#	else()
+#	set(TBB_LIBRARIES
+#		optimized ${TBB_LIBRARY} optimized ${TBB_LIBRARY_MALLOC}
+#		debug ${TBB_LIBRARY_DEBUG} debug ${TBB_LIBRARY_MALLOC_DEBUG}
+#	)
+#	endif()
 endif()
 
 if(TBB_INCLUDE_DIR AND TBB_LIBRARY_MIC AND TBB_LIBRARY_MALLOC_MIC)

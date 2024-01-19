@@ -8,135 +8,298 @@
 // personal capacity and are not conveying any rights to any intellectual
 // property of any third parties.
 
-#ifndef _USE_MATH_DEFINES
-#define _USE_MATH_DEFINES
+
+#include <Core/Array/ArrayUtils.hpp>
+#include <Core/Emitter/VolumeParticleEmitter3.hpp>
+#include <Core/Geometry/Box.hpp>
+#include <Core/Geometry/Cylinder3.hpp>
+#include <Core/Geometry/ImplicitSurfaceSet.hpp>
+#include <Core/Geometry/Plane.hpp>
+#include <Core/Geometry/RigidBodyCollider.hpp>
+#include <Core/Geometry/Sphere.hpp>
+#include <Core/Particle/ParticleSystemData.hpp>
+#include <Core/Solver/Particle/PCISPH/PCISPHSolver3.hpp>
+#include <Core/Solver/Particle/SPH/SPHSolver3.hpp>
+#include <Core/Utils/Logging.hpp>
+
+#ifdef CUBBYFLOW_WINDOWS
+#include <direct.h>
+#else
+#include <sys/stat.h>
 #endif
 
-#include <algorithm>
-#include <array>
-#include <chrono>
-#include <cmath>
-#include <cstdio>
+#include <fstream>
+#include <iostream>
 #include <string>
-#include <thread>
+#include <vector>
 
-const size_t BUFFER_SIZE = 80;
-const std::string GRAY_SCALE_TABLE = " .:-=+*#%@";
-const size_t GRAY_SCALE_TABLE_SIZE = GRAY_SCALE_TABLE.length();
+#define APP_NAME "SPHSim"
 
-void UpdateWave(const double timeInterval, double* x, double* speed)
+using namespace CubbyFlow;
+
+void PrintInfo(const SPHSolver3Ptr& solver)
 {
-	(*x) += timeInterval * (*speed);
+	const auto particles = solver->GetSPHSystemData();
+	printf("Number of particles: %zu\n", particles->NumberOfParticles());
+}
 
-	// Boundary reflection
-	if ((*x) > 1.0)
+void RunSimulation(const std::string& rootDir, const SPHSolver3Ptr& solver,
+				   int numberOfFrames, const std::string& format, double fps)
+{
+	const auto particles = solver->GetSPHSystemData();
+
+	for (Frame frame(0, 1.0 / fps); frame.index < numberOfFrames; ++frame)
 	{
-		(*speed) *= -1.0;
-		(*x) = 1.0 + timeInterval * (*speed);
-	}
-	else if ((*x) < 0.0)
-	{
-		(*speed) *= -1.0;
-		(*x) = timeInterval * (*speed);
+		solver->Update(frame);
 	}
 }
 
-void AccumulateWaveToHeightField(const double x, const double waveLength,
-								 const double maxHeight,
-								 std::array<double, BUFFER_SIZE>* heightField)
+// Water-drop example (PCISPH)
+void RunExample1(const std::string& rootDir, double targetSpacing,
+				 int numberOfFrames, const std::string& format, double fps)
 {
-	const double quarterWaveLength = 0.25 * waveLength;
-	const int start = static_cast<int>((x - quarterWaveLength) * BUFFER_SIZE);
-	const int end = static_cast<int>((x + quarterWaveLength) * BUFFER_SIZE);
+	BoundingBox3D domain(Vector3D(), Vector3D(1, 2, 1));
 
-	for (int i = start; i < end; ++i)
-	{
-		int iNew = i;
-		if (i < 0)
-		{
-			iNew = -i - 1;
-		}
-		else if (i >= static_cast<int>(BUFFER_SIZE))
-		{
-			iNew = 2 * BUFFER_SIZE - i - 1;
-		}
+	// Build solver
+	auto solver = PCISPHSolver3::GetBuilder()
+			.WithTargetDensity(1000.0)
+			.WithTargetSpacing(targetSpacing)
+			.MakeShared();
 
-		const double distance = fabs((i + 0.5) / BUFFER_SIZE - x);
-		const double height =
-				maxHeight * 0.5 *
-				(cos(std::min(distance * M_PI / quarterWaveLength, M_PI)) + 1.0);
-		(*heightField)[iNew] += height;
-	}
+	solver->SetPseudoViscosityCoefficient(0.0);
+
+	// Build emitter
+	BoundingBox3D sourceBound(domain);
+	sourceBound.Expand(-targetSpacing);
+
+	const auto plane = Plane3::GetBuilder()
+			.WithNormal({ 0, 1, 0 })
+			.WithPoint({ 0, 0.25 * domain.Height(), 0 })
+			.MakeShared();
+
+	const auto sphere = Sphere3::GetBuilder()
+			.WithCenter(domain.MidPoint())
+			.WithRadius(0.15 * domain.Width())
+			.MakeShared();
+
+	const auto surfaceSet =
+			ImplicitSurfaceSet3::GetBuilder()
+					.WithExplicitSurfaces(Array1<Surface3Ptr>{ plane, sphere })
+					.MakeShared();
+
+	const auto emitter = VolumeParticleEmitter3::GetBuilder()
+			.WithImplicitSurface(surfaceSet)
+			.WithSpacing(targetSpacing)
+			.WithMaxRegion(sourceBound)
+			.WithIsOneShot(true)
+			.MakeShared();
+
+	solver->SetEmitter(emitter);
+
+	// Build collider
+	const auto box = Box3::GetBuilder()
+			.WithIsNormalFlipped(true)
+			.WithBoundingBox(domain)
+			.MakeShared();
+
+	const auto collider =
+			RigidBodyCollider3::GetBuilder().WithSurface(box).MakeShared();
+
+	solver->SetCollider(collider);
+
+	// Print simulation info
+	printf("Running example 1 (water-drop with PCISPH)\n");
+	PrintInfo(solver);
+
+	// Run simulation
+	RunSimulation(rootDir, solver, numberOfFrames, format, fps);
 }
 
-void Draw(const std::array<double, BUFFER_SIZE>& heightField)
+// Water-drop example (SPH)
+void RunExample2(const std::string& rootDir, double targetSpacing,
+				 int numberOfFrames, const std::string& format, double fps)
 {
-	std::string buffer(BUFFER_SIZE, ' ');
+	BoundingBox3D domain(Vector3D(), Vector3D(1, 2, 1));
 
-	// Convert height field to grayscale
-	for (size_t i = 0; i < BUFFER_SIZE; ++i)
-	{
-		const double height = heightField[i];
-		const size_t tableIndex =
-				std::min(static_cast<size_t>(floor(GRAY_SCALE_TABLE_SIZE * height)),
-						 GRAY_SCALE_TABLE_SIZE - 1);
-		buffer[i] = GRAY_SCALE_TABLE[tableIndex];
-	}
+	auto solver = SPHSolver3::GetBuilder()
+			.WithTargetDensity(1000.0)
+			.WithTargetSpacing(targetSpacing)
+			.MakeShared();
 
-	// Clear old prints
-	for (size_t i = 0; i < BUFFER_SIZE; ++i)
-	{
-		printf("\b");
-	}
+	solver->SetPseudoViscosityCoefficient(0.0);
 
-	// Draw new buffer
-	printf("%s", buffer.c_str());
-	fflush(stdout);
+	// Build emitter
+	BoundingBox3D sourceBound(domain);
+	sourceBound.Expand(-targetSpacing);
+
+	const auto plane = Plane3::GetBuilder()
+			.WithNormal({ 0, 1, 0 })
+			.WithPoint({ 0, 0.25 * domain.Height(), 0 })
+			.MakeShared();
+
+	const auto sphere = Sphere3::GetBuilder()
+			.WithCenter(domain.MidPoint())
+			.WithRadius(0.15 * domain.Width())
+			.MakeShared();
+
+	const auto surfaceSet =
+			ImplicitSurfaceSet3::GetBuilder()
+					.WithExplicitSurfaces(Array1<Surface3Ptr>{ plane, sphere })
+					.MakeShared();
+
+	const auto emitter = VolumeParticleEmitter3::GetBuilder()
+			.WithImplicitSurface(surfaceSet)
+			.WithSpacing(targetSpacing)
+			.WithMaxRegion(sourceBound)
+			.WithIsOneShot(true)
+			.MakeShared();
+
+	solver->SetEmitter(emitter);
+
+	// Build collider
+	const auto box = Box3::GetBuilder()
+			.WithIsNormalFlipped(true)
+			.WithBoundingBox(domain)
+			.MakeShared();
+
+	const auto collider =
+			RigidBodyCollider3::GetBuilder().WithSurface(box).MakeShared();
+
+	solver->SetCollider(collider);
+
+	// Print simulation info
+	printf("Running example 2 (water-drop with SPH)\n");
+	PrintInfo(solver);
+
+	// Run simulation
+	RunSimulation(rootDir, solver, numberOfFrames, format, fps);
 }
 
-int main()
+// Dam-breaking example
+void RunExample3(const std::string& rootDir, double targetSpacing,
+				 int numberOfFrames, const std::string& format, double fps)
 {
-	const double waveLengthX = 0.8;
-	const double waveLengthY = 1.2;
+	BoundingBox3D domain(Vector3D(), Vector3D(3, 2, 1.5));
+	const double lz = domain.Depth();
 
-	const double maxHeightX = 0.5;
-	const double maxHeightY = 0.4;
+	// Build solver
+	auto solver = PCISPHSolver3::GetBuilder()
+			.WithTargetDensity(1000.0)
+			.WithTargetSpacing(targetSpacing)
+			.MakeShared();
 
-	double x = 0.0;
-	double y = 1.0;
-	double speedX = 1.0;
-	double speedY = -0.5;
+	solver->SetPseudoViscosityCoefficient(0.0);
+	solver->SetTimeStepLimitScale(10.0);
 
-	const int fps = 100;
-	const double timeInterval = 1.0 / fps;
+	// Build emitter
+	BoundingBox3D sourceBound(domain);
+	sourceBound.Expand(-targetSpacing);
 
-	std::array<double, BUFFER_SIZE> heightField;
+	const auto box1 =
+			Box3::GetBuilder()
+					.WithLowerCorner({ 0, 0, 0 })
+					.WithUpperCorner({ 0.5 + 0.001, 0.75 + 0.001, 0.75 * lz + 0.001 })
+					.MakeShared();
 
-	for (int i = 0; i < 1000; ++i)
+	const auto box2 =
+			Box3::GetBuilder()
+					.WithLowerCorner({ 2.5 - 0.001, 0, 0.25 * lz - 0.001 })
+					.WithUpperCorner({ 3.5 + 0.001, 0.75 + 0.001, 1.5 * lz + 0.001 })
+					.MakeShared();
+
+	const auto boxSet =
+			ImplicitSurfaceSet3::GetBuilder()
+					.WithExplicitSurfaces(Array1<Surface3Ptr>{ box1, box2 })
+					.MakeShared();
+
+	const auto emitter = VolumeParticleEmitter3::GetBuilder()
+			.WithSurface(boxSet)
+			.WithMaxRegion(sourceBound)
+			.WithSpacing(targetSpacing)
+			.MakeShared();
+
+	solver->SetEmitter(emitter);
+
+	// Build collider
+	const auto cyl1 = Cylinder3::GetBuilder()
+			.WithCenter({ 1, 0.375, 0.375 })
+			.WithRadius(0.1)
+			.WithHeight(0.75)
+			.MakeShared();
+
+	const auto cyl2 = Cylinder3::GetBuilder()
+			.WithCenter({ 1.5, 0.375, 0.75 })
+			.WithRadius(0.1)
+			.WithHeight(0.75)
+			.MakeShared();
+
+	const auto cyl3 = Cylinder3::GetBuilder()
+			.WithCenter({ 2, 0.375, 1.125 })
+			.WithRadius(0.1)
+			.WithHeight(0.75)
+			.MakeShared();
+
+	const auto box = Box3::GetBuilder()
+			.WithIsNormalFlipped(true)
+			.WithBoundingBox(domain)
+			.MakeShared();
+
+	const auto surfaceSet =
+			ImplicitSurfaceSet3::GetBuilder()
+					.WithExplicitSurfaces(Array1<Surface3Ptr>{ cyl1, cyl2, cyl3, box })
+					.MakeShared();
+
+	const auto collider =
+			RigidBodyCollider3::GetBuilder().WithSurface(surfaceSet).MakeShared();
+
+	solver->SetCollider(collider);
+
+	// Print simulation info
+	printf("Running example 3 (dam-breaking with PCISPH)\n");
+	PrintInfo(solver);
+
+	// Run simulation
+	RunSimulation(rootDir, solver, numberOfFrames, format, fps);
+}
+
+int main(int argc, char* argv[])
+{
+	bool showHelp = false;
+
+	double targetSpacing = 0.02;
+	int numberOfFrames = 100;
+	double fps = 60.0;
+	int exampleNum = 1;
+	std::string logFileName = APP_NAME ".log";
+	std::string outputDir = APP_NAME "_output";
+	std::string format = "xyz";
+
+#ifdef CUBBYFLOW_WINDOWS
+	_mkdir(outputDir.c_str());
+#else
+	mkdir(outputDir.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
+#endif
+
+	std::ofstream logFile(logFileName.c_str());
+	if (logFile)
 	{
-		// March through time
-		UpdateWave(timeInterval, &x, &speedX);
-		UpdateWave(timeInterval, &y, &speedY);
-
-		// Clear height field
-		for (double& height : heightField)
-		{
-			height = 0.0;
-		}
-
-		// Accumulate waves for each center point
-		AccumulateWaveToHeightField(x, waveLengthX, maxHeightX, &heightField);
-		AccumulateWaveToHeightField(y, waveLengthY, maxHeightY, &heightField);
-
-		// Draw height field
-		Draw(heightField);
-
-		// Wait
-		std::this_thread::sleep_for(std::chrono::milliseconds(1000 / fps));
+		Logging::SetAllStream(&logFile);
 	}
 
-	printf("\n");
-	fflush(stdout);
+	switch (exampleNum)
+	{
+		case 1:
+			RunExample1(outputDir, targetSpacing, numberOfFrames, format, fps);
+			break;
+		case 2:
+			RunExample2(outputDir, targetSpacing, numberOfFrames, format, fps);
+			break;
+		case 3:
+			RunExample3(outputDir, targetSpacing, numberOfFrames, format, fps);
+			break;
+		default:
+			break;
+	}
 
-	return 0;
+	return EXIT_SUCCESS;
 }

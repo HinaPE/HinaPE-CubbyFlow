@@ -36,6 +36,11 @@ add_library(
         hdk/Emitter/GAS_CF_VolumeParticleEmitter.cpp
         hdk/Emitter/GAS_CF_VolumeParticleEmitter.h
 
+        hdk/Solver/Neighbor/GAS_CF_BuildNeighborLists.cpp
+        hdk/Solver/Neighbor/GAS_CF_BuildNeighborLists.h
+        hdk/Solver/Density/GAS_CF_UpdateDensitySolver.cpp
+        hdk/Solver/Density/GAS_CF_UpdateDensitySolver.h
+
         hdk/Geometry/SIM_CF_Sphere.cpp
         hdk/Geometry/SIM_CF_Sphere.h
         hdk/Geometry/SIM_CF_Box.cpp

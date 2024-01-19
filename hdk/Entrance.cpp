@@ -9,6 +9,9 @@
 #include "Emitter/GAS_CF_PointEmitter.h"
 #include "Emitter/GAS_CF_VolumeParticleEmitter.h"
 
+#include "Solver/Neighbor/GAS_CF_BuildNeighborLists.h"
+#include "Solver/Density/GAS_CF_UpdateDensitySolver.h"
+
 #include "Geometry/SIM_CF_Sphere.h"
 #include "Geometry/SIM_CF_Box.h"
 
@@ -22,6 +25,9 @@ void initializeSIM(void *)
 
 	IMPLEMENT_DATAFACTORY(GAS_CF_PointEmitter)
 	IMPLEMENT_DATAFACTORY(GAS_CF_VolumeParticleEmitter)
+
+	IMPLEMENT_DATAFACTORY(GAS_CF_BuildNeighborLists)
+	IMPLEMENT_DATAFACTORY(GAS_CF_UpdateDensitySolver)
 
 	IMPLEMENT_DATAFACTORY(SIM_CF_Sphere)
 	IMPLEMENT_DATAFACTORY(SIM_CF_Box)

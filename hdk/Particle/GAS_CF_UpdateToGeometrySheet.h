@@ -4,9 +4,6 @@
 #include <GAS/GAS_SubSolver.h>
 #include <PRM/PRM_Default.h>
 
-#include "SIM_CF_ParticleSystemData.h"
-#include "SIM_CF_SPHSystemData.h"
-
 class GAS_CF_UpdateToGeometrySheet : public GAS_SubSolver
 {
 public:
@@ -23,7 +20,7 @@ protected:
 DECLARE_STANDARD_GETCASTTOTYPE();
 DECLARE_DATAFACTORY(GAS_CF_UpdateToGeometrySheet,
 					GAS_SubSolver,
-					"CF UpdateToGeometrySheet SubSolver",
+					"CF_UpdateToGeometrySheet",
 					getDopDescription());
 
 private:

@@ -21,6 +21,9 @@
 #include <UT/UT_WorkBuffer.h>
 #include <UT/UT_NetMessage.h>
 
+#include <Particle/SIM_CF_ParticleSystemData.h>
+#include <Particle/SIM_CF_SPHSystemData.h>
+
 bool GAS_CF_UpdateToGeometrySheet::solveGasSubclass(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep)
 {
 	UT_WorkBuffer error_msg;
@@ -180,13 +183,13 @@ bool GAS_CF_UpdateToGeometrySheet::Solve(SIM_Engine &engine, SIM_Object *obj, SI
 			error_msg.appendSprintf("Error Array Size::cf_array_force, From %s\n", DATANAME);
 			return false;
 		}
-		const auto& cf_array_density = sphdata->InnerPtr->ScalarDataAt(sphdata->scalar_idx_density);
+		const auto& cf_array_density = sphdata->InnerPtr->Densities();
 		if (p_size != cf_array_density.Size().x)
 		{
 			error_msg.appendSprintf("Error Array Size::cf_array_density, From %s\n", DATANAME);
 			return false;
 		}
-		const auto& cf_array_pressure = sphdata->InnerPtr->ScalarDataAt(sphdata->scalar_idx_pressure);
+		const auto& cf_array_pressure = sphdata->InnerPtr->Pressures();
 		if (p_size != cf_array_pressure.Size().x)
 		{
 			error_msg.appendSprintf("Error Array Size::cf_array_pressure, From %s\n", DATANAME);

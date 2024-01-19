@@ -36,10 +36,14 @@ add_library(
         hdk/Emitter/GAS_CF_VolumeParticleEmitter.cpp
         hdk/Emitter/GAS_CF_VolumeParticleEmitter.h
 
+        hdk/Solver/Advection/GAS_CF_SemiLagrangianAdvector.cpp
+        hdk/Solver/Advection/GAS_CF_SemiLagrangianAdvector.h
         hdk/Solver/Neighbor/GAS_CF_BuildNeighborLists.cpp
         hdk/Solver/Neighbor/GAS_CF_BuildNeighborLists.h
         hdk/Solver/Density/GAS_CF_UpdateDensitySolver.cpp
         hdk/Solver/Density/GAS_CF_UpdateDensitySolver.h
+        hdk/Solver/Force/GAS_CF_ClearForce.cpp
+        hdk/Solver/Force/GAS_CF_ClearForce.h
 
         hdk/Geometry/SIM_CF_Sphere.cpp
         hdk/Geometry/SIM_CF_Sphere.h

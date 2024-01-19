@@ -64,18 +64,11 @@ const SIM_DopDescription *GAS_CF_UpdateToGeometrySheet::getDopDescription()
 	return &DESC;
 }
 
-bool GAS_CF_UpdateToGeometrySheet::Solve(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep, UT_WorkBuffer &error_msg)
+bool GAS_CF_UpdateToGeometrySheet::Solve(SIM_Engine &, SIM_Object *obj, SIM_Time, SIM_Time, UT_WorkBuffer &error_msg)
 {
 	if (!obj)
 	{
 		error_msg.appendSprintf("Object Is Null, From %s\n", DATANAME);
-		return false;
-	}
-
-	SIM_GeometryCopy *geo = SIM_DATA_GET(*obj, SIM_GEOMETRY_DATANAME, SIM_GeometryCopy);
-	if (!geo)
-	{
-		error_msg.appendSprintf("Geometry Is Null, From %s\n", DATANAME);
 		return false;
 	}
 
@@ -84,6 +77,13 @@ bool GAS_CF_UpdateToGeometrySheet::Solve(SIM_Engine &engine, SIM_Object *obj, SI
 	if (!psdata && !sphdata)
 	{
 		error_msg.appendSprintf("No Valid Target Data, From %s\n", DATANAME);
+		return false;
+	}
+
+	SIM_GeometryCopy *geo = SIM_DATA_GET(*obj, SIM_GEOMETRY_DATANAME, SIM_GeometryCopy);
+	if (!geo)
+	{
+		error_msg.appendSprintf("Geometry Is Null, From %s\n", DATANAME);
 		return false;
 	}
 
@@ -203,7 +203,7 @@ bool GAS_CF_UpdateToGeometrySheet::Solve(SIM_Engine &engine, SIM_Object *obj, SI
 			for (int i = 0; i < p_size; ++i)
 			{
 				SIM_CF_SPHSystemData::ParticleState state = sphdata->GetParticleState(i, error_msg);
-				if (state == SIM_CF_ParticleSystemData::PARTICLE_ADDED)
+				if (state == SIM_CF_SPHSystemData::PARTICLE_ADDED)
 				{
 					GA_Offset new_offset = gdp.appendPoint();
 					sphdata->SetParticleOffset(i, new_offset, error_msg);

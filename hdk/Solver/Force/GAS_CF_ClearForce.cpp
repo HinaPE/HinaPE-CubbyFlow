@@ -1,4 +1,4 @@
-#include "GAS_CF_BuildNeighborLists.h"
+#include "GAS_CF_ClearForce.h"
 
 #include <SIM/SIM_Engine.h>
 #include <SIM/SIM_DopDescription.h>
@@ -25,7 +25,7 @@
 #include <Particle/SIM_CF_ParticleSystemData.h>
 #include <Particle/SIM_CF_SPHSystemData.h>
 
-bool GAS_CF_BuildNeighborLists::solveGasSubclass(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep)
+bool GAS_CF_ClearForce::solveGasSubclass(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep)
 {
 	UT_WorkBuffer error_msg;
 	if (!Solve(engine, obj, time, timestep, error_msg) || UTisstring(error_msg.buffer()))
@@ -37,39 +37,35 @@ bool GAS_CF_BuildNeighborLists::solveGasSubclass(SIM_Engine &engine, SIM_Object 
 	return true;
 }
 
-void GAS_CF_BuildNeighborLists::initializeSubclass()
+void GAS_CF_ClearForce::initializeSubclass()
 {
 	SIM_Data::initializeSubclass();
 }
 
-void GAS_CF_BuildNeighborLists::makeEqualSubclass(const SIM_Data *source)
+void GAS_CF_ClearForce::makeEqualSubclass(const SIM_Data *source)
 {
 	SIM_Data::makeEqualSubclass(source);
 }
 
-const char *GAS_CF_BuildNeighborLists::DATANAME = "CF_BuildNeighborLists";
-const SIM_DopDescription *GAS_CF_BuildNeighborLists::getDopDescription()
+const char *GAS_CF_ClearForce::DATANAME = "CF_ClearForce";
+const SIM_DopDescription *GAS_CF_ClearForce::getDopDescription()
 {
 	static std::array<PRM_Template, 1> PRMS{
 			PRM_Template()
 	};
 
 	static SIM_DopDescription DESC(true,
-								   "cf_build_neighbor_lists",
-								   "CF Build Neighbor Lists",
+								   "cf_clear_force",
+								   "CF Clear Force",
 								   DATANAME,
 								   classname(),
 								   PRMS.data());
-	DESC.setDefaultUniqueDataName(true);
+//	DESC.setDefaultUniqueDataName(true); // We Only Need ONE ClearForce in a simulation
 	setGasDescription(DESC);
 	return &DESC;
 }
 
-/**
- * Now, We Only BuildNeighborLists for
- * - SIM_CF_SPHSystemData
- */
-bool GAS_CF_BuildNeighborLists::Solve(SIM_Engine &, SIM_Object *obj, SIM_Time, SIM_Time, UT_WorkBuffer &error_msg) const
+bool GAS_CF_ClearForce::Solve(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep, UT_WorkBuffer &error_msg) const
 {
 	if (!obj)
 	{
@@ -82,6 +78,13 @@ bool GAS_CF_BuildNeighborLists::Solve(SIM_Engine &, SIM_Object *obj, SIM_Time, S
 	if (!psdata && !sphdata)
 	{
 		error_msg.appendSprintf("No Valid Target Data, From %s\n", DATANAME);
+		return false;
+	}
+
+	SIM_GeometryCopy *geo = SIM_DATA_GET(*obj, SIM_GEOMETRY_DATANAME, SIM_GeometryCopy);
+	if (!geo)
+	{
+		error_msg.appendSprintf("Geometry Is Null, From %s\n", DATANAME);
 		return false;
 	}
 
@@ -99,9 +102,22 @@ bool GAS_CF_BuildNeighborLists::Solve(SIM_Engine &, SIM_Object *obj, SIM_Time, S
 			return false;
 		}
 
-		// TODO: consider whether need to enable particle system data to support neighbor lists
-//		psdata->InnerPtr->BuildNeighborSearcher();
-//		psdata->InnerPtr->BuildNeighborLists();
+		CubbyFlow::ArrayView1<CubbyFlow::Vector3D> forces = psdata->InnerPtr->Forces();
+		forces.Fill(CubbyFlow::Vector3D{});
+
+		// Clear Force in Geometry Sheet
+		{
+			SIM_GeometryAutoWriteLock lock(geo);
+			GU_Detail &gdp = lock.getGdp();
+
+			GA_RWHandleV3 gdp_handle_force = gdp.findPointAttribute(SIM_CF_ParticleSystemData::FORCE_ATTRIBUTE_NAME);
+
+			GA_Offset pt_off;
+			GA_FOR_ALL_PTOFF(&gdp, pt_off)
+				{
+					gdp_handle_force.set(pt_off, UT_Vector3(0.));
+				}
+		}
 	}
 
 	if (sphdata)
@@ -118,8 +134,22 @@ bool GAS_CF_BuildNeighborLists::Solve(SIM_Engine &, SIM_Object *obj, SIM_Time, S
 			return false;
 		}
 
-		sphdata->InnerPtr->BuildNeighborSearcher();
-		sphdata->InnerPtr->BuildNeighborLists();
+		CubbyFlow::ArrayView1<CubbyFlow::Vector3D> forces = sphdata->InnerPtr->Forces();
+		forces.Fill(CubbyFlow::Vector3D{});
+
+		// Clear Force in Geometry Sheet
+		{
+			SIM_GeometryAutoWriteLock lock(geo);
+			GU_Detail &gdp = lock.getGdp();
+
+			GA_RWHandleV3 gdp_handle_force = gdp.findPointAttribute(SIM_CF_SPHSystemData::FORCE_ATTRIBUTE_NAME);
+
+			GA_Offset pt_off;
+			GA_FOR_ALL_PTOFF(&gdp, pt_off)
+				{
+					gdp_handle_force.set(pt_off, UT_Vector3(0.));
+				}
+		}
 	}
 
 	return true;

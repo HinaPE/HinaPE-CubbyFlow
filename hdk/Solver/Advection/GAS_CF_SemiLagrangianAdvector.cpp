@@ -132,11 +132,11 @@ bool GAS_CF_SemiLagrangianAdvector::Solve(SIM_Engine &, SIM_Object *obj, SIM_Tim
 			return false;
 		}
 
-		const size_t n = psdata->InnerPtr->NumberOfParticles();
-		CubbyFlow::ArrayView1<CubbyFlow::Vector3D> forces = psdata->InnerPtr->Forces();
-		CubbyFlow::ArrayView1<CubbyFlow::Vector3D> velocities = psdata->InnerPtr->Velocities();
-		CubbyFlow::ArrayView1<CubbyFlow::Vector3D> positions = psdata->InnerPtr->Positions();
-		const double mass = psdata->InnerPtr->Mass();
+		const size_t n = sphdata->InnerPtr->NumberOfParticles();
+		CubbyFlow::ArrayView1<CubbyFlow::Vector3D> forces = sphdata->InnerPtr->Forces();
+		CubbyFlow::ArrayView1<CubbyFlow::Vector3D> velocities = sphdata->InnerPtr->Velocities();
+		CubbyFlow::ArrayView1<CubbyFlow::Vector3D> positions = sphdata->InnerPtr->Positions();
+		const double mass = sphdata->InnerPtr->Mass();
 
 		CubbyFlow::ParticleSystemData3::VectorData m_newPositions;
 		CubbyFlow::ParticleSystemData3::VectorData m_newVelocities;

@@ -37,6 +37,7 @@ void SIM_CF_RigidBodyCollider::makeEqualSubclass(const SIM_Data *source)
 	this->InnerPtr = src->InnerPtr;
 }
 
+const char *SIM_CF_RigidBodyCollider::DATANAME = "CF_RigidBodyCollider";
 const SIM_DopDescription *SIM_CF_RigidBodyCollider::GetDescription()
 {
 	static std::array<PRM_Template, 1> PRMS{

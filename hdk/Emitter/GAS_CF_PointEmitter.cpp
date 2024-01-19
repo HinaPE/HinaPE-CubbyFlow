@@ -28,6 +28,15 @@
 bool GAS_CF_PointEmitter::solveGasSubclass(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep)
 {
 	UT_WorkBuffer error_msg;
+	if (!InnerPtr)
+	{
+		if (!InitRuntime(engine, obj, time, timestep, error_msg) || UTisstring(error_msg.buffer()))
+		{
+			SIM_Data::addError(obj, SIM_MESSAGE, error_msg.buffer(), UT_ERROR_ABORT);
+			return false;
+		}
+	}
+
 	if (!Solve(engine, obj, time, timestep, error_msg) || UTisstring(error_msg.buffer()))
 	{
 		SIM_Data::addError(obj, SIM_MESSAGE, error_msg.buffer(), UT_ERROR_ABORT);
@@ -41,23 +50,7 @@ void GAS_CF_PointEmitter::initializeSubclass()
 	SIM_Data::initializeSubclass();
 
 	/// Implement Initializations of Your Custom Fields
-	UT_Vector3 Origin = getOrigin();
-	UT_Vector3 Direction = getDirection();
-	fpreal Speed = getSpeed();
-	fpreal SpreadAngleInDegrees = getSpreadAngleInDegrees();
-	fpreal MaxNumberOfNewParticlesPerSecond = getMaxNumberOfNewParticlesPerSecond();
-	fpreal MaxNumberOfParticles = getMaxNumberOfParticles();
-	fpreal RandomSeed = getRandomSeed();
-
-	this->InnerPtr = CubbyFlow::PointParticleEmitter3::GetBuilder()
-			.WithOrigin({Origin.x(), Origin.y(), Origin.z()})
-			.WithDirection({Direction.x(), Direction.y(), Direction.z()})
-			.WithSpeed(Speed)
-			.WithSpreadAngleInDegrees(SpreadAngleInDegrees)
-			.WithMaxNumberOfNewParticlesPerSecond(MaxNumberOfNewParticlesPerSecond)
-			.WithMaxNumberOfParticles(MaxNumberOfParticles)
-			.WithRandomSeed(RandomSeed)
-			.MakeShared();
+	this->InnerPtr = nullptr;
 }
 
 void GAS_CF_PointEmitter::makeEqualSubclass(const SIM_Data *source)
@@ -98,9 +91,9 @@ const SIM_DopDescription *GAS_CF_PointEmitter::getDopDescription()
 			PRM_Template(PRM_FLT_J, 3, &Direction, DirectionDefault.data()),
 			PRM_Template(PRM_FLT, 1, &Speed, &SpeedDefault),
 			PRM_Template(PRM_FLT, 1, &SpreadAngleInDegrees, &SpreadAngleInDegreesDefault),
-			PRM_Template(PRM_FLT, 1, &MaxNumberOfNewParticlesPerSecond, &MaxNumberOfNewParticlesPerSecondDefault),
-			PRM_Template(PRM_FLT, 1, &MaxNumberOfParticles, &MaxNumberOfParticlesDefault),
-			PRM_Template(PRM_FLT, 1, &RandomSeed, &RandomSeedDefault),
+			PRM_Template(PRM_INT, 1, &MaxNumberOfNewParticlesPerSecond, &MaxNumberOfNewParticlesPerSecondDefault),
+			PRM_Template(PRM_INT, 1, &MaxNumberOfParticles, &MaxNumberOfParticlesDefault),
+			PRM_Template(PRM_INT, 1, &RandomSeed, &RandomSeedDefault),
 			PRM_Template()
 	};
 
@@ -113,6 +106,29 @@ const SIM_DopDescription *GAS_CF_PointEmitter::getDopDescription()
 	DESC.setDefaultUniqueDataName(true);
 	setGasDescription(DESC);
 	return &DESC;
+}
+
+bool GAS_CF_PointEmitter::InitRuntime(SIM_Engine &, SIM_Object *, SIM_Time , SIM_Time , UT_WorkBuffer &error_msg)
+{
+	UT_Vector3 Origin = getOrigin();
+	UT_Vector3 Direction = getDirection();
+	fpreal Speed = getSpeed();
+	fpreal SpreadAngleInDegrees = getSpreadAngleInDegrees();
+	size_t MaxNumberOfNewParticlesPerSecond = getMaxNumberOfNewParticlesPerSecond();
+	size_t MaxNumberOfParticles = getMaxNumberOfParticles();
+	size_t RandomSeed = getRandomSeed();
+
+	this->InnerPtr = CubbyFlow::PointParticleEmitter3::GetBuilder()
+			.WithOrigin({Origin.x(), Origin.y(), Origin.z()})
+			.WithDirection({Direction.x(), Direction.y(), Direction.z()})
+			.WithSpeed(Speed)
+			.WithSpreadAngleInDegrees(SpreadAngleInDegrees)
+			.WithMaxNumberOfNewParticlesPerSecond(MaxNumberOfNewParticlesPerSecond)
+			.WithMaxNumberOfParticles(MaxNumberOfParticles)
+			.WithRandomSeed(RandomSeed)
+			.MakeShared();
+
+	return true;
 }
 
 bool GAS_CF_PointEmitter::Solve(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep, UT_WorkBuffer &error_msg) const

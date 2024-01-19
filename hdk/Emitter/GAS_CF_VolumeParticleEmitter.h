@@ -15,8 +15,8 @@ public:
 	GETSET_DATA_FUNCS_B("IsOneShot", IsOneShot)
 	GETSET_DATA_FUNCS_V3("MaxRegion", MaxRegion)
 	GETSET_DATA_FUNCS_F("Spacing", Spacing)
-	GETSET_DATA_FUNCS_F("MaxNumberOfParticles", MaxNumberOfParticles)
-	GETSET_DATA_FUNCS_F("RandomSeed", RandomSeed)
+	GETSET_DATA_FUNCS_I("MaxNumberOfParticles", MaxNumberOfParticles)
+	GETSET_DATA_FUNCS_I("RandomSeed", RandomSeed)
 
 protected:
 	GAS_CF_VolumeParticleEmitter(const SIM_DataFactory *factory) : BaseClass(factory) {}

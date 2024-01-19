@@ -9,12 +9,13 @@ class SIM_CF_Sphere : public SIM_Geometry
 {
 public:
 	static const char *DATANAME;
-	CubbyFlow::Sphere3Ptr InnerPtr;
 	mutable GU_DetailHandle my_detail_handle;
 
 	GETSET_DATA_FUNCS_V3("Center", Center)
 	GETSET_DATA_FUNCS_F("Radius", Radius)
 	GETSET_DATA_FUNCS_B("IsNormalFlipped", IsNormalFlipped)
+
+	CubbyFlow::Sphere3Ptr RuntimeConstructCFSphere() const;
 
 protected:
 	explicit SIM_CF_Sphere(const SIM_DataFactory *factory) : BaseClass(factory) {};
@@ -23,6 +24,7 @@ protected:
 	void initializeSubclass() override;
 	void makeEqualSubclass(const SIM_Data *source) override;
 	static const SIM_DopDescription *getDopDescription();
+
 
 DECLARE_STANDARD_GETCASTTOTYPE();
 DECLARE_DATAFACTORY(SIM_CF_Sphere,    // Our Classname

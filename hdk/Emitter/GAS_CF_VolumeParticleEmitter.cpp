@@ -29,8 +29,10 @@
 
 #include <Particle/SIM_CF_ParticleSystemData.h>
 #include <Particle/SIM_CF_SPHSystemData.h>
+#include <Geometry/SIM_CF_Sphere.h>
 
-#include "Core/Geometry/ImplicitTriangleMesh3.hpp"
+#include "Core/Geometry/ImplicitSurfaceSet.hpp"
+#include "Core/Geometry/TriangleMesh3.hpp"
 
 bool GAS_CF_VolumeParticleEmitter::solveGasSubclass(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep)
 {
@@ -57,8 +59,8 @@ void GAS_CF_VolumeParticleEmitter::initializeSubclass()
 {
 	SIM_Data::initializeSubclass();
 
-	/// Implement Equal Operator of Your Custom Fields
-	this->InnerPtr = nullptr; // Post Init in Runtime
+	/// Implement Initialization Operator of Your Custom Fields
+	this->InnerPtr = nullptr;
 }
 
 void GAS_CF_VolumeParticleEmitter::makeEqualSubclass(const SIM_Data *source)
@@ -91,8 +93,8 @@ const SIM_DopDescription *GAS_CF_VolumeParticleEmitter::getDopDescription()
 			PRM_Template(PRM_TOGGLE, 1, &IsOneShot, PRMzeroDefaults),
 			PRM_Template(PRM_FLT, 1, &Spacing, &SpacingDefault),
 			PRM_Template(PRM_FLT, 3, &MaxRegion, MaxRegionDefault.data()),
-			PRM_Template(PRM_FLT, 1, &MaxNumberOfParticles, &MaxNumberOfParticlesDefault),
-			PRM_Template(PRM_FLT, 1, &RandomSeed, &RandomSeedDefault),
+			PRM_Template(PRM_INT, 1, &MaxNumberOfParticles, &MaxNumberOfParticlesDefault),
+			PRM_Template(PRM_INT, 1, &RandomSeed, &RandomSeedDefault),
 			PRM_Template()
 	};
 
@@ -107,71 +109,107 @@ const SIM_DopDescription *GAS_CF_VolumeParticleEmitter::getDopDescription()
 	return &DESC;
 }
 
-bool GAS_CF_VolumeParticleEmitter::InitRuntime(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep, UT_WorkBuffer &error_msg)
+/**
+ * This function will read each SIM_Geometry SubData attached to this Emitter, and combine them as a total Emitter Source
+ *
+ * [Notice]
+ * - It would take A LOG OF TIME to construct Implicit Surface for a Geometry From a Mesh (SOP Networks, etc.)
+ * - It is more recommended to use Our Own SIM_Geometry(SIM_CF_Sphere, etc.), It would be more efficient.
+ */
+bool GAS_CF_VolumeParticleEmitter::InitRuntime(SIM_Engine &, SIM_Object *, SIM_Time, SIM_Time, UT_WorkBuffer &error_msg)
 {
-	bool IsOneShot = getIsOneShot();
-	UT_Vector3 MaxRegion = getMaxRegion();
-	fpreal Spacing = getSpacing();
-	fpreal MaxNumberOfParticles = getMaxNumberOfParticles();
-	fpreal RandomSeed = getRandomSeed();
+	CubbyFlow::Array1<CubbyFlow::Surface3Ptr> MultipleSurfaces;
 
+	// Find All SIM_CF_Sphere
+	{
+		SIM_ConstDataArray CF_Spheres;
+		filterConstSubData(CF_Spheres, nullptr, SIM_DataFilterByType("SIM_CF_Sphere"), nullptr, SIM_DataFilterNone());
+		for (const auto &data: CF_Spheres)
+		{
+			const SIM_CF_Sphere *sphere = static_cast<const SIM_CF_Sphere *>(data);
+			auto suface_ptr = sphere->RuntimeConstructCFSphere();
+			if (!suface_ptr)
+			{
+				error_msg.appendSprintf("SIM_CF_Sphere::CFSphere Construct Error, From %s\n", DATANAME);
+				return false;
+			}
+			MultipleSurfaces.Append(suface_ptr);
+		}
+	}
+
+	// [Notice] This is very slow!
+	// For performance, We only support upto 1 external SIM_Geometry
 	SIM_Geometry *src_geo = SIM_DATA_GET(*this, SIM_GEOMETRY_DATANAME, SIM_Geometry);
-	if (!src_geo)
+	if (src_geo)
+	{
+		SIM_GeometryAutoReadLock lock(src_geo);
+		const GU_Detail *gdp_source = lock.getGdp();
+		if (!gdp_source)
+		{
+			error_msg.appendSprintf("Source Geometry GDP is nullptr, From %s\n", DATANAME);
+			return false;
+		}
+
+		CubbyFlow::TriangleMesh3::PointArray points;
+		CubbyFlow::TriangleMesh3::IndexArray point_indices;
+		{
+			GA_Offset pt_off;
+			GA_FOR_ALL_PTOFF(gdp_source, pt_off)
+				{
+					const UT_Vector3 pos = gdp_source->getPos3(pt_off);
+					points.Append({pos.x(), pos.y(), pos.z()});
+				}
+
+			const GEO_Primitive *prim;
+			GA_FOR_ALL_PRIMITIVES(gdp_source, prim)
+			{
+				const auto *poly = dynamic_cast<const GEO_PrimPoly *>(prim);
+				if (!poly)
+				{
+					error_msg.appendSprintf("ERROR ON CONVERT PRIM TO POLY, From %s\n", DATANAME);
+					return false;
+				}
+
+				// Triangulate Polygon
+				std::vector<size_t> polyIndices;
+				for (int vi = 0; vi < poly->getVertexCount(); ++vi)
+					polyIndices.push_back(poly->getPointIndex(vi));
+				for (size_t i = 1; i < polyIndices.size() - 1; ++i)
+					point_indices.Append({polyIndices[0], polyIndices[i + 1], polyIndices[i]}); // notice the normal
+
+			}
+		}
+		CubbyFlow::TriangleMesh3Ptr mesh = CubbyFlow::TriangleMesh3::GetBuilder().WithPoints(points).WithPointIndices(point_indices).MakeShared();
+
+		MultipleSurfaces.Append(mesh);
+	}
+
+	if (MultipleSurfaces.IsEmpty())
 	{
 		error_msg.appendSprintf("NO Source Geometry, From %s\n", DATANAME);
 		return false;
 	}
-	SIM_GeometryAutoReadLock lock(src_geo);
-	const GU_Detail *gdp_source = lock.getGdp();
-	if (!gdp_source)
-	{
-		error_msg.appendSprintf("Source Geometry GDP is nullptr, From %s\n", DATANAME);
-		return false;
-	}
 
-	CubbyFlow::TriangleMesh3::PointArray points;
-	CubbyFlow::TriangleMesh3::IndexArray point_indices;
-	{
-		GA_Offset pt_off;
-		GA_FOR_ALL_PTOFF(gdp_source, pt_off)
-			{
-				const UT_Vector3 pos = gdp_source->getPos3(pt_off);
-				points.Append({pos.x(), pos.y(), pos.z()});
-			}
+	CubbyFlow::ImplicitSurfaceSet3Ptr implicit = CubbyFlow::ImplicitSurfaceSet3::GetBuilder().WithExplicitSurfaces(MultipleSurfaces).MakeShared();
 
-		const GEO_Primitive *prim;
-		GA_FOR_ALL_PRIMITIVES(gdp_source, prim)
-		{
-			const auto *poly = dynamic_cast<const GEO_PrimPoly *>(prim);
-			if (!poly)
-			{
-				error_msg.appendSprintf("ERROR ON CONVERT PRIM TO POLY, From %s\n", DATANAME);
-				return false;
-			}
-
-			// Triangulate Polygon
-			std::vector<size_t> polyIndices;
-			for (int vi = 0; vi < poly->getVertexCount(); ++vi)
-				polyIndices.push_back(poly->getPointIndex(vi));
-			for (size_t i = 1; i < polyIndices.size() - 1; ++i)
-				point_indices.Append({polyIndices[0], polyIndices[i + 1], polyIndices[i]}); // notice the normal
-
-		}
-	}
-	CubbyFlow::TriangleMesh3Ptr mesh = CubbyFlow::TriangleMesh3::GetBuilder().WithPoints(points).WithPointIndices(point_indices).MakeShared();
-	CubbyFlow::ImplicitTriangleMesh3Ptr implicit = CubbyFlow::ImplicitTriangleMesh3::GetBuilder().WithTriangleMesh(mesh).WithResolutionX(256).MakeShared();
+	bool IsOneShot = getIsOneShot();
+	UT_Vector3 MaxRegion = getMaxRegion();
+	fpreal Spacing = getSpacing();
+	size_t MaxNumberOfParticles = getMaxNumberOfParticles();
+	size_t RandomSeed = getRandomSeed();
 
 	CubbyFlow::BoundingBox3D bbox(
 			CubbyFlow::Vector3D(-MaxRegion.x() / 2, -MaxRegion.y() / 2, -MaxRegion.z() / 2),
 			CubbyFlow::Vector3D(MaxRegion.x() / 2, MaxRegion.y() / 2, MaxRegion.z() / 2)
 	);
 
-	/// Implement Initializations of Your Custom Fields
 	this->InnerPtr = CubbyFlow::VolumeParticleEmitter3::GetBuilder()
 			.WithImplicitSurface(implicit)
 			.WithSpacing(Spacing)
 			.WithMaxRegion(bbox)
 			.WithIsOneShot(IsOneShot)
+			.WithMaxNumberOfParticles(MaxNumberOfParticles)
+			.WithRandomSeed(RandomSeed)
 			.MakeShared();
 
 	return true;

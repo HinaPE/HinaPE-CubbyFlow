@@ -16,9 +16,9 @@ public:
 	GETSET_DATA_FUNCS_V3("Direction", Direction)
 	GETSET_DATA_FUNCS_F("Speed", Speed)
 	GETSET_DATA_FUNCS_F("SpreadAngleInDegrees", SpreadAngleInDegrees)
-	GETSET_DATA_FUNCS_F("MaxNumberOfNewParticlesPerSecond", MaxNumberOfNewParticlesPerSecond)
-	GETSET_DATA_FUNCS_F("MaxNumberOfParticles", MaxNumberOfParticles)
-	GETSET_DATA_FUNCS_F("RandomSeed", RandomSeed)
+	GETSET_DATA_FUNCS_I("MaxNumberOfNewParticlesPerSecond", MaxNumberOfNewParticlesPerSecond)
+	GETSET_DATA_FUNCS_I("MaxNumberOfParticles", MaxNumberOfParticles)
+	GETSET_DATA_FUNCS_I("RandomSeed", RandomSeed)
 
 protected:
 	GAS_CF_PointEmitter(const SIM_DataFactory *factory) : BaseClass(factory) {}
@@ -35,6 +35,7 @@ DECLARE_DATAFACTORY(GAS_CF_PointEmitter,
 					getDopDescription());
 
 private:
+	bool InitRuntime(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep, UT_WorkBuffer &error_msg);
 	bool Solve(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep, UT_WorkBuffer &error_msg) const;
 };
 

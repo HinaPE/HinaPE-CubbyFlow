@@ -17,6 +17,10 @@
 
 /**
  * Run Only Once at First Frame in Houdini
+ *
+ * 					[!!! IMPORTANT !!!]
+ * 		[!!! NEVER CALL GET_SET FUNCTION HERE !!!]
+ *
  */
 void SIM_CF_ParticleSystemData::initializeSubclass()
 {

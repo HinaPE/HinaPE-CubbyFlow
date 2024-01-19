@@ -30,6 +30,7 @@ GU_ConstDetailHandle SIM_CF_Sphere::getGeometrySubclass() const
 	if (my_detail_handle.isNull())
 	{
 		UT_Vector3 Center = getCenter();
+		fpreal Radius = getRadius();
 
 		GU_Detail *gdp = new GU_Detail();
 		my_detail_handle.allocateAndSet(gdp);
@@ -39,8 +40,11 @@ GU_ConstDetailHandle SIM_CF_Sphere::getGeometrySubclass() const
 		GU_PrimSphereParms params;
 		params.gdp = gdp;
 		params.ptoff = center_point_offset;
+		params.xform.scale(Radius, Radius, Radius);
+		params.xform.translate(Center);
 		GEO_PrimSphere *sphere_prim = (GEO_PrimSphere *) GU_PrimSphere::build(params);
 	}
+
 	return my_detail_handle;
 }
 
@@ -48,17 +52,10 @@ void SIM_CF_Sphere::initializeSubclass()
 {
 	SIM_Geometry::initializeSubclass();
 
+	// IMPORTANT!!!
+	// NEVER CALL GET_SET FUNCTION HERE!!!
+
 	/// Implement Initializations of Your Custom Fields
-	UT_Vector3 Center = getCenter();
-	fpreal Radius = getRadius();
-	bool IsNormalFlipped = getIsNormalFlipped();
-
-	this->InnerPtr = CubbyFlow::Sphere3::GetBuilder()
-			.WithCenter({Center.x(), Center.y(), Center.z()})
-			.WithRadius(Radius)
-			.WithIsNormalFlipped(IsNormalFlipped)
-			.MakeShared();
-
 	this->my_detail_handle.clear();
 }
 
@@ -68,7 +65,7 @@ void SIM_CF_Sphere::makeEqualSubclass(const SIM_Data *source)
 	const SIM_CF_Sphere *src = SIM_DATA_CASTCONST(source, SIM_CF_Sphere);
 
 	/// Implement Equal Operator of Your Custom Fields
-	this->InnerPtr = src->InnerPtr;
+	this->my_detail_handle = src->my_detail_handle;
 }
 
 const char *SIM_CF_Sphere::DATANAME = "CF_Sphere";
@@ -97,4 +94,17 @@ const SIM_DopDescription *SIM_CF_Sphere::getDopDescription()
 								   PRMS.data());
 	DESC.setDefaultUniqueDataName(true);
 	return &DESC;
+}
+
+CubbyFlow::Sphere3Ptr SIM_CF_Sphere::RuntimeConstructCFSphere() const
+{
+	UT_Vector3 Center = getCenter();
+	fpreal Radius = getRadius();
+	bool IsNormalFlipped = getIsNormalFlipped();
+
+	return CubbyFlow::Sphere3::GetBuilder()
+			.WithCenter({Center.x(), Center.y(), Center.z()})
+			.WithRadius(Radius)
+			.WithIsNormalFlipped(IsNormalFlipped)
+			.MakeShared();
 }

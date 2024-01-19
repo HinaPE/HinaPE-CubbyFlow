@@ -33,7 +33,6 @@ public:
 	ParticleState GetParticleState(size_t index, UT_WorkBuffer &error_msg) const;
 	void SetParticleState(size_t index, ParticleState state, UT_WorkBuffer &error_msg) const;
 
-
 protected:
 	SIM_CF_ParticleSystemData(const SIM_DataFactory *factory) : SIM_Data(factory), SIM_OptionsUser(this) {}
 	~SIM_CF_ParticleSystemData() override = default;

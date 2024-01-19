@@ -26,6 +26,7 @@ void SIM_CF_ParticleSystemData::initializeSubclass()
 	Configured = false;
 	InnerPtr = std::make_shared<CubbyFlow::ParticleSystemData3>();
 	scalar_idx_offset = InnerPtr->AddScalarData();
+	scalar_idx_state = InnerPtr->AddScalarData();
 }
 
 /**
@@ -40,6 +41,7 @@ void SIM_CF_ParticleSystemData::makeEqualSubclass(const SIM_Data *source)
 	this->Configured = src->Configured;
 	this->InnerPtr = src->InnerPtr;
 	this->scalar_idx_offset = src->scalar_idx_offset;
+	this->scalar_idx_state = src->scalar_idx_state;
 }
 
 const char *SIM_CF_ParticleSystemData::DATANAME = "CF_ParticleSystemData";

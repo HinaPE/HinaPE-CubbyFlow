@@ -100,8 +100,23 @@ bool GAS_CF_UpdateToGeometrySheet::Solve(SIM_Engine &engine, SIM_Object *obj, SI
 
 		size_t p_size = psdata->InnerPtr->NumberOfParticles();
 		const auto &cf_array_pos = psdata->InnerPtr->Positions();
+		if (p_size != cf_array_pos.Size().x)
+		{
+			error_msg.appendSprintf("Error Array Size::cf_array_pos, From %s\n", DATANAME);
+			return false;
+		}
 		const auto &cf_array_vel = psdata->InnerPtr->Velocities();
+		if (p_size != cf_array_vel.Size().x)
+		{
+			error_msg.appendSprintf("Error Array Size::cf_array_vel, From %s\n", DATANAME);
+			return false;
+		}
 		const auto &cf_array_force = psdata->InnerPtr->Forces();
+		if (p_size != cf_array_force.Size().x)
+		{
+			error_msg.appendSprintf("Error Array Size::cf_array_force, From %s\n", DATANAME);
+			return false;
+		}
 
 		{
 			SIM_GeometryAutoWriteLock lock(geo);

@@ -22,6 +22,8 @@ void SIM_CF_SPHSystemData::initializeSubclass()
 	/// Implement Initializations of Your Custom Fields
 	Configured = false;
 	InnerPtr = std::make_shared<CubbyFlow::SPHSystemData3>();
+	scalar_idx_offset = InnerPtr->AddScalarData();
+	scalar_idx_state = InnerPtr->AddScalarData();
 }
 
 void SIM_CF_SPHSystemData::makeEqualSubclass(const SIM_Data *source)
@@ -32,6 +34,8 @@ void SIM_CF_SPHSystemData::makeEqualSubclass(const SIM_Data *source)
 	/// Implement Equal Operator of Your Custom Fields
 	this->Configured = src->Configured;
 	this->InnerPtr = src->InnerPtr;
+	this->scalar_idx_offset = src->scalar_idx_offset;
+	this->scalar_idx_state = src->scalar_idx_state;
 }
 
 const char *SIM_CF_SPHSystemData::DATANAME = "CF_SPHSystemData";
@@ -86,6 +90,7 @@ void SIM_CF_SPHSystemData::SetParticleOffset(size_t index, GA_Offset offset, UT_
 
 	InnerPtr->ScalarDataAt(scalar_idx_offset)[index] = offset;
 }
+
 SIM_CF_SPHSystemData::ParticleState SIM_CF_SPHSystemData::GetParticleState(size_t index, UT_WorkBuffer &error_msg) const
 {
 	if (!InnerPtr)
@@ -102,6 +107,7 @@ SIM_CF_SPHSystemData::ParticleState SIM_CF_SPHSystemData::GetParticleState(size_
 
 	return (ParticleState) InnerPtr->ScalarDataAt(scalar_idx_state)[index];
 }
+
 void SIM_CF_SPHSystemData::SetParticleState(size_t index, SIM_CF_SPHSystemData::ParticleState state, UT_WorkBuffer &error_msg) const
 {
 	if (!InnerPtr)

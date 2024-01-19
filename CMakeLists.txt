@@ -35,6 +35,9 @@ add_library(
         hdk/Emitter/GAS_CF_PointEmitter.h
         hdk/Emitter/GAS_CF_VolumeParticleEmitter.cpp
         hdk/Emitter/GAS_CF_VolumeParticleEmitter.h
+
+        hdk/Geometry/SIM_CF_Sphere.cpp
+        hdk/Geometry/SIM_CF_Sphere.h
 )
 
 

@@ -154,12 +154,12 @@ bool GAS_CF_VolumeParticleEmitter::InitRuntime(SIM_Engine &engine, SIM_Object *o
 			for (int vi = 0; vi < poly->getVertexCount(); ++vi)
 				polyIndices.push_back(poly->getPointIndex(vi));
 			for (size_t i = 1; i < polyIndices.size() - 1; ++i)
-				point_indices.Append({polyIndices[0], polyIndices[i], polyIndices[i + 1]});
+				point_indices.Append({polyIndices[0], polyIndices[i + 1], polyIndices[i]}); // notice the normal
 
 		}
 	}
 	CubbyFlow::TriangleMesh3Ptr mesh = CubbyFlow::TriangleMesh3::GetBuilder().WithPoints(points).WithPointIndices(point_indices).MakeShared();
-	CubbyFlow::ImplicitTriangleMesh3Ptr implicit = CubbyFlow::ImplicitTriangleMesh3::GetBuilder().WithTriangleMesh(mesh).MakeShared();
+	CubbyFlow::ImplicitTriangleMesh3Ptr implicit = CubbyFlow::ImplicitTriangleMesh3::GetBuilder().WithTriangleMesh(mesh).WithResolutionX(256).MakeShared();
 
 	CubbyFlow::BoundingBox3D bbox(
 			CubbyFlow::Vector3D(-MaxRegion.x() / 2, -MaxRegion.y() / 2, -MaxRegion.z() / 2),

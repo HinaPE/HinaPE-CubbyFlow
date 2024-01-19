@@ -40,6 +40,7 @@ void GAS_CF_PointEmitter::initializeSubclass()
 {
 	SIM_Data::initializeSubclass();
 
+	/// Implement Initializations of Your Custom Fields
 	UT_Vector3 Origin = getOrigin();
 	UT_Vector3 Direction = getDirection();
 	fpreal Speed = getSpeed();
@@ -48,7 +49,6 @@ void GAS_CF_PointEmitter::initializeSubclass()
 	fpreal MaxNumberOfParticles = getMaxNumberOfParticles();
 	fpreal RandomSeed = getRandomSeed();
 
-	/// Implement Initializations of Your Custom Fields
 	this->InnerPtr = CubbyFlow::PointParticleEmitter3::GetBuilder()
 			.WithOrigin({Origin.x(), Origin.y(), Origin.z()})
 			.WithDirection({Direction.x(), Direction.y(), Direction.z()})

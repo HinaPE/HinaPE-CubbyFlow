@@ -20,6 +20,8 @@ public:
 	CubbyFlow::SPHSystemData3Ptr InnerPtr;
 	size_t scalar_idx_offset = -1;
 	size_t scalar_idx_state = -1;
+	size_t scalar_idx_density = -1;
+	size_t scalar_idx_pressure = -1;
 
 	GA_Offset GetParticleOffset(size_t index, UT_WorkBuffer &error_msg) const;
 	void SetParticleOffset(size_t index, GA_Offset offset, UT_WorkBuffer &error_msg) const;

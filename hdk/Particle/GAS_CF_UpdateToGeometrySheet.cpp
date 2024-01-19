@@ -131,13 +131,18 @@ bool GAS_CF_UpdateToGeometrySheet::Solve(SIM_Engine &engine, SIM_Object *obj, SI
 					psdata->SetParticleOffset(i, new_offset, error_msg);
 				}
 				GA_Offset pt_off = psdata->GetParticleOffset(i, error_msg);
-				auto pos = cf_array_pos[i];
-
-				gdp.setPos3(pt_off, UT_Vector3D{pos.x, pos.y, pos.z});
 				psdata->SetParticleState(i, SIM_CF_ParticleSystemData::PARTICLE_CLEAN, error_msg);
 
+				auto pos = cf_array_pos[i];
+				gdp.setPos3(pt_off, UT_Vector3D{pos.x, pos.y, pos.z});
+
 				GA_RWHandleV3 gdp_handle_vel = gdp.findPointAttribute(gdp.getStdAttributeName(GEO_ATTRIBUTE_VELOCITY));
+				auto vel = cf_array_vel[i];
+				gdp_handle_vel.set(pt_off, UT_Vector3D{vel.x, vel.y, vel.z});
+
 				GA_RWHandleV3 gdp_handle_force = gdp.findPointAttribute(SIM_CF_ParticleSystemData::FORCE_ATTRIBUTE_NAME);
+				auto force = cf_array_force[i];
+				gdp_handle_force.set(pt_off, UT_Vector3D{force.x, force.y, force.z});
 			}
 		}
 	}
@@ -158,8 +163,35 @@ bool GAS_CF_UpdateToGeometrySheet::Solve(SIM_Engine &engine, SIM_Object *obj, SI
 
 		size_t p_size = sphdata->InnerPtr->NumberOfParticles();
 		const auto &cf_array_pos = sphdata->InnerPtr->Positions();
+		if (p_size != cf_array_pos.Size().x)
+		{
+			error_msg.appendSprintf("Error Array Size::cf_array_pos, From %s\n", DATANAME);
+			return false;
+		}
 		const auto &cf_array_vel = sphdata->InnerPtr->Velocities();
+		if (p_size != cf_array_vel.Size().x)
+		{
+			error_msg.appendSprintf("Error Array Size::cf_array_vel, From %s\n", DATANAME);
+			return false;
+		}
 		const auto &cf_array_force = sphdata->InnerPtr->Forces();
+		if (p_size != cf_array_force.Size().x)
+		{
+			error_msg.appendSprintf("Error Array Size::cf_array_force, From %s\n", DATANAME);
+			return false;
+		}
+		const auto& cf_array_density = sphdata->InnerPtr->ScalarDataAt(sphdata->scalar_idx_density);
+		if (p_size != cf_array_density.Size().x)
+		{
+			error_msg.appendSprintf("Error Array Size::cf_array_density, From %s\n", DATANAME);
+			return false;
+		}
+		const auto& cf_array_pressure = sphdata->InnerPtr->ScalarDataAt(sphdata->scalar_idx_pressure);
+		if (p_size != cf_array_pressure.Size().x)
+		{
+			error_msg.appendSprintf("Error Array Size::cf_array_pressure, From %s\n", DATANAME);
+			return false;
+		}
 
 		{
 			SIM_GeometryAutoWriteLock lock(geo);
@@ -174,13 +206,26 @@ bool GAS_CF_UpdateToGeometrySheet::Solve(SIM_Engine &engine, SIM_Object *obj, SI
 					sphdata->SetParticleOffset(i, new_offset, error_msg);
 				}
 				GA_Offset pt_off = sphdata->GetParticleOffset(i, error_msg);
-				auto pos = cf_array_pos[i];
-
-				gdp.setPos3(pt_off, UT_Vector3D{pos.x, pos.y, pos.z});
 				sphdata->SetParticleState(i, SIM_CF_SPHSystemData::PARTICLE_CLEAN, error_msg);
 
+				auto pos = cf_array_pos[i];
+				gdp.setPos3(pt_off, UT_Vector3D{pos.x, pos.y, pos.z});
+
 				GA_RWHandleV3 gdp_handle_vel = gdp.findPointAttribute(gdp.getStdAttributeName(GEO_ATTRIBUTE_VELOCITY));
-				GA_RWHandleV3 gdp_handle_force = gdp.findPointAttribute(SIM_CF_ParticleSystemData::FORCE_ATTRIBUTE_NAME);
+				auto vel = cf_array_vel[i];
+				gdp_handle_vel.set(pt_off, UT_Vector3D{vel.x, vel.y, vel.z});
+
+				GA_RWHandleV3 gdp_handle_force = gdp.findPointAttribute(SIM_CF_SPHSystemData::FORCE_ATTRIBUTE_NAME);
+				auto force = cf_array_force[i];
+				gdp_handle_force.set(pt_off, UT_Vector3D{force.x, force.y, force.z});
+
+				GA_RWHandleF gdp_handle_density = gdp.findPointAttribute(SIM_CF_SPHSystemData::DENSITY_ATTRIBUTE_NAME);
+				auto density = cf_array_density[i];
+				gdp_handle_density.set(pt_off, density);
+
+				GA_RWHandleF gdp_handle_pressure = gdp.findPointAttribute(SIM_CF_SPHSystemData::PRESSURE_ATTRIBUTE_NAME);
+				auto pressure = cf_array_pressure[i];
+				gdp_handle_pressure.set(pt_off, pressure);
 			}
 		}
 	}

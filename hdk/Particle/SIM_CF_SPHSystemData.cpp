@@ -24,6 +24,8 @@ void SIM_CF_SPHSystemData::initializeSubclass()
 	InnerPtr = std::make_shared<CubbyFlow::SPHSystemData3>();
 	scalar_idx_offset = InnerPtr->AddScalarData();
 	scalar_idx_state = InnerPtr->AddScalarData();
+	scalar_idx_density = InnerPtr->AddScalarData();
+	scalar_idx_pressure = InnerPtr->AddScalarData();
 }
 
 void SIM_CF_SPHSystemData::makeEqualSubclass(const SIM_Data *source)
@@ -36,6 +38,8 @@ void SIM_CF_SPHSystemData::makeEqualSubclass(const SIM_Data *source)
 	this->InnerPtr = src->InnerPtr;
 	this->scalar_idx_offset = src->scalar_idx_offset;
 	this->scalar_idx_state = src->scalar_idx_state;
+	this->scalar_idx_density = src->scalar_idx_density;
+	this->scalar_idx_pressure = src->scalar_idx_pressure;
 }
 
 const char *SIM_CF_SPHSystemData::DATANAME = "CF_SPHSystemData";

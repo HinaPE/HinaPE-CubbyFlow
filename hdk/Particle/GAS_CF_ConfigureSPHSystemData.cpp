@@ -25,10 +25,9 @@
 bool GAS_CF_ConfigureSPHSystemData::solveGasSubclass(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep)
 {
 	UT_WorkBuffer error_msg;
-	if (!Solve(engine, obj, time, timestep, error_msg))
+	if (!Solve(engine, obj, time, timestep, error_msg) || UTisstring(error_msg.buffer()))
 	{
-		if (UTisstring(error_msg.buffer()))
-			SIM_Data::addError(obj, SIM_MESSAGE, error_msg.buffer(), UT_ERROR_ABORT);
+		SIM_Data::addError(obj, SIM_MESSAGE, error_msg.buffer(), UT_ERROR_ABORT);
 		return false;
 	}
 

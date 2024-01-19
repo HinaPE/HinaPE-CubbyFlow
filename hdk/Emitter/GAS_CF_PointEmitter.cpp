@@ -28,10 +28,9 @@
 bool GAS_CF_PointEmitter::solveGasSubclass(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep)
 {
 	UT_WorkBuffer error_msg;
-	if (!Solve(engine, obj, time, timestep, error_msg))
+	if (!Solve(engine, obj, time, timestep, error_msg) || UTisstring(error_msg.buffer()))
 	{
-		if (UTisstring(error_msg.buffer()))
-			SIM_Data::addError(obj, SIM_MESSAGE, error_msg.buffer(), UT_ERROR_ABORT);
+		SIM_Data::addError(obj, SIM_MESSAGE, error_msg.buffer(), UT_ERROR_ABORT);
 		return false;
 	}
 
@@ -116,7 +115,7 @@ const SIM_DopDescription *GAS_CF_PointEmitter::getDopDescription()
 	return &DESC;
 }
 
-bool GAS_CF_PointEmitter::Solve(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep, UT_WorkBuffer &error_msg)
+bool GAS_CF_PointEmitter::Solve(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep, UT_WorkBuffer &error_msg) const
 {
 	if (!obj)
 	{
@@ -155,7 +154,6 @@ bool GAS_CF_PointEmitter::Solve(SIM_Engine &engine, SIM_Object *obj, SIM_Time ti
 
 		this->InnerPtr->SetTarget(psdata->InnerPtr);
 		this->InnerPtr->Update(time, timestep);
-		std::cout << psdata->InnerPtr->NumberOfParticles() << '\n';
 	}
 
 	if (sphdata)
@@ -174,7 +172,6 @@ bool GAS_CF_PointEmitter::Solve(SIM_Engine &engine, SIM_Object *obj, SIM_Time ti
 
 		this->InnerPtr->SetTarget(sphdata->InnerPtr);
 		this->InnerPtr->Update(time, timestep);
-		std::cout << psdata->InnerPtr->NumberOfParticles() << '\n';
 	}
 
 	return true;

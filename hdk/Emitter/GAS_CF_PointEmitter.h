@@ -35,7 +35,7 @@ DECLARE_DATAFACTORY(GAS_CF_PointEmitter,
 					getDopDescription());
 
 private:
-	bool Solve(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep, UT_WorkBuffer &error_msg);
+	bool Solve(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep, UT_WorkBuffer &error_msg) const;
 };
 
 #endif //HINAPE_CUBBYFLOW_GAS_CF_POINTEMITTER_H

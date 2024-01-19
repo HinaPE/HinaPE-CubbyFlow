@@ -7,6 +7,7 @@
 #include "Particle/GAS_CF_UpdateToGeometrySheet.h"
 
 #include "Emitter/GAS_CF_PointEmitter.h"
+#include "Emitter/GAS_CF_VolumeParticleEmitter.h"
 
 void initializeSIM(void *)
 {
@@ -17,4 +18,5 @@ void initializeSIM(void *)
 	IMPLEMENT_DATAFACTORY(GAS_CF_UpdateToGeometrySheet);
 
 	IMPLEMENT_DATAFACTORY(GAS_CF_PointEmitter);
+	IMPLEMENT_DATAFACTORY(GAS_CF_VolumeParticleEmitter);
 }

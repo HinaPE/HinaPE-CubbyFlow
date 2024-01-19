@@ -30,6 +30,7 @@
 #include <Particle/SIM_CF_ParticleSystemData.h>
 #include <Particle/SIM_CF_SPHSystemData.h>
 #include <Geometry/SIM_CF_Sphere.h>
+#include <Geometry/SIM_CF_Box.h>
 
 #include "Core/Geometry/ImplicitSurfaceSet.hpp"
 #include "Core/Geometry/TriangleMesh3.hpp"
@@ -84,7 +85,7 @@ const SIM_DopDescription *GAS_CF_VolumeParticleEmitter::getDopDescription()
 	static std::array<PRM_Default, 3> MaxRegionDefault{2, 2, 2};
 
 	static PRM_Name MaxNumberOfParticles("MaxNumberOfParticles", "MaxNumberOfParticles");
-	static PRM_Default MaxNumberOfParticlesDefault(10e8);
+	static PRM_Default MaxNumberOfParticlesDefault(20000);
 
 	static PRM_Name RandomSeed("RandomSeed", "RandomSeed");
 	static PRM_Default RandomSeedDefault(0);
@@ -131,6 +132,23 @@ bool GAS_CF_VolumeParticleEmitter::InitRuntime(SIM_Engine &, SIM_Object *, SIM_T
 			if (!suface_ptr)
 			{
 				error_msg.appendSprintf("SIM_CF_Sphere::CFSphere Construct Error, From %s\n", DATANAME);
+				return false;
+			}
+			MultipleSurfaces.Append(suface_ptr);
+		}
+	}
+
+	// Find All SIM_CF_Box
+	{
+		SIM_ConstDataArray CF_Boxes;
+		filterConstSubData(CF_Boxes, nullptr, SIM_DataFilterByType("SIM_CF_Box"), nullptr, SIM_DataFilterNone());
+		for (const auto &data: CF_Boxes)
+		{
+			const SIM_CF_Box *box = static_cast<const SIM_CF_Box *>(data);
+			auto suface_ptr = box->RuntimeConstructCFBox();
+			if (!suface_ptr)
+			{
+				error_msg.appendSprintf("SIM_CF_Sphere::CF_Box Construct Error, From %s\n", DATANAME);
 				return false;
 			}
 			MultipleSurfaces.Append(suface_ptr);

@@ -27,10 +27,10 @@ protected:
 
 
 DECLARE_STANDARD_GETCASTTOTYPE();
-DECLARE_DATAFACTORY(SIM_CF_Sphere,    // Our Classname
-					SIM_Geometry,        // Base type
-					"CF_Sphere",    // DOP Data Type
-					getDopDescription() // PRM list.
+DECLARE_DATAFACTORY(SIM_CF_Sphere,
+					SIM_Geometry,
+					"CF_Sphere",
+					getDopDescription()
 );
 };
 

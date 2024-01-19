@@ -75,7 +75,7 @@ const SIM_DopDescription *SIM_CF_Sphere::getDopDescription()
 	static std::array<PRM_Default, 3> CenterDefault{0, 0, 0};
 
 	static PRM_Name Radius("Radius", "Radius");
-	static PRM_Default RadiusDefault(1);
+	static PRM_Default RadiusDefault(0.5);
 
 	static PRM_Name IsNormalFlipped("IsNormalFlipped", "IsNormalFlipped");
 

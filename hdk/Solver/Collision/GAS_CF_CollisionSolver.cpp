@@ -86,7 +86,7 @@ bool GAS_CF_CollisionSolver::Solve(SIM_Engine &engine, SIM_Object *obj, SIM_Time
 	for (exint i = 0; i < num_affectors; ++i)
 	{
 		SIM_Object *affector = affectors(i);
-		if (!affector->getName().equal(obj->getName()))
+//		if (!affector->getName().equal(obj->getName())) # Also Collider With Self Fluid Domain Boundary
 		{
 			SIM_CF_RigidBodyCollider *collider_data = SIM_DATA_GET(*affector, SIM_CF_RigidBodyCollider::DATANAME, SIM_CF_RigidBodyCollider);
 			if (!collider_data)

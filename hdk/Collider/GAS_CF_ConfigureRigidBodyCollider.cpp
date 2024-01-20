@@ -26,9 +26,12 @@
 
 #include <GEO/GEO_PrimPoly.h>
 
+#include <Particle/SIM_CF_SPHSystemData.h>
+
 #include "Core/Geometry/RigidBodyCollider.hpp"
 #include "Core/Geometry/ImplicitSurfaceSet.hpp"
 #include "Core/Geometry/TriangleMesh3.hpp"
+#include "Core/Geometry/Box.hpp"
 
 bool GAS_CF_ConfigureRigidBodyCollider::solveGasSubclass(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep)
 {
@@ -78,6 +81,48 @@ bool GAS_CF_ConfigureRigidBodyCollider::Solve(SIM_Engine &engine, SIM_Object *ob
 		return false;
 	}
 
+	SIM_CF_SPHSystemData *data = SIM_DATA_GET(*obj, SIM_CF_SPHSystemData::DATANAME, SIM_CF_SPHSystemData);
+	if (!data)
+	{
+		error_msg.appendSprintf("CF_ParticleSystemData Is Null, From %s\n", DATANAME);
+		return false;
+	}
+
+	if (!data->Configured)
+	{
+		error_msg.appendSprintf("SPHSystemData Not Configured Yet, From %s\n", DATANAME);
+		return false;
+	}
+
+	// Setup Self FluidDomain Collider
+	SIM_CF_RigidBodyCollider *fluid_domain_collider_data = SIM_DATA_CREATE(*obj, SIM_CF_RigidBodyCollider::DATANAME, SIM_CF_RigidBodyCollider,
+																		   SIM_DATA_RETURN_EXISTING |
+																		   SIM_DATA_ADOPT_EXISTING_ON_DELETE);
+	if (!fluid_domain_collider_data)
+	{
+		error_msg.appendSprintf("fluid_domain_collider_data Is Null, From %s\n", DATANAME);
+		return false;
+	}
+
+	UT_Vector3 MaxRegion = data->getFluidDomain();
+	CubbyFlow::BoundingBox3D fluid_domain(
+			CubbyFlow::Vector3D(-MaxRegion.x() / 2, -MaxRegion.y() / 2, -MaxRegion.z() / 2),
+			CubbyFlow::Vector3D(MaxRegion.x() / 2, MaxRegion.y() / 2, MaxRegion.z() / 2)
+	);
+
+	const auto box = CubbyFlow::Box3::GetBuilder()
+			.WithBoundingBox(fluid_domain)
+			.WithIsNormalFlipped(true)
+			.MakeShared();
+
+	fluid_domain_collider_data->InnerPtr = CubbyFlow::RigidBodyCollider3::GetBuilder()
+			.WithSurface(box)
+			.MakeShared();
+
+	fluid_domain_collider_data->Configured = true;
+
+
+	// Find All Affectors with Collision Relationship
 	SIM_ObjectArray affectors;
 	obj->getAffectors(affectors, "SIM_RelationshipCollide");
 	exint num_affectors = affectors.entries();

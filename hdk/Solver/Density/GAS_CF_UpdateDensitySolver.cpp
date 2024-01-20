@@ -64,7 +64,7 @@ const SIM_DopDescription *GAS_CF_UpdateDensitySolver::getDopDescription()
 	return &DESC;
 }
 
-bool GAS_CF_UpdateDensitySolver::Solve(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep, UT_WorkBuffer &error_msg) const
+bool GAS_CF_UpdateDensitySolver::Solve(SIM_Engine &, SIM_Object *obj, SIM_Time, SIM_Time, UT_WorkBuffer &error_msg) const
 {
 	if (!obj)
 	{
@@ -111,17 +111,11 @@ bool GAS_CF_UpdateDensitySolver::Solve(SIM_Engine &engine, SIM_Object *obj, SIM_
 	{
 		SIM_GeometryAutoWriteLock lock(geo);
 		GU_Detail &gdp = lock.getGdp();
-		GA_RWHandleF gdp_handle_density = gdp.findPointAttribute(SIM_CF_SPHSystemData::DENSITY_ATTRIBUTE_NAME);
 
 		for (int i = 0; i < p_size; ++i)
 		{
 			GA_Offset pt_off = sphdata->GetParticleOffset(i, error_msg);
-
-			if (!gdp_handle_density->getIndexMap().isOffsetActive(pt_off))
-			{
-				error_msg.appendSprintf("Offset INVALID, From %s\n", DATANAME);
-				return false;
-			}
+			GA_RWHandleF gdp_handle_density = gdp.findPointAttribute(SIM_CF_SPHSystemData::DENSITY_ATTRIBUTE_NAME);
 
 			auto density = cf_array_density[i];
 			gdp_handle_density.set(pt_off, density);

@@ -33,6 +33,8 @@ add_library(
 
         hdk/Collider/SIM_CF_RigidBodyCollider.cpp
         hdk/Collider/SIM_CF_RigidBodyCollider.h
+        hdk/Collider/GAS_CL_UpdateCollider.cpp
+        hdk/Collider/GAS_CL_UpdateCollider.h
 
         hdk/Emitter/GAS_CF_PointEmitter.cpp
         hdk/Emitter/GAS_CF_PointEmitter.h
@@ -47,6 +49,10 @@ add_library(
         hdk/Solver/Density/GAS_CF_UpdateDensitySolver.h
         hdk/Solver/Force/GAS_CF_ClearForce.cpp
         hdk/Solver/Force/GAS_CF_ClearForce.h
+        hdk/Solver/Force/GAS_CF_ActivateGravityForce.cpp
+        hdk/Solver/Force/GAS_CF_ActivateGravityForce.h
+        hdk/Solver/Collision/GAS_CF_CollisionSolver.cpp
+        hdk/Solver/Collision/GAS_CF_CollisionSolver.h
 
         hdk/Geometry/SIM_CF_Sphere.cpp
         hdk/Geometry/SIM_CF_Sphere.h

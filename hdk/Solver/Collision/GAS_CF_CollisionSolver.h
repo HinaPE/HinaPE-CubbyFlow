@@ -1,30 +1,30 @@
-#ifndef HINAPE_CUBBYFLOW_GAS_CF_CLEARFORCE_H
-#define HINAPE_CUBBYFLOW_GAS_CF_CLEARFORCE_H
+#ifndef HINAPE_CUBBYFLOW_GAS_CF_COLLISIONSOLVER_H
+#define HINAPE_CUBBYFLOW_GAS_CF_COLLISIONSOLVER_H
 
 #include <GAS/GAS_SubSolver.h>
 #include <PRM/PRM_Default.h>
 
-class GAS_CF_ClearForce : public GAS_SubSolver
+class GAS_CF_CollisionSolver : public GAS_SubSolver
 {
 public:
 	static const char *DATANAME;
 
 protected:
-	GAS_CF_ClearForce(const SIM_DataFactory *factory) : BaseClass(factory) {}
-	~GAS_CF_ClearForce() override = default;
+	GAS_CF_CollisionSolver(const SIM_DataFactory *factory) : BaseClass(factory) {}
+	~GAS_CF_CollisionSolver() override = default;
 	bool solveGasSubclass(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep) override;
 	void initializeSubclass() override;
 	void makeEqualSubclass(const SIM_Data *source) override;
 	static const SIM_DopDescription *getDopDescription();
 
 DECLARE_STANDARD_GETCASTTOTYPE();
-DECLARE_DATAFACTORY(GAS_CF_ClearForce,
+DECLARE_DATAFACTORY(GAS_CF_CollisionSolver,
 					GAS_SubSolver,
-					"CF_ClearForce",
+					"CF_CollisionSolver",
 					getDopDescription());
 
 private:
 	bool Solve(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep, UT_WorkBuffer &error_msg) const;
 };
 
-#endif //HINAPE_CUBBYFLOW_GAS_CF_CLEARFORCE_H
+#endif //HINAPE_CUBBYFLOW_GAS_CF_COLLISIONSOLVER_H

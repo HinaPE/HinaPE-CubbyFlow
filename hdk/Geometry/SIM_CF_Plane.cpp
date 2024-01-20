@@ -132,8 +132,6 @@ CubbyFlow::Plane3Ptr SIM_CF_Plane::RuntimeConstructCFPlane() const
 	UT_Vector3 Center = getCenter();
 	UT_Vector3 Normal = getNormal();
 
-	std::cout << Normal << std::endl;
-
 	bool IsNormalFlipped = getIsNormalFlipped();
 
 	return CubbyFlow::Plane3::GetBuilder()

@@ -15,6 +15,10 @@
 #include <PRM/PRM_SpareData.h>
 #include <PRM/PRM_ChoiceList.h>
 
+#include <GEO/GEO_PrimPoly.h>
+
+PRM_Name SIM_CF_SPHSystemData::ShowGuideGeometry("ShowGuideGeometry", "ShowGuideGeometry");
+
 void SIM_CF_SPHSystemData::initializeSubclass()
 {
 	SIM_Data::initializeSubclass();
@@ -46,6 +50,10 @@ const char *SIM_CF_SPHSystemData::DENSITY_ATTRIBUTE_NAME = "density";
 const char *SIM_CF_SPHSystemData::PRESSURE_ATTRIBUTE_NAME = "pressure";
 const SIM_DopDescription *SIM_CF_SPHSystemData::GetDescription()
 {
+	static PRM_Name FluidDomain("FluidDomain", "FluidDomain");
+	static std::array<PRM_Default, 3> FluidDomainDefault{4, 4, 4};
+
+
 	/// ParticleSystemData Parameters
 	static PRM_Name ParticleRadius("ParticleRadius", "ParticleRadius");
 	static PRM_Default ParticleRadiusDefault{1e-3};
@@ -95,8 +103,8 @@ const SIM_DopDescription *SIM_CF_SPHSystemData::GetDescription()
 	static PRM_Name TimeStepLimitScale("TimeStepLimitScale", "TimeStepLimitScale");
 	static PRM_Default TimeStepLimitScaleDefault{1.};
 
-
-	static std::array<PRM_Template, 14> PRMS{
+	static std::array<PRM_Template, 15> PRMS{
+			PRM_Template(PRM_FLT, 3, &FluidDomain, FluidDomainDefault.data()),
 			PRM_Template(PRM_FLT, 1, &ParticleRadius, &ParticleRadiusDefault),
 			PRM_Template(PRM_FLT, 1, &TargetDensity, &TargetDensityDefault),
 			PRM_Template(PRM_FLT, 1, &TargetSpacing, &TargetSpacingDefault),
@@ -113,12 +121,18 @@ const SIM_DopDescription *SIM_CF_SPHSystemData::GetDescription()
 			PRM_Template()
 	};
 
+	static std::array<PRM_Template, 2> PRMS_GUIDE{
+			PRM_Template(PRM_TOGGLE, 1, &ShowGuideGeometry, PRMoneDefaults),
+			PRM_Template()
+	};
+
 	static SIM_DopDescription DESC(true,
 								   "cf_sph_system_data",
 								   "CF SPH System Data",
 								   DATANAME,
 								   classname(),
 								   PRMS.data());
+	DESC.setGuideTemplates(PRMS_GUIDE.data());
 	return &DESC;
 }
 
@@ -212,4 +226,64 @@ void SIM_CF_SPHSystemData::SetParticleState(size_t index, SIM_CF_SPHSystemData::
 	}
 
 	InnerPtr->ScalarDataAt(scalar_idx_offset)[index] = state;
+}
+
+SIM_Guide *SIM_CF_SPHSystemData::createGuideObjectSubclass() const
+{
+	return new SIM_GuideShared(this, true);
+}
+
+void SIM_CF_SPHSystemData::buildGuideGeometrySubclass(const SIM_RootData &root, const SIM_Options &options, const GU_DetailHandle &gdh, UT_DMatrix4 *xform, const SIM_Time &t) const
+{
+	if (!getShowGuideGeometry())
+		return;
+
+	if (!gdh.isNull())
+	{
+		GU_DetailHandleAutoWriteLock gdl(gdh);
+		GU_Detail *gdp = gdl.getGdp();
+		gdp->clearAndDestroy();
+
+		UT_Vector3 Center = UT_Vector3(0.);
+		UT_Vector3 Extent = getFluidDomain();
+
+		std::array<UT_Vector3, 8> vertices{};
+		for (int i = 0; i < 8; i++)
+		{
+			vertices[i] = UT_Vector3(
+					Center.x() + Extent.x() * ((i & 1) ? 0.5 : -0.5),
+					Center.y() + Extent.y() * ((i & 2) ? 0.5 : -0.5),
+					Center.z() + Extent.z() * ((i & 4) ? 0.5 : -0.5)
+			);
+		}
+
+		std::array<GA_Offset, 8> ptoff{};
+		for (int i = 0; i < 8; i++)
+		{
+			ptoff[i] = gdp->appendPointOffset();
+			gdp->setPos3(ptoff[i], vertices[i]);
+		}
+
+		static const int edges[12][2] = {
+				{0, 1},
+				{0, 4},
+				{1, 3},
+				{1, 5},
+				{2, 0},
+				{2, 3},
+				{2, 6},
+				{3, 7},
+				{4, 5},
+				{4, 6},
+				{5, 7},
+				{6, 7},
+		};
+
+		for (int i = 0; i < 12; i++)
+		{
+			GEO_PrimPoly *line = GEO_PrimPoly::build(gdp, 2, GU_POLY_OPEN);
+			for (int j = 0; j < 2; j++)
+				line->setVertexPoint(j, ptoff[edges[i][j]]);
+		}
+	}
 }

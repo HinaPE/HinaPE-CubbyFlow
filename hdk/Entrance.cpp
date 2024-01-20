@@ -1,6 +1,7 @@
 #include <UT/UT_DSOVersion.h> // Very Important!!! Include this!!!
 
-#include "Collider/GAS_CL_UpdateCollider.h"
+#include "Collider/GAS_CF_ConfigureRigidBodyCollider.h"
+#include "Collider/GAS_CF_UpdateCollider.h"
 #include "Collider/SIM_CF_RigidBodyCollider.h"
 
 #include "Emitter/GAS_CF_PointEmitter.h"
@@ -31,7 +32,8 @@
 void initializeSIM(void *)
 {
 	// Collider
-	IMPLEMENT_DATAFACTORY(GAS_CL_UpdateCollider)
+	IMPLEMENT_DATAFACTORY(GAS_CF_ConfigureRigidBodyCollider)
+	IMPLEMENT_DATAFACTORY(GAS_CF_UpdateCollider)
 	IMPLEMENT_DATAFACTORY(SIM_CF_RigidBodyCollider)
 
 	// Emitter

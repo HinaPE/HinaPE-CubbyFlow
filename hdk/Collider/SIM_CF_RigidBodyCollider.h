@@ -11,6 +11,7 @@ class SIM_CF_RigidBodyCollider : public SIM_Collider
 public:
 	static const char *DATANAME;
 	CubbyFlow::RigidBodyCollider3Ptr InnerPtr;
+	bool Configured = false;
 
 protected:
 	SIM_CF_RigidBodyCollider(const SIM_DataFactory *factory) : SIM_Collider(factory) {}

@@ -35,6 +35,7 @@ void SIM_CF_RigidBodyCollider::makeEqualSubclass(const SIM_Data *source)
 
 	/// Implement Equal Operator of Your Custom Fields
 	this->InnerPtr = src->InnerPtr;
+	this->Configured = src->Configured;
 }
 
 const char *SIM_CF_RigidBodyCollider::DATANAME = "CF_RigidBodyCollider";

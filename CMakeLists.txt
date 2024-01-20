@@ -20,8 +20,10 @@ add_library(
         SHARED
         hdk/Entrance.cpp
 
-        hdk/Collider/GAS_CL_UpdateCollider.cpp
-        hdk/Collider/GAS_CL_UpdateCollider.h
+        hdk/Collider/GAS_CF_ConfigureRigidBodyCollider.cpp
+        hdk/Collider/GAS_CF_ConfigureRigidBodyCollider.h
+        hdk/Collider/GAS_CF_UpdateCollider.cpp
+        hdk/Collider/GAS_CF_UpdateCollider.h
         hdk/Collider/SIM_CF_RigidBodyCollider.cpp
         hdk/Collider/SIM_CF_RigidBodyCollider.h
 

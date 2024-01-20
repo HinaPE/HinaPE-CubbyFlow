@@ -165,6 +165,7 @@ bool GAS_CF_PressureForceSolver::Solve(SIM_Engine &engine, SIM_Object *obj, SIM_
 	}
 
 
+	const CubbyFlow::ArrayView1<double> pressures = sphdata->InnerPtr->Pressures();
 	// Add Pressure Force in Geometry Sheet
 	{
 		SIM_GeometryAutoWriteLock lock(geo);
@@ -181,7 +182,7 @@ bool GAS_CF_PressureForceSolver::Solve(SIM_Engine &engine, SIM_Object *obj, SIM_
 				int cl_index = gdp_handle_CL_PT_IDX.get(pt_off);
 				UT_Vector3 pressure_force = UT_Vector3D{pressure_cache[cl_index].x, pressure_cache[cl_index].y, pressure_cache[cl_index].z};
 				gdp_handle_force.set(pt_off, pressure_force + exist_force);
-				auto pressure = pressure_cache[cl_index].Norm();
+				auto pressure = pressures[cl_index];
 				gdp_handle_pressure.set(pt_off, pressure);
 			}
 	}

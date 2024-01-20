@@ -7,8 +7,6 @@
 #include <SIM/SIM_Utils.h>
 #include <UT/UT_WorkBuffer.h>
 
-#include <PRM/PRM_Name.h>
-
 #include "Core/Particle/SPHSystemData.hpp"
 
 class SIM_CF_SPHSystemData : public SIM_Data, public SIM_OptionsUser
@@ -52,7 +50,8 @@ public:
 	GETSET_DATA_FUNCS_F("SpeedOfSound", SpeedOfSound)
 	GETSET_DATA_FUNCS_F("TimeStepLimitScale", TimeStepLimitScale)
 
-	GETSET_DATA_FUNCS_B("ShowGuideGeometry", ShowGuideGeometry)
+	GET_GUIDE_FUNC_B(SIM_NAME_SHOWGUIDE, ShowGuideGeometry, true);
+	GET_GUIDE_FUNC_V3("DomainColor", DomainColor, (.0156356, 0, .5))
 
 protected:
 	SIM_CF_SPHSystemData(const SIM_DataFactory *factory) : SIM_Data(factory), SIM_OptionsUser(this) {}
@@ -63,7 +62,6 @@ protected:
 
 	SIM_Guide *createGuideObjectSubclass() const override;
 	void buildGuideGeometrySubclass(const SIM_RootData &root, const SIM_Options &options, const GU_DetailHandle &gdh, UT_DMatrix4 *xform, const SIM_Time &t) const override;
-	static PRM_Name ShowGuideGeometry;
 
 DECLARE_STANDARD_GETCASTTOTYPE();
 DECLARE_DATAFACTORY(SIM_CF_SPHSystemData, SIM_Data, "CF_SPHSystemData", GetDescription());

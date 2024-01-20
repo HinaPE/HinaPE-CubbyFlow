@@ -17,8 +17,6 @@
 
 #include <GEO/GEO_PrimPoly.h>
 
-PRM_Name SIM_CF_SPHSystemData::ShowGuideGeometry("ShowGuideGeometry", "ShowGuideGeometry");
-
 void SIM_CF_SPHSystemData::initializeSubclass()
 {
 	SIM_Data::initializeSubclass();
@@ -121,8 +119,14 @@ const SIM_DopDescription *SIM_CF_SPHSystemData::GetDescription()
 			PRM_Template()
 	};
 
-	static std::array<PRM_Template, 2> PRMS_GUIDE{
+	static PRM_Name ShowGuideGeometry(SIM_NAME_SHOWGUIDE, "ShowGuideGeometry");
+
+	static PRM_Name DomainColor("DomainColor", "DomainColor");
+	static std::array<PRM_Default, 3> DomainColorDefault{.0156356, 0, .5};
+
+	static std::array<PRM_Template, 3> PRMS_GUIDE{
 			PRM_Template(PRM_TOGGLE, 1, &ShowGuideGeometry, PRMoneDefaults),
+			PRM_Template(PRM_RGBA, 3, &DomainColor, DomainColorDefault.data()),
 			PRM_Template()
 	};
 
@@ -235,55 +239,60 @@ SIM_Guide *SIM_CF_SPHSystemData::createGuideObjectSubclass() const
 
 void SIM_CF_SPHSystemData::buildGuideGeometrySubclass(const SIM_RootData &root, const SIM_Options &options, const GU_DetailHandle &gdh, UT_DMatrix4 *xform, const SIM_Time &t) const
 {
-	if (!getShowGuideGeometry())
+	if (gdh.isNull())
 		return;
 
-	if (!gdh.isNull())
+	if (!getShowGuideGeometry(options))
+		return;
+
+	UT_Vector3 color = getDomainColor(options);
+
+	GU_DetailHandleAutoWriteLock gdl(gdh);
+	GU_Detail *gdp = gdl.getGdp();
+	gdp->clearAndDestroy();
+
+	UT_Vector3 Center = UT_Vector3(0.);
+	UT_Vector3 Extent = getFluidDomain();
+
+	std::array<UT_Vector3, 8> vertices{};
+	for (int i = 0; i < 8; i++)
 	{
-		GU_DetailHandleAutoWriteLock gdl(gdh);
-		GU_Detail *gdp = gdl.getGdp();
-		gdp->clearAndDestroy();
+		vertices[i] = UT_Vector3(
+				Center.x() + Extent.x() * ((i & 1) ? 0.5 : -0.5),
+				Center.y() + Extent.y() * ((i & 2) ? 0.5 : -0.5),
+				Center.z() + Extent.z() * ((i & 4) ? 0.5 : -0.5)
+		);
+	}
 
-		UT_Vector3 Center = UT_Vector3(0.);
-		UT_Vector3 Extent = getFluidDomain();
+	std::array<GA_Offset, 8> pt_off{};
+	for (int i = 0; i < 8; i++)
+	{
+		pt_off[i] = gdp->appendPointOffset();
+		gdp->setPos3(pt_off[i], vertices[i]);
 
-		std::array<UT_Vector3, 8> vertices{};
-		for (int i = 0; i < 8; i++)
-		{
-			vertices[i] = UT_Vector3(
-					Center.x() + Extent.x() * ((i & 1) ? 0.5 : -0.5),
-					Center.y() + Extent.y() * ((i & 2) ? 0.5 : -0.5),
-					Center.z() + Extent.z() * ((i & 4) ? 0.5 : -0.5)
-			);
-		}
+		GA_RWHandleV3 gdp_handle_cd(gdp->addFloatTuple(GA_ATTRIB_POINT, "Cd", 3));
+		gdp_handle_cd.set(pt_off[i], color);
+	}
 
-		std::array<GA_Offset, 8> ptoff{};
-		for (int i = 0; i < 8; i++)
-		{
-			ptoff[i] = gdp->appendPointOffset();
-			gdp->setPos3(ptoff[i], vertices[i]);
-		}
+	static const int edges[12][2] = {
+			{0, 1},
+			{0, 4},
+			{1, 3},
+			{1, 5},
+			{2, 0},
+			{2, 3},
+			{2, 6},
+			{3, 7},
+			{4, 5},
+			{4, 6},
+			{5, 7},
+			{6, 7},
+	};
 
-		static const int edges[12][2] = {
-				{0, 1},
-				{0, 4},
-				{1, 3},
-				{1, 5},
-				{2, 0},
-				{2, 3},
-				{2, 6},
-				{3, 7},
-				{4, 5},
-				{4, 6},
-				{5, 7},
-				{6, 7},
-		};
-
-		for (int i = 0; i < 12; i++)
-		{
-			GEO_PrimPoly *line = GEO_PrimPoly::build(gdp, 2, GU_POLY_OPEN);
-			for (int j = 0; j < 2; j++)
-				line->setVertexPoint(j, ptoff[edges[i][j]]);
-		}
+	for (int i = 0; i < 12; i++)
+	{
+		GEO_PrimPoly *line = GEO_PrimPoly::build(gdp, 2, GU_POLY_OPEN);
+		for (int j = 0; j < 2; j++)
+			line->setVertexPoint(j, pt_off[edges[i][j]]);
 	}
 }

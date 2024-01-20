@@ -22,7 +22,7 @@
 #include <UT/UT_WorkBuffer.h>
 #include <UT/UT_NetMessage.h>
 
-#include <Particle/SIM_CF_SPHSystemData.h>
+#include <Particle/SPHSystemData/SIM_CF_SPHSystemData.h>
 
 #include "Core/Particle/SPHKernels.hpp"
 

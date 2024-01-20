@@ -21,8 +21,8 @@
 #include <UT/UT_WorkBuffer.h>
 #include <UT/UT_NetMessage.h>
 
-#include <Particle/SIM_CF_ParticleSystemData.h>
-#include <Particle/SIM_CF_SPHSystemData.h>
+#include <Particle/ParticleSystemData/SIM_CF_ParticleSystemData.h>
+#include <Particle/SPHSystemData/SIM_CF_SPHSystemData.h>
 
 bool GAS_CF_UpdateToGeometrySheet::solveGasSubclass(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep)
 {

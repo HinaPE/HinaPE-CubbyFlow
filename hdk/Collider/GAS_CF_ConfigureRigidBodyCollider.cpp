@@ -26,7 +26,7 @@
 
 #include <GEO/GEO_PrimPoly.h>
 
-#include <Particle/SIM_CF_SPHSystemData.h>
+#include <Particle/SPHSystemData/SIM_CF_SPHSystemData.h>
 
 #include "Core/Geometry/RigidBodyCollider.hpp"
 #include "Core/Geometry/ImplicitSurfaceSet.hpp"

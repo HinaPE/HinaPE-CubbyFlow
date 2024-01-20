@@ -41,16 +41,16 @@ add_library(
 
         hdk/Particle/GAS_CF_CommitCache.cpp
         hdk/Particle/GAS_CF_CommitCache.h
-        hdk/Particle/GAS_CF_ConfigureParticleSystemData.cpp
-        hdk/Particle/GAS_CF_ConfigureParticleSystemData.h
-        hdk/Particle/GAS_CF_ConfigureSPHSystemData.cpp
-        hdk/Particle/GAS_CF_ConfigureSPHSystemData.h
         hdk/Particle/GAS_CF_UpdateToGeometrySheet.cpp
         hdk/Particle/GAS_CF_UpdateToGeometrySheet.h
-        hdk/Particle/SIM_CF_ParticleSystemData.cpp
-        hdk/Particle/SIM_CF_ParticleSystemData.h
-        hdk/Particle/SIM_CF_SPHSystemData.cpp
-        hdk/Particle/SIM_CF_SPHSystemData.h
+        hdk/Particle/ParticleSystemData/GAS_CF_ConfigureParticleSystemData.cpp
+        hdk/Particle/ParticleSystemData/GAS_CF_ConfigureParticleSystemData.h
+        hdk/Particle/ParticleSystemData/SIM_CF_ParticleSystemData.cpp
+        hdk/Particle/ParticleSystemData/SIM_CF_ParticleSystemData.h
+        hdk/Particle/SPHSystemData/GAS_CF_ConfigureSPHSystemData.cpp
+        hdk/Particle/SPHSystemData/GAS_CF_ConfigureSPHSystemData.h
+        hdk/Particle/SPHSystemData/SIM_CF_SPHSystemData.cpp
+        hdk/Particle/SPHSystemData/SIM_CF_SPHSystemData.h
 
         hdk/Solver/Advection/GAS_CF_Semi_Implicit_Euler.cpp
         hdk/Solver/Advection/GAS_CF_Semi_Implicit_Euler.h
@@ -73,6 +73,8 @@ add_library(
         hdk/Solver/Viscosity/GAS_CF_ViscosityForceSolver.cpp
         hdk/Solver/Viscosity/GAS_CF_ViscosityForceSolver.h
 
+        hdk/Utils/SIM_CL_NoLog.cpp
+        hdk/Utils/SIM_CL_NoLog.h
 )
 
 

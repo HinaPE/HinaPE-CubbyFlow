@@ -26,20 +26,17 @@
 #include <UT/UT_WorkBuffer.h>
 #include <UT/UT_NetMessage.h>
 
-#include <Particle/SIM_CF_ParticleSystemData.h>
-#include <Particle/SIM_CF_SPHSystemData.h>
+#include <Particle/ParticleSystemData/SIM_CF_ParticleSystemData.h>
+#include <Particle/SPHSystemData/SIM_CF_SPHSystemData.h>
 #include <Geometry/SIM_CF_Sphere.h>
 #include <Geometry/SIM_CF_Box.h>
 #include <Geometry/SIM_CF_Plane.h>
 
 #include "Core/Geometry/ImplicitSurfaceSet.hpp"
 #include "Core/Geometry/TriangleMesh3.hpp"
-#include "Core/Utils/Logging.hpp"
 
 bool GAS_CF_VolumeParticleEmitter::solveGasSubclass(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep)
 {
-	CubbyFlow::Logging::Mute();
-
 	UT_WorkBuffer error_msg;
 	if (!InnerPtr)
 	{

@@ -29,11 +29,12 @@ GU_ConstDetailHandle SIM_CF_Sphere::getGeometrySubclass() const
 {
 	if (my_detail_handle.isNull())
 	{
+		GU_Detail *gdp = new GU_Detail();
+		my_detail_handle.allocateAndSet(gdp);
+
 		UT_Vector3 Center = getCenter();
 		fpreal Radius = getRadius();
 
-		GU_Detail *gdp = new GU_Detail();
-		my_detail_handle.allocateAndSet(gdp);
 		GA_Offset center_point_offset = gdp->appendPoint();
 		gdp->setPos3(center_point_offset, Center);
 

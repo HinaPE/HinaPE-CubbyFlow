@@ -13,7 +13,6 @@ public:
 
 	GETSET_DATA_FUNCS_V3("Center", Center)
 	GETSET_DATA_FUNCS_V3("Extent", Extent)
-	GETSET_DATA_FUNCS_V3("Rotation", Rotation)
 	GETSET_DATA_FUNCS_B("IsNormalFlipped", IsNormalFlipped)
 
 	CubbyFlow::Box3Ptr RuntimeConstructCFBox() const;

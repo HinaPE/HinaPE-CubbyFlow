@@ -31,6 +31,7 @@
 #include <Particle/SIM_CF_SPHSystemData.h>
 #include <Geometry/SIM_CF_Sphere.h>
 #include <Geometry/SIM_CF_Box.h>
+#include <Geometry/SIM_CF_Plane.h>
 
 #include "Core/Geometry/ImplicitSurfaceSet.hpp"
 #include "Core/Geometry/TriangleMesh3.hpp"
@@ -148,14 +149,31 @@ bool GAS_CF_VolumeParticleEmitter::InitRuntime(SIM_Engine &, SIM_Object *, SIM_T
 			auto suface_ptr = box->RuntimeConstructCFBox();
 			if (!suface_ptr)
 			{
-				error_msg.appendSprintf("SIM_CF_Sphere::CF_Box Construct Error, From %s\n", DATANAME);
+				error_msg.appendSprintf("SIM_CF_Box::CF_Box Construct Error, From %s\n", DATANAME);
 				return false;
 			}
 			MultipleSurfaces.Append(suface_ptr);
 		}
 	}
 
-	// [Notice] This is very slow!
+	// Find All SIM_CF_Plane
+	{
+		SIM_ConstDataArray CF_Planes;
+		filterConstSubData(CF_Planes, nullptr, SIM_DataFilterByType("SIM_CF_Plane"), nullptr, SIM_DataFilterNone());
+		for (const auto &data: CF_Planes)
+		{
+			const SIM_CF_Plane *plane = static_cast<const SIM_CF_Plane *>(data);
+			auto suface_ptr = plane->RuntimeConstructCFPlane();
+			if (!suface_ptr)
+			{
+				error_msg.appendSprintf("SIM_CF_Plane::CF_Plane Construct Error, From %s\n", DATANAME);
+				return false;
+			}
+			MultipleSurfaces.Append(suface_ptr);
+		}
+	}
+
+	// [Notice] This is very slow when Building SDF!
 	// For performance, We only support upto 1 external SIM_Geometry
 	SIM_Geometry *src_geo = SIM_DATA_GET(*this, SIM_GEOMETRY_DATANAME, SIM_Geometry);
 	if (src_geo)
@@ -302,5 +320,4 @@ SIM_Guide *GAS_CF_VolumeParticleEmitter::createGuideObjectSubclass() const
 
 void GAS_CF_VolumeParticleEmitter::buildGuideGeometrySubclass(const SIM_RootData &root, const SIM_Options &options, const GU_DetailHandle &gdh, UT_DMatrix4 *xform, const SIM_Time &t) const
 {
-	return;
 }

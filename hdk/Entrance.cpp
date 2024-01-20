@@ -18,6 +18,7 @@
 
 #include "Geometry/SIM_CF_Sphere.h"
 #include "Geometry/SIM_CF_Box.h"
+#include "Geometry/SIM_CF_Plane.h"
 
 void initializeSIM(void *)
 {
@@ -44,4 +45,5 @@ void initializeSIM(void *)
 	// Geometry
 	IMPLEMENT_DATAFACTORY(SIM_CF_Sphere)
 	IMPLEMENT_DATAFACTORY(SIM_CF_Box)
+	IMPLEMENT_DATAFACTORY(SIM_CF_Plane)
 }

@@ -28,16 +28,13 @@ GU_ConstDetailHandle SIM_CF_Box::getGeometrySubclass() const
 {
 	if (my_detail_handle.isNull())
 	{
-		UT_Vector3 Center = getCenter();
-		UT_Vector3 Extent = getExtent();
-		UT_Vector3 Rotation = getRotation();
-
 		GU_Detail *gdp = new GU_Detail();
 		my_detail_handle.allocateAndSet(gdp);
-		GA_Offset center_point_offset = gdp->appendPoint();
-		gdp->setPos3(center_point_offset, Center);
 
-		UT_Vector3 vertices[8];
+		UT_Vector3 Center = getCenter();
+		UT_Vector3 Extent = getExtent();
+
+		std::array<UT_Vector3, 8> vertices{};
 		for (int i = 0; i < 8; i++)
 		{
 			vertices[i] = UT_Vector3(
@@ -47,15 +44,7 @@ GU_ConstDetailHandle SIM_CF_Box::getGeometrySubclass() const
 			);
 		}
 
-//		UT_Matrix4 mat;
-//		mat.identity();
-//		mat.rotate(Rotation);
-//		for (auto &vertex: vertices)
-//		{
-//			vertex = mat * vertex;
-//		}
-
-		GA_Offset ptoff[8];
+		std::array<GA_Offset, 8> ptoff{};
 		for (int i = 0; i < 8; i++)
 		{
 			ptoff[i] = gdp->appendPointOffset();
@@ -86,6 +75,9 @@ GU_ConstDetailHandle SIM_CF_Box::getGeometrySubclass() const
 void SIM_CF_Box::initializeSubclass()
 {
 	SIM_Geometry::initializeSubclass();
+
+	// IMPORTANT!!!
+	// NEVER CALL GET_SET FUNCTION HERE!!!
 
 	/// Implement Initializations of Your Custom Fields
 	this->my_detail_handle.clear();
@@ -136,7 +128,6 @@ CubbyFlow::Box3Ptr SIM_CF_Box::RuntimeConstructCFBox() const
 {
 	UT_Vector3 Center = getCenter();
 	UT_Vector3 Extent = getExtent();
-	UT_Vector3 Rotation = getRotation();
 	bool IsNormalFlipped = getIsNormalFlipped();
 
 	UT_Vector3 LowerCorner = Center - Extent / 2.;

@@ -52,6 +52,8 @@ add_library(
         hdk/Geometry/SIM_CF_Sphere.h
         hdk/Geometry/SIM_CF_Box.cpp
         hdk/Geometry/SIM_CF_Box.h
+        hdk/Geometry/SIM_CF_Plane.cpp
+        hdk/Geometry/SIM_CF_Plane.h
 )
 
 

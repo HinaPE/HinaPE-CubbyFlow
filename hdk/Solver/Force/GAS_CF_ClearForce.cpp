@@ -134,6 +134,7 @@ bool GAS_CF_ClearForce::Solve(SIM_Engine &engine, SIM_Object *obj, SIM_Time time
 			return false;
 		}
 
+		// Clear Force in CubbyFlow
 		CubbyFlow::ArrayView1<CubbyFlow::Vector3D> forces = sphdata->InnerPtr->Forces();
 		forces.Fill(CubbyFlow::Vector3D{});
 

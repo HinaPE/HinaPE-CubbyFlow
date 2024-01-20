@@ -20,46 +20,51 @@ add_library(
         SHARED
         hdk/Entrance.cpp
 
-        hdk/Particle/SIM_CF_ParticleSystemData.cpp
-        hdk/Particle/SIM_CF_ParticleSystemData.h
-        hdk/Particle/SIM_CF_SPHSystemData.cpp
-        hdk/Particle/SIM_CF_SPHSystemData.h
-        hdk/Particle/GAS_CF_ConfigureParticleSystemData.cpp
-        hdk/Particle/GAS_CF_ConfigureParticleSystemData.h
-        hdk/Particle/GAS_CF_ConfigureSPHSystemData.cpp
-        hdk/Particle/GAS_CF_ConfigureSPHSystemData.h
-        hdk/Particle/GAS_CF_UpdateToGeometrySheet.cpp
-        hdk/Particle/GAS_CF_UpdateToGeometrySheet.h
-
-        hdk/Collider/SIM_CF_RigidBodyCollider.cpp
-        hdk/Collider/SIM_CF_RigidBodyCollider.h
         hdk/Collider/GAS_CL_UpdateCollider.cpp
         hdk/Collider/GAS_CL_UpdateCollider.h
+        hdk/Collider/SIM_CF_RigidBodyCollider.cpp
+        hdk/Collider/SIM_CF_RigidBodyCollider.h
 
         hdk/Emitter/GAS_CF_PointEmitter.cpp
         hdk/Emitter/GAS_CF_PointEmitter.h
         hdk/Emitter/GAS_CF_VolumeParticleEmitter.cpp
         hdk/Emitter/GAS_CF_VolumeParticleEmitter.h
 
-        hdk/Solver/Advection/GAS_CF_SemiLagrangianAdvector.cpp
-        hdk/Solver/Advection/GAS_CF_SemiLagrangianAdvector.h
-        hdk/Solver/Neighbor/GAS_CF_BuildNeighborLists.cpp
-        hdk/Solver/Neighbor/GAS_CF_BuildNeighborLists.h
-        hdk/Solver/Density/GAS_CF_UpdateDensitySolver.cpp
-        hdk/Solver/Density/GAS_CF_UpdateDensitySolver.h
-        hdk/Solver/Force/GAS_CF_ClearForce.cpp
-        hdk/Solver/Force/GAS_CF_ClearForce.h
-        hdk/Solver/Force/GAS_CF_ActivateGravityForce.cpp
-        hdk/Solver/Force/GAS_CF_ActivateGravityForce.h
-        hdk/Solver/Collision/GAS_CF_CollisionSolver.cpp
-        hdk/Solver/Collision/GAS_CF_CollisionSolver.h
-
-        hdk/Geometry/SIM_CF_Sphere.cpp
-        hdk/Geometry/SIM_CF_Sphere.h
         hdk/Geometry/SIM_CF_Box.cpp
         hdk/Geometry/SIM_CF_Box.h
         hdk/Geometry/SIM_CF_Plane.cpp
         hdk/Geometry/SIM_CF_Plane.h
+        hdk/Geometry/SIM_CF_Sphere.cpp
+        hdk/Geometry/SIM_CF_Sphere.h
+
+        hdk/Particle/GAS_CF_ConfigureParticleSystemData.cpp
+        hdk/Particle/GAS_CF_ConfigureParticleSystemData.h
+        hdk/Particle/GAS_CF_ConfigureSPHSystemData.cpp
+        hdk/Particle/GAS_CF_ConfigureSPHSystemData.h
+        hdk/Particle/GAS_CF_UpdateToGeometrySheet.cpp
+        hdk/Particle/GAS_CF_UpdateToGeometrySheet.h
+        hdk/Particle/SIM_CF_ParticleSystemData.cpp
+        hdk/Particle/SIM_CF_ParticleSystemData.h
+        hdk/Particle/SIM_CF_SPHSystemData.cpp
+        hdk/Particle/SIM_CF_SPHSystemData.h
+
+        hdk/Solver/Advection/GAS_CF_Semi_Implicit_Euler.cpp
+        hdk/Solver/Advection/GAS_CF_Semi_Implicit_Euler.h
+        hdk/Solver/Advection/GAS_CF_SemiLagrangianAdvector.cpp
+        hdk/Solver/Advection/GAS_CF_SemiLagrangianAdvector.h
+        hdk/Solver/Collision/GAS_CF_CollisionSolver.cpp
+        hdk/Solver/Collision/GAS_CF_CollisionSolver.h
+        hdk/Solver/Density/GAS_CF_UpdateDensitySolver.cpp
+        hdk/Solver/Density/GAS_CF_UpdateDensitySolver.h
+        hdk/Solver/Force/GAS_CF_ActivateGravityForce.cpp
+        hdk/Solver/Force/GAS_CF_ActivateGravityForce.h
+        hdk/Solver/Force/GAS_CF_ClearForce.cpp
+        hdk/Solver/Force/GAS_CF_ClearForce.h
+        hdk/Solver/Neighbor/GAS_CF_BuildNeighborLists.cpp
+        hdk/Solver/Neighbor/GAS_CF_BuildNeighborLists.h
+        hdk/Solver/Viscosity/GAS_CF_ViscosityForceSolver.cpp
+        hdk/Solver/Viscosity/GAS_CF_ViscosityForceSolver.h
+
 )
 
 

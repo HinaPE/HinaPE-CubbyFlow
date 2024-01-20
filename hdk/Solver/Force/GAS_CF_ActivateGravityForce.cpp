@@ -73,5 +73,94 @@ bool GAS_CF_ActivateGravityForce::Solve(SIM_Engine &engine, SIM_Object *obj, SIM
 		return false;
 	}
 
+	SIM_CF_ParticleSystemData *psdata = SIM_DATA_GET(*obj, SIM_CF_ParticleSystemData::DATANAME, SIM_CF_ParticleSystemData);
+	SIM_CF_SPHSystemData *sphdata = SIM_DATA_GET(*obj, SIM_CF_SPHSystemData::DATANAME, SIM_CF_SPHSystemData);
+	if (!psdata && !sphdata)
+	{
+		error_msg.appendSprintf("No Valid Target Data, From %s\n", DATANAME);
+		return false;
+	}
+
+	SIM_GeometryCopy *geo = SIM_DATA_GET(*obj, SIM_GEOMETRY_DATANAME, SIM_GeometryCopy);
+	if (!geo)
+	{
+		error_msg.appendSprintf("Geometry Is Null, From %s\n", DATANAME);
+		return false;
+	}
+
+	if (psdata)
+	{
+		if (!psdata->Configured)
+		{
+			error_msg.appendSprintf("ParticleSystemData Not Configured Yet, From %s\n", DATANAME);
+			return false;
+		}
+
+		if (!psdata->InnerPtr)
+		{
+			error_msg.appendSprintf("ParticleSystemData InnerPtr is nullptr, From %s\n", DATANAME);
+			return false;
+		}
+
+		CubbyFlow::ArrayView1<CubbyFlow::Vector3D> forces = psdata->InnerPtr->Forces();
+		forces.Fill(CubbyFlow::Vector3D{});
+
+		// Clear Force in Geometry Sheet
+		{
+			SIM_GeometryAutoWriteLock lock(geo);
+			GU_Detail &gdp = lock.getGdp();
+
+			GA_RWHandleV3 gdp_handle_force = gdp.findPointAttribute(SIM_CF_ParticleSystemData::FORCE_ATTRIBUTE_NAME);
+
+			GA_Offset pt_off;
+			GA_FOR_ALL_PTOFF(&gdp, pt_off)
+				{
+					gdp_handle_force.set(pt_off, UT_Vector3(0.));
+				}
+		}
+	}
+
+	if (sphdata)
+	{
+		if (!sphdata->Configured)
+		{
+			error_msg.appendSprintf("SPHSystemData Not Configured Yet, From %s\n", DATANAME);
+			return false;
+		}
+
+		if (!sphdata->InnerPtr)
+		{
+			error_msg.appendSprintf("SPHSystemData InnerPtr is nullptr, From %s\n", DATANAME);
+			return false;
+		}
+
+		// Add Gravity Force in CubbyFlow
+		UT_Vector3 gravity = sphdata->getGravity();
+		const size_t n = sphdata->InnerPtr->NumberOfParticles();
+		CubbyFlow::ArrayView1<CubbyFlow::Vector3D> forces = sphdata->InnerPtr->Forces();
+		const double mass = sphdata->InnerPtr->Mass();
+
+		CubbyFlow::ParallelFor(CubbyFlow::ZERO_SIZE, n, [&](size_t i)
+		{
+			UT_Vector3 force = mass * gravity;
+			forces[i] += CubbyFlow::Vector3D{force.x(), force.y(), force.z()};
+		});
+
+		// Add Gravity Force in Geometry Sheet
+		{
+			SIM_GeometryAutoWriteLock lock(geo);
+			GU_Detail &gdp = lock.getGdp();
+
+			GA_RWHandleV3 gdp_handle_force = gdp.findPointAttribute(SIM_CF_SPHSystemData::FORCE_ATTRIBUTE_NAME);
+
+			GA_Offset pt_off;
+			GA_FOR_ALL_PTOFF(&gdp, pt_off)
+				{
+					UT_Vector3 exist_force = gdp_handle_force.get(pt_off);
+					gdp_handle_force.set(pt_off, mass * gravity + exist_force);
+				}
+		}
+	}
+
 	return true;
 }

@@ -193,13 +193,13 @@ bool GAS_CF_UpdateToGeometrySheet::Solve(SIM_Engine &, SIM_Object *obj, SIM_Time
 			error_msg.appendSprintf("Error Array Size::cf_array_force, From %s\n", DATANAME);
 			return false;
 		}
-		const auto& cf_array_density = sphdata->InnerPtr->Densities();
+		const auto &cf_array_density = sphdata->InnerPtr->Densities();
 		if (p_size != cf_array_density.Size().x)
 		{
 			error_msg.appendSprintf("Error Array Size::cf_array_density, From %s\n", DATANAME);
 			return false;
 		}
-		const auto& cf_array_pressure = sphdata->InnerPtr->Pressures();
+		const auto &cf_array_pressure = sphdata->InnerPtr->Pressures();
 		if (p_size != cf_array_pressure.Size().x)
 		{
 			error_msg.appendSprintf("Error Array Size::cf_array_pressure, From %s\n", DATANAME);
@@ -211,7 +211,7 @@ bool GAS_CF_UpdateToGeometrySheet::Solve(SIM_Engine &, SIM_Object *obj, SIM_Time
 			error_msg.appendSprintf("Error cf_constant_mass is Zero, From %s\n", DATANAME);
 			return false;
 		}
-		const auto& cf_array_neighbor_list = sphdata->InnerPtr->NeighborLists();
+		const auto &cf_array_neighbor_list = sphdata->InnerPtr->NeighborLists();
 		if (p_size != cf_array_neighbor_list.Size().x)
 		{
 			error_msg.appendSprintf("Error Array Size::cf_array_neighbor_list, From %s\n", DATANAME);
@@ -229,9 +229,11 @@ bool GAS_CF_UpdateToGeometrySheet::Solve(SIM_Engine &, SIM_Object *obj, SIM_Time
 				{
 					GA_Offset new_offset = gdp.appendPoint();
 					sphdata->SetParticleOffset(i, new_offset, error_msg);
+
+					GA_RWHandleI gdp_handle_CL_PT_IDX = gdp.findPointAttribute(SIM_CF_SPHSystemData::CL_PT_IDX_ATTRIBUTE_NAME);
+					gdp_handle_CL_PT_IDX.set(new_offset, i);
 				}
 				GA_Offset pt_off = sphdata->GetParticleOffset(i, error_msg);
-				sphdata->SetParticleState(i, SIM_CF_SPHSystemData::PARTICLE_CLEAN, error_msg);
 
 				auto pos = cf_array_pos[i];
 				gdp.setPos3(pt_off, UT_Vector3D{pos.x, pos.y, pos.z});
@@ -259,6 +261,8 @@ bool GAS_CF_UpdateToGeometrySheet::Solve(SIM_Engine &, SIM_Object *obj, SIM_Time
 				GA_RWHandleI gdp_handle_neighbor_list = gdp.findPointAttribute(SIM_CF_SPHSystemData::NEIGHBOR_SUM_ATTRIBUTE_NAME);
 				const auto &neighbor_list = cf_array_neighbor_list[i];
 				gdp_handle_neighbor_list.set(pt_off, neighbor_list.Size().x);
+
+				sphdata->SetParticleState(i, SIM_CF_SPHSystemData::PARTICLE_CLEAN, error_msg);
 			}
 		}
 	}

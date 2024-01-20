@@ -48,6 +48,7 @@ void SIM_CF_ParticleSystemData::makeEqualSubclass(const SIM_Data *source)
 }
 
 const char *SIM_CF_ParticleSystemData::DATANAME = "CF_ParticleSystemData";
+const char *SIM_CF_ParticleSystemData::CL_PT_IDX_ATTRIBUTE_NAME = "CL_PT_IDX";
 const char *SIM_CF_ParticleSystemData::FORCE_ATTRIBUTE_NAME = "force";
 const SIM_DopDescription *SIM_CF_ParticleSystemData::GetDescription()
 {
@@ -153,7 +154,7 @@ void SIM_CF_ParticleSystemData::SetParticleState(size_t index, SIM_CF_ParticleSy
 		return;
 	}
 
-	InnerPtr->ScalarDataAt(scalar_idx_offset)[index] = state;
+	InnerPtr->ScalarDataAt(scalar_idx_state)[index] = state;
 }
 
 SIM_Guide *SIM_CF_ParticleSystemData::createGuideObjectSubclass() const

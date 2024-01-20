@@ -43,6 +43,7 @@ void SIM_CF_SPHSystemData::makeEqualSubclass(const SIM_Data *source)
 }
 
 const char *SIM_CF_SPHSystemData::DATANAME = "CF_SPHSystemData";
+const char *SIM_CF_SPHSystemData::CL_PT_IDX_ATTRIBUTE_NAME = "CL_PT_IDX";
 const char *SIM_CF_SPHSystemData::FORCE_ATTRIBUTE_NAME = "force";
 const char *SIM_CF_SPHSystemData::DENSITY_ATTRIBUTE_NAME = "density";
 const char *SIM_CF_SPHSystemData::PRESSURE_ATTRIBUTE_NAME = "pressure";
@@ -230,7 +231,7 @@ void SIM_CF_SPHSystemData::SetParticleState(size_t index, SIM_CF_SPHSystemData::
 		return;
 	}
 
-	InnerPtr->ScalarDataAt(scalar_idx_offset)[index] = state;
+	InnerPtr->ScalarDataAt(scalar_idx_state)[index] = state;
 }
 
 SIM_Guide *SIM_CF_SPHSystemData::createGuideObjectSubclass() const

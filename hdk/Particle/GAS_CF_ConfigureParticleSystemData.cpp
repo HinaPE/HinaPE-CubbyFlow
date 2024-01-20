@@ -109,6 +109,8 @@ bool GAS_CF_ConfigureParticleSystemData::Solve(SIM_Engine &engine, SIM_Object *o
 		forceref.setTypeInfo(GA_TYPE_VECTOR);
 		GA_RWAttributeRef massref = gdp.addFloatTuple(GA_ATTRIB_POINT, gdp.getStdAttributeName(GEO_ATTRIBUTE_MASS), 1, GA_Defaults(1));
 		massref.setTypeInfo(GA_TYPE_VOID);
+		GA_RWAttributeRef CL_PT_IDXref = gdp.addIntTuple(GA_ATTRIB_POINT, SIM_CF_ParticleSystemData::CL_PT_IDX_ATTRIBUTE_NAME, 1, GA_Defaults(-1));
+		CL_PT_IDXref.setTypeInfo(GA_TYPE_VOID);
 	}
 
 	data->Configured = true;

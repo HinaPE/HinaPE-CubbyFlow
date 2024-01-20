@@ -13,6 +13,7 @@ class SIM_CF_ParticleSystemData : public SIM_Data, public SIM_OptionsUser
 {
 public:
 	static const char *DATANAME;
+	static const char *CL_PT_IDX_ATTRIBUTE_NAME;
 	static const char *FORCE_ATTRIBUTE_NAME;
 	bool Configured = false;
 	CubbyFlow::ParticleSystemData3Ptr InnerPtr;

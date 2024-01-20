@@ -139,6 +139,8 @@ bool GAS_CF_ConfigureSPHSystemData::Solve(SIM_Engine &engine, SIM_Object *obj, S
 		pressureref.setTypeInfo(GA_TYPE_VOID);
 		GA_RWAttributeRef neighborsumref = gdp.addIntTuple(GA_ATTRIB_POINT, SIM_CF_SPHSystemData::NEIGHBOR_SUM_ATTRIBUTE_NAME, 1, GA_Defaults(0));
 		neighborsumref.setTypeInfo(GA_TYPE_VOID);
+		GA_RWAttributeRef CL_PT_IDXref = gdp.addIntTuple(GA_ATTRIB_POINT, SIM_CF_SPHSystemData::CL_PT_IDX_ATTRIBUTE_NAME, 1, GA_Defaults(-1));
+		CL_PT_IDXref.setTypeInfo(GA_TYPE_VOID);
 	}
 
 	data->Configured = true;

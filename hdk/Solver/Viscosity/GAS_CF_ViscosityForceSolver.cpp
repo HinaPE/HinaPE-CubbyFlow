@@ -22,7 +22,6 @@
 #include <UT/UT_WorkBuffer.h>
 #include <UT/UT_NetMessage.h>
 
-#include <Particle/SIM_CF_ParticleSystemData.h>
 #include <Particle/SIM_CF_SPHSystemData.h>
 
 #include "Core/Particle/SPHKernels.hpp"
@@ -103,6 +102,8 @@ bool GAS_CF_ViscosityForceSolver::Solve(SIM_Engine &engine, SIM_Object *obj, SIM
 
 	// Add Viscosity Force in CubbyFlow
 	size_t p_size = sphdata->InnerPtr->NumberOfParticles();
+	std::vector<CubbyFlow::Vector3D> viscosity_cache;
+	viscosity_cache.resize(p_size);
 
 	CubbyFlow::ArrayView1<CubbyFlow::Vector3D> x = sphdata->InnerPtr->Positions();
 	CubbyFlow::ArrayView1<CubbyFlow::Vector3D> v = sphdata->InnerPtr->Velocities();
@@ -113,8 +114,6 @@ bool GAS_CF_ViscosityForceSolver::Solve(SIM_Engine &engine, SIM_Object *obj, SIM
 	const double mass_squared = sphdata->InnerPtr->Mass() * sphdata->InnerPtr->Mass();
 	const CubbyFlow::SPHSpikyKernel3 kernel{sphdata->InnerPtr->KernelRadius()};
 
-	std::vector<CubbyFlow::Vector3D> viscosity_cache;
-	viscosity_cache.resize(p_size);
 	CubbyFlow::ParallelFor(CubbyFlow::ZERO_SIZE, p_size, [&](size_t i)
 	{
 		const auto &neighbors = sphdata->InnerPtr->NeighborLists()[i];

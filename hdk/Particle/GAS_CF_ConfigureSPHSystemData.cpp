@@ -46,7 +46,7 @@ void GAS_CF_ConfigureSPHSystemData::makeEqualSubclass(const SIM_Data *source)
 	SIM_Data::makeEqualSubclass(source);
 }
 
-const char *GAS_CF_ConfigureSPHSystemData::DATANAME = "CF_ConfigureSPHSystemDataSolver";
+const char *GAS_CF_ConfigureSPHSystemData::DATANAME = "CF_ConfigureSPHSystemData";
 const SIM_DopDescription *GAS_CF_ConfigureSPHSystemData::getDopDescription()
 {
 	static std::array<PRM_Template, 1> PRMS{
@@ -54,8 +54,8 @@ const SIM_DopDescription *GAS_CF_ConfigureSPHSystemData::getDopDescription()
 	};
 
 	static SIM_DopDescription DESC(true,
-								   "cf_configure_sphsystemdata_solver",
-								   "CF Configure SPHSystemData Solver",
+								   "cf_configure_sphsystemdata",
+								   "CF Configure SPHSystemData",
 								   DATANAME,
 								   classname(),
 								   PRMS.data());

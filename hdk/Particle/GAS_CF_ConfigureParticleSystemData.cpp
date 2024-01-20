@@ -46,7 +46,7 @@ void GAS_CF_ConfigureParticleSystemData::makeEqualSubclass(const SIM_Data *sourc
 	SIM_Data::makeEqualSubclass(source);
 }
 
-const char *GAS_CF_ConfigureParticleSystemData::DATANAME = "CF_ConfigureParticleSystemDataSolver";
+const char *GAS_CF_ConfigureParticleSystemData::DATANAME = "CF_ConfigureParticleSystemData";
 const SIM_DopDescription *GAS_CF_ConfigureParticleSystemData::getDopDescription()
 {
 	static std::array<PRM_Template, 1> PRMS{
@@ -54,8 +54,8 @@ const SIM_DopDescription *GAS_CF_ConfigureParticleSystemData::getDopDescription(
 	};
 
 	static SIM_DopDescription DESC(true,
-								   "cf_configure_particlesystemdata_solver",
-								   "CF Configure ParticleSystemData Solver",
+								   "cf_configure_particlesystemdata",
+								   "CF Configure ParticleSystemData",
 								   DATANAME,
 								   classname(),
 								   PRMS.data());

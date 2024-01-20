@@ -24,7 +24,11 @@
 
 #include <Collider/SIM_CF_RigidBodyCollider.h>
 
+#include <GEO/GEO_PrimPoly.h>
+
 #include "Core/Geometry/RigidBodyCollider.hpp"
+#include "Core/Geometry/ImplicitSurfaceSet.hpp"
+#include "Core/Geometry/TriangleMesh3.hpp"
 
 bool GAS_CF_ConfigureRigidBodyCollider::solveGasSubclass(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep)
 {
@@ -74,21 +78,74 @@ bool GAS_CF_ConfigureRigidBodyCollider::Solve(SIM_Engine &engine, SIM_Object *ob
 		return false;
 	}
 
-	SIM_CF_RigidBodyCollider *collider_data = SIM_DATA_GET(*obj, SIM_CF_RigidBodyCollider::DATANAME, SIM_CF_RigidBodyCollider);
-	if (!collider_data)
+	SIM_ObjectArray affectors;
+	obj->getAffectors(affectors, "SIM_RelationshipCollide");
+	exint num_affectors = affectors.entries();
+
+	for (exint i = 0; i < num_affectors; ++i)
 	{
-		error_msg.appendSprintf("No Valid Collider Data, From %s\n", DATANAME);
-		return false;
+		SIM_Object *affector = affectors(i);
+		if (!affector->getName().equal(obj->getName()))
+		{
+			SIM_CF_RigidBodyCollider *collider_data = SIM_DATA_GET(*affector, SIM_CF_RigidBodyCollider::DATANAME, SIM_CF_RigidBodyCollider);
+			if (!collider_data)
+			{
+				error_msg.appendSprintf("Affector %s No Valid Collider Data, From %s\n", affector->getName().toStdString().c_str(), DATANAME);
+				return false;
+			}
+
+			if (collider_data->Configured)
+				continue;
+
+			SIM_Geometry *collider_geo = SIM_DATA_GET(*affector, SIM_GEOMETRY_DATANAME, SIM_Geometry);
+			if (!collider_geo)
+			{
+				error_msg.appendSprintf("Affector %s Collider Geometry Is Null, From %s\n", affector->getName().toStdString().c_str(), DATANAME);
+				return false;
+			}
+
+			SIM_GeometryAutoReadLock lock(collider_geo);
+			const GU_Detail *gdp_source = lock.getGdp();
+			if (!gdp_source)
+			{
+				error_msg.appendSprintf("Affector %s Source Geometry GDP is nullptr, From %s\n", affector->getName().toStdString().c_str(), DATANAME);
+				return false;
+			}
+			CubbyFlow::TriangleMesh3::PointArray points;
+			CubbyFlow::TriangleMesh3::IndexArray point_indices;
+			{
+				GA_Offset pt_off;
+				GA_FOR_ALL_PTOFF(gdp_source, pt_off)
+					{
+						const UT_Vector3 pos = gdp_source->getPos3(pt_off);
+						points.Append({pos.x(), pos.y(), pos.z()});
+					}
+
+				const GEO_Primitive *prim;
+				GA_FOR_ALL_PRIMITIVES(gdp_source, prim)
+				{
+					const auto *poly = dynamic_cast<const GEO_PrimPoly *>(prim);
+					if (!poly)
+					{
+						error_msg.appendSprintf("ERROR ON CONVERT PRIM TO POLY, From %s\n", DATANAME);
+						return false;
+					}
+
+					// Triangulate Polygon
+					std::vector<size_t> polyIndices;
+					for (int vi = 0; vi < poly->getVertexCount(); ++vi)
+						polyIndices.push_back(poly->getPointIndex(vi));
+					for (size_t i = 1; i < polyIndices.size() - 1; ++i)
+						point_indices.Append({polyIndices[0], polyIndices[i + 1], polyIndices[i]}); // notice the normal
+
+				}
+			}
+			CubbyFlow::TriangleMesh3Ptr mesh = CubbyFlow::TriangleMesh3::GetBuilder().WithPoints(points).WithPointIndices(point_indices).MakeShared();
+
+			collider_data->InnerPtr = CubbyFlow::RigidBodyCollider3::GetBuilder()
+					.WithSurface(mesh)
+					.MakeShared();
+		}
 	}
-
-	if (collider_data->Configured)
-		return true;
-
-//	SIM_Geometry *src_geo = SIM_DATA_GET(*this, SIM_GEOMETRY_DATANAME, SIM_Geometry);
-//
-//	collider_data->InnerPtr = CubbyFlow::RigidBodyCollider3::GetBuilder()
-//			.WithSurface()
-//			.MakeShared();
-
 	return true;
 }

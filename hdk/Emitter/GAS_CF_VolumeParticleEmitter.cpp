@@ -21,8 +21,7 @@
 
 #include <SOP/SOP_Node.h>
 
-#include <GU/GU_Detail.h>
-#include <GEO//GEO_PrimPoly.h>
+#include <GEO/GEO_PrimPoly.h>
 
 #include <UT/UT_WorkBuffer.h>
 #include <UT/UT_NetMessage.h>
@@ -35,9 +34,12 @@
 
 #include "Core/Geometry/ImplicitSurfaceSet.hpp"
 #include "Core/Geometry/TriangleMesh3.hpp"
+#include "Core/Utils/Logging.hpp"
 
 bool GAS_CF_VolumeParticleEmitter::solveGasSubclass(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep)
 {
+	CubbyFlow::Logging::Mute();
+
 	UT_WorkBuffer error_msg;
 	if (!InnerPtr)
 	{
@@ -231,7 +233,6 @@ bool GAS_CF_VolumeParticleEmitter::InitRuntime(SIM_Engine &, SIM_Object *obj, SI
 		}
 	}
 
-	// [Notice] This is very slow when Building SDF!
 	// For performance, We only support upto 1 external SIM_Geometry
 	SIM_Geometry *src_geo = SIM_DATA_GET(*this, SIM_GEOMETRY_DATANAME, SIM_Geometry);
 	if (src_geo)

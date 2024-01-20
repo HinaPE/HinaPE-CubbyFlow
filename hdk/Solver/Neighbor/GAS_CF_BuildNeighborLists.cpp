@@ -25,8 +25,12 @@
 #include <Particle/SIM_CF_ParticleSystemData.h>
 #include <Particle/SIM_CF_SPHSystemData.h>
 
+#include "Core/Utils/Logging.hpp"
+
 bool GAS_CF_BuildNeighborLists::solveGasSubclass(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep)
 {
+	CubbyFlow::Logging::Mute();
+
 	UT_WorkBuffer error_msg;
 	if (!Solve(engine, obj, time, timestep, error_msg) || UTisstring(error_msg.buffer()))
 	{
@@ -85,6 +89,13 @@ bool GAS_CF_BuildNeighborLists::Solve(SIM_Engine &, SIM_Object *obj, SIM_Time, S
 		return false;
 	}
 
+	SIM_GeometryCopy *geo = SIM_DATA_GET(*obj, SIM_GEOMETRY_DATANAME, SIM_GeometryCopy);
+	if (!geo)
+	{
+		error_msg.appendSprintf("Geometry Is Null, From %s\n", DATANAME);
+		return false;
+	}
+
 	if (psdata)
 	{
 		if (!psdata->Configured)
@@ -120,6 +131,30 @@ bool GAS_CF_BuildNeighborLists::Solve(SIM_Engine &, SIM_Object *obj, SIM_Time, S
 
 		sphdata->InnerPtr->BuildNeighborSearcher();
 		sphdata->InnerPtr->BuildNeighborLists();
+
+		// Update Neighbor Sum To Geometry Sheet
+		const auto &cf_array_neighbor_list = sphdata->InnerPtr->NeighborLists();
+		size_t p_size = sphdata->InnerPtr->NumberOfParticles();
+		if (p_size != cf_array_neighbor_list.Size().x)
+		{
+			error_msg.appendSprintf("Error Array Size::cf_array_neighbor_list, From %s\n", DATANAME);
+			return false;
+		}
+
+		{
+			SIM_GeometryAutoWriteLock lock(geo);
+			GU_Detail &gdp = lock.getGdp();
+			GA_RWHandleI gdp_handle_neighbor_list = gdp.findPointAttribute(SIM_CF_SPHSystemData::NEIGHBOR_SUM_ATTRIBUTE_NAME);
+			GA_RWHandleI gdp_handle_CL_PT_IDX = gdp.findPointAttribute(SIM_CF_SPHSystemData::CL_PT_IDX_ATTRIBUTE_NAME);
+
+			GA_Offset pt_off;
+			GA_FOR_ALL_PTOFF(&gdp, pt_off)
+				{
+					int cl_index = gdp_handle_CL_PT_IDX.get(pt_off);
+					const auto &neighbor_list = cf_array_neighbor_list[cl_index];
+					gdp_handle_neighbor_list.set(pt_off, neighbor_list.Size().x);
+				}
+		}
 	}
 
 	return true;

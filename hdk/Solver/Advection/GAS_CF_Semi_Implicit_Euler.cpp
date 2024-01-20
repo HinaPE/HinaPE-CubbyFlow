@@ -126,7 +126,7 @@ bool GAS_CF_Semi_Implicit_Euler::Solve(SIM_Engine &engine, SIM_Object *obj, SIM_
 	}
 
 
-	// Apply Semi Implicit Euler in Geometry Sheet
+	// Sync Geometry Sheet
 	{
 		SIM_GeometryAutoWriteLock lock(geo);
 		GU_Detail &gdp = lock.getGdp();

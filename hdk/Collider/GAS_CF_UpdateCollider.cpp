@@ -72,13 +72,28 @@ bool GAS_CF_UpdateCollider::Solve(SIM_Engine &engine, SIM_Object *obj, SIM_Time 
 		return false;
 	}
 
-	SIM_CF_RigidBodyCollider *collider_data = SIM_DATA_GET(*obj, SIM_CF_RigidBodyCollider::DATANAME, SIM_CF_RigidBodyCollider);
-	if (!collider_data)
+	SIM_ObjectArray affectors;
+	obj->getAffectors(affectors, "SIM_RelationshipCollide");
+	exint num_affectors = affectors.entries();
+
+	for (exint i = 0; i < num_affectors; ++i)
 	{
-		error_msg.appendSprintf("No Valid Collider Data, From %s\n", DATANAME);
-		return false;
+		SIM_Object *affector = affectors(i);
+		if (!affector->getName().equal(obj->getName()))
+		{
+			SIM_CF_RigidBodyCollider *collider_data = SIM_DATA_GET(*affector, SIM_CF_RigidBodyCollider::DATANAME, SIM_CF_RigidBodyCollider);
+			if (!collider_data)
+				continue;
+
+			if (!collider_data->Configured)
+			{
+				error_msg.appendSprintf("Affector %s Collider is not Configured, From %s\n", affector->getName().toStdString().c_str(), DATANAME);
+				return false;
+			}
+
+			collider_data->InnerPtr->Update(time, timestep); // Notice this time and timestep
+		}
 	}
-	collider_data->InnerPtr->Update(time, timestep);
 
 	return true;
 }

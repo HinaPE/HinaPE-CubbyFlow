@@ -89,10 +89,7 @@ bool GAS_CF_ConfigureRigidBodyCollider::Solve(SIM_Engine &engine, SIM_Object *ob
 		{
 			SIM_CF_RigidBodyCollider *collider_data = SIM_DATA_GET(*affector, SIM_CF_RigidBodyCollider::DATANAME, SIM_CF_RigidBodyCollider);
 			if (!collider_data)
-			{
-				error_msg.appendSprintf("Affector %s No Valid Collider Data, From %s\n", affector->getName().toStdString().c_str(), DATANAME);
-				return false;
-			}
+				continue;
 
 			if (collider_data->Configured)
 				continue;
@@ -137,7 +134,6 @@ bool GAS_CF_ConfigureRigidBodyCollider::Solve(SIM_Engine &engine, SIM_Object *ob
 						polyIndices.push_back(poly->getPointIndex(vi));
 					for (size_t i = 1; i < polyIndices.size() - 1; ++i)
 						point_indices.Append({polyIndices[0], polyIndices[i + 1], polyIndices[i]}); // notice the normal
-
 				}
 			}
 			CubbyFlow::TriangleMesh3Ptr mesh = CubbyFlow::TriangleMesh3::GetBuilder().WithPoints(points).WithPointIndices(point_indices).MakeShared();
@@ -145,6 +141,8 @@ bool GAS_CF_ConfigureRigidBodyCollider::Solve(SIM_Engine &engine, SIM_Object *ob
 			collider_data->InnerPtr = CubbyFlow::RigidBodyCollider3::GetBuilder()
 					.WithSurface(mesh)
 					.MakeShared();
+
+			collider_data->Configured = true;
 		}
 	}
 	return true;

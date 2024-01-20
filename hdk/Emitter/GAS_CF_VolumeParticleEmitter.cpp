@@ -271,7 +271,6 @@ bool GAS_CF_VolumeParticleEmitter::InitRuntime(SIM_Engine &, SIM_Object *obj, SI
 					polyIndices.push_back(poly->getPointIndex(vi));
 				for (size_t i = 1; i < polyIndices.size() - 1; ++i)
 					point_indices.Append({polyIndices[0], polyIndices[i + 1], polyIndices[i]}); // notice the normal
-
 			}
 		}
 		CubbyFlow::TriangleMesh3Ptr mesh = CubbyFlow::TriangleMesh3::GetBuilder().WithPoints(points).WithPointIndices(point_indices).MakeShared();

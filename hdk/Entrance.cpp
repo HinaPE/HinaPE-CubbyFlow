@@ -26,6 +26,7 @@
 #include "Solver/Force/GAS_CF_ActivateGravityForce.h"
 #include "Solver/Neighbor/GAS_CF_BuildNeighborLists.h"
 #include "Solver/Pressure/GAS_CF_PressureForceSolver.h"
+#include "Solver/Viscosity/GAS_CF_PseudoViscosityForceSolver.h"
 #include "Solver/Viscosity/GAS_CF_ViscosityForceSolver.h"
 
 
@@ -62,5 +63,6 @@ void initializeSIM(void *)
 	IMPLEMENT_DATAFACTORY(GAS_CF_ActivateGravityForce)
 	IMPLEMENT_DATAFACTORY(GAS_CF_BuildNeighborLists)
 	IMPLEMENT_DATAFACTORY(GAS_CF_PressureForceSolver)
+	IMPLEMENT_DATAFACTORY(GAS_CF_PseudoViscosityForceSolver)
 	IMPLEMENT_DATAFACTORY(GAS_CF_ViscosityForceSolver)
 }

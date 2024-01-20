@@ -68,6 +68,8 @@ add_library(
         hdk/Solver/Neighbor/GAS_CF_BuildNeighborLists.h
         hdk/Solver/Pressure/GAS_CF_PressureForceSolver.cpp
         hdk/Solver/Pressure/GAS_CF_PressureForceSolver.h
+        hdk/Solver/Viscosity/GAS_CF_PseudoViscosityForceSolver.cpp
+        hdk/Solver/Viscosity/GAS_CF_PseudoViscosityForceSolver.h
         hdk/Solver/Viscosity/GAS_CF_ViscosityForceSolver.cpp
         hdk/Solver/Viscosity/GAS_CF_ViscosityForceSolver.h
 

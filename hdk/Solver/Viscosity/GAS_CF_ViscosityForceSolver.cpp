@@ -128,7 +128,7 @@ bool GAS_CF_ViscosityForceSolver::Solve(SIM_Engine &engine, SIM_Object *obj, SIM
 	});
 
 
-	// Add Viscosity Force in Geometry Sheet
+	// Sync Geometry Sheet
 	{
 		SIM_GeometryAutoWriteLock lock(geo);
 		GU_Detail &gdp = lock.getGdp();

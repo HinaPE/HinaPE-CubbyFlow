@@ -120,6 +120,12 @@ bool GAS_CF_UpdateToGeometrySheet::Solve(SIM_Engine &, SIM_Object *obj, SIM_Time
 			error_msg.appendSprintf("Error Array Size::cf_array_force, From %s\n", DATANAME);
 			return false;
 		}
+		const auto &cf_constant_mass = psdata->InnerPtr->Mass();
+		if (cf_constant_mass == 0)
+		{
+			error_msg.appendSprintf("Error cf_constant_mass is Zero, From %s\n", DATANAME);
+			return false;
+		}
 
 		{
 			SIM_GeometryAutoWriteLock lock(geo);
@@ -146,6 +152,10 @@ bool GAS_CF_UpdateToGeometrySheet::Solve(SIM_Engine &, SIM_Object *obj, SIM_Time
 				GA_RWHandleV3 gdp_handle_force = gdp.findPointAttribute(SIM_CF_ParticleSystemData::FORCE_ATTRIBUTE_NAME);
 				auto force = cf_array_force[i];
 				gdp_handle_force.set(pt_off, UT_Vector3D{force.x, force.y, force.z});
+
+				GA_RWHandleF gdp_handle_mass = gdp.findPointAttribute(gdp.getStdAttributeName(GEO_ATTRIBUTE_MASS));
+				auto mass = cf_constant_mass;
+				gdp_handle_mass.set(pt_off, mass);
 			}
 		}
 	}
@@ -195,6 +205,12 @@ bool GAS_CF_UpdateToGeometrySheet::Solve(SIM_Engine &, SIM_Object *obj, SIM_Time
 			error_msg.appendSprintf("Error Array Size::cf_array_pressure, From %s\n", DATANAME);
 			return false;
 		}
+		const auto &cf_constant_mass = sphdata->InnerPtr->Mass();
+		if (cf_constant_mass == 0)
+		{
+			error_msg.appendSprintf("Error cf_constant_mass is Zero, From %s\n", DATANAME);
+			return false;
+		}
 
 		{
 			SIM_GeometryAutoWriteLock lock(geo);
@@ -229,6 +245,10 @@ bool GAS_CF_UpdateToGeometrySheet::Solve(SIM_Engine &, SIM_Object *obj, SIM_Time
 				GA_RWHandleF gdp_handle_pressure = gdp.findPointAttribute(SIM_CF_SPHSystemData::PRESSURE_ATTRIBUTE_NAME);
 				auto pressure = cf_array_pressure[i];
 				gdp_handle_pressure.set(pt_off, pressure);
+
+				GA_RWHandleF gdp_handle_mass = gdp.findPointAttribute(gdp.getStdAttributeName(GEO_ATTRIBUTE_MASS));
+				auto mass = cf_constant_mass;
+				gdp_handle_mass.set(pt_off, mass);
 			}
 		}
 	}

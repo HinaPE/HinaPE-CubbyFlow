@@ -35,6 +35,20 @@ public:
 	ParticleState GetParticleState(size_t index, UT_WorkBuffer &error_msg) const;
 	void SetParticleState(size_t index, ParticleState state, UT_WorkBuffer &error_msg) const;
 
+	GETSET_DATA_FUNCS_F("ParticleRadius", ParticleRadius)
+	GETSET_DATA_FUNCS_F("TargetDensity", TargetDensity)
+	GETSET_DATA_FUNCS_F("TargetSpacing", TargetSpacing)
+	GETSET_DATA_FUNCS_F("KernelRadiusOverTargetSpacing", KernelRadiusOverTargetSpacing)
+	GETSET_DATA_FUNCS_F("KernelRadius", KernelRadius)
+	GETSET_DATA_FUNCS_V3("Gravity", Gravity)
+	GETSET_DATA_FUNCS_F("RestitutionCoefficient", RestitutionCoefficient)
+	GETSET_DATA_FUNCS_F("EosExponent", EosExponent)
+	GETSET_DATA_FUNCS_F("NegativePressureScale", NegativePressureScale)
+	GETSET_DATA_FUNCS_F("ViscosityCoefficient", ViscosityCoefficient)
+	GETSET_DATA_FUNCS_F("PseudoViscosityCoefficient", PseudoViscosityCoefficient)
+	GETSET_DATA_FUNCS_F("SpeedOfSound", SpeedOfSound)
+	GETSET_DATA_FUNCS_F("TimeStepLimitScale", TimeStepLimitScale)
+
 protected:
 	SIM_CF_SPHSystemData(const SIM_DataFactory *factory) : SIM_Data(factory), SIM_OptionsUser(this) {}
 	~SIM_CF_SPHSystemData() override = default;

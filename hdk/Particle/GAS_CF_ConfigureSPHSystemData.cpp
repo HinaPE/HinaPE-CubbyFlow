@@ -82,6 +82,31 @@ bool GAS_CF_ConfigureSPHSystemData::Solve(SIM_Engine &engine, SIM_Object *obj, S
 	if (data->Configured)
 		return true;
 
+	// First, Initialize SIM_CF_SPHSystemData Here
+	fpreal ParticleRadius = data->getParticleRadius();
+	fpreal TargetDensity = data->getTargetDensity();
+	fpreal TargetSpacing = data->getTargetSpacing();
+	fpreal KernelRadiusOverTargetSpacing = data->getKernelRadiusOverTargetSpacing();
+	fpreal KernelRadius = data->getKernelRadius();
+	UT_Vector3 Gravity = data->getGravity(); // ParticleSystemSolver Parameters
+	fpreal RestitutionCoefficient = data->getRestitutionCoefficient(); // ParticleSystemSolver Parameters
+	fpreal EosExponent = data->getEosExponent();  // SPHSolver Parameters
+	fpreal NegativePressureScale = data->getNegativePressureScale(); // SPHSolver Parameters
+	fpreal ViscosityCoefficient = data->getViscosityCoefficient(); // SPHSolver Parameters
+	fpreal PseudoViscosityCoefficient = data->getPseudoViscosityCoefficient(); // SPHSolver Parameters
+	fpreal SpeedOfSound = data->getSpeedOfSound(); // SPHSolver Parameters
+	fpreal TimeStepLimitScale = data->getTimeStepLimitScale(); // SPHSolver Parameters
+
+	data->InnerPtr = std::make_shared<CubbyFlow::SPHSystemData3>();
+	data->scalar_idx_offset = data->InnerPtr->AddScalarData();
+	data->scalar_idx_state = data->InnerPtr->AddScalarData();
+
+	data->InnerPtr->SetRadius(ParticleRadius);
+	data->InnerPtr->SetTargetDensity(TargetDensity);
+	data->InnerPtr->SetTargetSpacing(TargetSpacing);
+	data->InnerPtr->SetRelativeKernelRadius(KernelRadiusOverTargetSpacing);
+	data->InnerPtr->SetKernelRadius(KernelRadius);
+
 	SIM_GeometryCopy *geo_exist = SIM_DATA_GET(*obj, SIM_GEOMETRY_DATANAME, SIM_GeometryCopy);
 	if (geo_exist)
 	{

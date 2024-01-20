@@ -141,6 +141,11 @@ bool GAS_CF_ConfigureSPHSystemData::Solve(SIM_Engine &engine, SIM_Object *obj, S
 		neighborsumref.setTypeInfo(GA_TYPE_VOID);
 		GA_RWAttributeRef CL_PT_IDXref = gdp.addIntTuple(GA_ATTRIB_POINT, SIM_CF_SPHSystemData::CL_PT_IDX_ATTRIBUTE_NAME, 1, GA_Defaults(-1));
 		CL_PT_IDXref.setTypeInfo(GA_TYPE_VOID);
+
+		GA_RWAttributeRef newposref = gdp.addFloatTuple(GA_ATTRIB_POINT, SIM_CF_SPHSystemData::NEW_POSITION_CACHE_ATTRIBUTE_NAME, 3, GA_Defaults(0));
+		newposref.setTypeInfo(GA_TYPE_VECTOR);
+		GA_RWAttributeRef newvelref = gdp.addFloatTuple(GA_ATTRIB_POINT, SIM_CF_SPHSystemData::NEW_VELOCITY_CACHE_ATTRIBUTE_NAME, 3, GA_Defaults(0));
+		newvelref.setTypeInfo(GA_TYPE_VECTOR);
 	}
 
 	data->Configured = true;

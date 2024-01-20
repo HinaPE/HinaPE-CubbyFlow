@@ -22,6 +22,8 @@
 #include <UT/UT_WorkBuffer.h>
 #include <UT/UT_NetMessage.h>
 
+#include <Particle/SIM_CF_SPHSystemData.h>
+
 bool GAS_CF_Semi_Implicit_Euler::solveGasSubclass(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep)
 {
 	UT_WorkBuffer error_msg;
@@ -68,6 +70,80 @@ bool GAS_CF_Semi_Implicit_Euler::Solve(SIM_Engine &engine, SIM_Object *obj, SIM_
 	{
 		error_msg.appendSprintf("Object Is Null, From %s\n", DATANAME);
 		return false;
+	}
+
+	SIM_CF_SPHSystemData *sphdata = SIM_DATA_GET(*obj, SIM_CF_SPHSystemData::DATANAME, SIM_CF_SPHSystemData);
+	if (!sphdata)
+	{
+		error_msg.appendSprintf("No Valid Target Data, From %s\n", DATANAME);
+		return false;
+	}
+
+	SIM_GeometryCopy *geo = SIM_DATA_GET(*obj, SIM_GEOMETRY_DATANAME, SIM_GeometryCopy);
+	if (!geo)
+	{
+		error_msg.appendSprintf("Geometry Is Null, From %s\n", DATANAME);
+		return false;
+	}
+
+	if (!sphdata->Configured)
+	{
+		error_msg.appendSprintf("SPHSystemData Not Configured Yet, From %s\n", DATANAME);
+		return false;
+	}
+
+	if (!sphdata->InnerPtr)
+	{
+		error_msg.appendSprintf("SPHSystemData InnerPtr is nullptr, From %s\n", DATANAME);
+		return false;
+	}
+
+	// Apply Semi Implicit Euler in CubbyFlow
+	{
+		using namespace CubbyFlow;
+		auto &m_particleSystemData = sphdata->InnerPtr;
+		const size_t n = m_particleSystemData->NumberOfParticles();
+		ArrayView1<Vector3D> forces = m_particleSystemData->Forces();
+		ArrayView1<Vector3D> velocities = m_particleSystemData->Velocities();
+		ArrayView1<Vector3D> positions = m_particleSystemData->Positions();
+		const double mass = m_particleSystemData->Mass();
+
+		auto &m_newPositions = sphdata->newPositions_Cache;
+		auto &m_newVelocities = sphdata->newVelocities_Cache;
+		double timeStepInSeconds = timestep;
+		m_newPositions.Resize(n);
+		m_newVelocities.Resize(n);
+		ParallelFor(ZERO_SIZE, n, [&](size_t i)
+		{
+			// Integrate velocity first
+			Vector3D &newVelocity = m_newVelocities[i];
+			newVelocity = velocities[i] + timeStepInSeconds * forces[i] / mass;
+
+			// Integrate position.
+			Vector3D &newPosition = m_newPositions[i];
+			newPosition = positions[i] + timeStepInSeconds * newVelocity;
+		});
+	}
+
+
+	// Apply Semi Implicit Euler in Geometry Sheet
+	{
+		SIM_GeometryAutoWriteLock lock(geo);
+		GU_Detail &gdp = lock.getGdp();
+
+		GA_RWHandleV3 gdp_handle_new_pos = gdp.findPointAttribute(SIM_CF_SPHSystemData::NEW_POSITION_CACHE_ATTRIBUTE_NAME);
+		GA_RWHandleV3 gdp_handle_new_vel = gdp.findPointAttribute(SIM_CF_SPHSystemData::NEW_VELOCITY_CACHE_ATTRIBUTE_NAME);
+		GA_RWHandleI gdp_handle_CL_PT_IDX = gdp.findPointAttribute(SIM_CF_SPHSystemData::CL_PT_IDX_ATTRIBUTE_NAME);
+
+		GA_Offset pt_off;
+		GA_FOR_ALL_PTOFF(&gdp, pt_off)
+			{
+				int cl_index = gdp_handle_CL_PT_IDX.get(pt_off);
+				UT_Vector3 new_pos = UT_Vector3D{sphdata->newPositions_Cache[cl_index].x, sphdata->newPositions_Cache[cl_index].y, sphdata->newPositions_Cache[cl_index].z};
+				gdp_handle_new_pos.set(pt_off, new_pos);
+				UT_Vector3 new_vel = UT_Vector3D{sphdata->newVelocities_Cache[cl_index].x, sphdata->newVelocities_Cache[cl_index].y, sphdata->newVelocities_Cache[cl_index].z};
+				gdp_handle_new_vel.set(pt_off, new_vel);
+			}
 	}
 
 	return true;

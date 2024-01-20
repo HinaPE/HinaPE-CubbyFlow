@@ -106,8 +106,8 @@ bool GAS_CF_PressureForceSolver::Solve(SIM_Engine &engine, SIM_Object *obj, SIM_
 	std::vector<CubbyFlow::Vector3D> pressure_cache;
 	pressure_cache.resize(p_size);
 
-	// ComputePressure
 	{
+		// ComputePressure
 		double m_speedOfSound = sphdata->getSpeedOfSound();
 		double m_eosExponent = sphdata->getEosExponent();
 		double m_negativePressureScale = sphdata->getNegativePressureScale();
@@ -131,8 +131,8 @@ bool GAS_CF_PressureForceSolver::Solve(SIM_Engine &engine, SIM_Object *obj, SIM_
 		});
 	}
 
-	// AccumulatePressureForce
 	{
+		// AccumulatePressureForce
 		using namespace CubbyFlow;
 		auto &particles = sphdata->InnerPtr;
 		const ArrayView1<Vector3D> positions = particles->Positions();

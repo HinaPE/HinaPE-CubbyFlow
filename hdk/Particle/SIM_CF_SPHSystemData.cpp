@@ -24,6 +24,8 @@ void SIM_CF_SPHSystemData::initializeSubclass()
 	/// Implement Initializations of Your Custom Fields
 	Configured = false;
 	InnerPtr = nullptr;
+	newPositions_Cache.Clear();
+	newVelocities_Cache.Clear();
 
 // 					[!!! IMPORTANT !!!]
 // 		[!!! NEVER CALL GET_SET FUNCTION HERE !!!]
@@ -40,10 +42,14 @@ void SIM_CF_SPHSystemData::makeEqualSubclass(const SIM_Data *source)
 	this->InnerPtr = src->InnerPtr;
 	this->scalar_idx_offset = src->scalar_idx_offset;
 	this->scalar_idx_state = src->scalar_idx_state;
+	this->newPositions_Cache.Clear(); // We don't need this cache
+	this->newVelocities_Cache.Clear(); // We don't need this cache
 }
 
 const char *SIM_CF_SPHSystemData::DATANAME = "CF_SPHSystemData";
 const char *SIM_CF_SPHSystemData::CL_PT_IDX_ATTRIBUTE_NAME = "CL_PT_IDX";
+const char *SIM_CF_SPHSystemData::NEW_POSITION_CACHE_ATTRIBUTE_NAME = "new_pos";
+const char *SIM_CF_SPHSystemData::NEW_VELOCITY_CACHE_ATTRIBUTE_NAME = "new_vel";
 const char *SIM_CF_SPHSystemData::FORCE_ATTRIBUTE_NAME = "force";
 const char *SIM_CF_SPHSystemData::DENSITY_ATTRIBUTE_NAME = "density";
 const char *SIM_CF_SPHSystemData::PRESSURE_ATTRIBUTE_NAME = "pressure";

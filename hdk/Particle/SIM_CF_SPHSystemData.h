@@ -14,12 +14,16 @@ class SIM_CF_SPHSystemData : public SIM_Data, public SIM_OptionsUser
 public:
 	static const char *DATANAME;
 	static const char *CL_PT_IDX_ATTRIBUTE_NAME;
+	static const char *NEW_POSITION_CACHE_ATTRIBUTE_NAME;
+	static const char *NEW_VELOCITY_CACHE_ATTRIBUTE_NAME;
 	static const char *FORCE_ATTRIBUTE_NAME;
 	static const char *DENSITY_ATTRIBUTE_NAME;
 	static const char *PRESSURE_ATTRIBUTE_NAME;
 	static const char *NEIGHBOR_SUM_ATTRIBUTE_NAME;
 	bool Configured = false;
 	CubbyFlow::SPHSystemData3Ptr InnerPtr;
+	CubbyFlow::ParticleSystemData3::VectorData newPositions_Cache;
+	CubbyFlow::ParticleSystemData3::VectorData newVelocities_Cache;
 	size_t scalar_idx_offset = -1;
 	size_t scalar_idx_state = -1;
 

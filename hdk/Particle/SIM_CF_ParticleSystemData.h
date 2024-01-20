@@ -33,6 +33,13 @@ public:
 	ParticleState GetParticleState(size_t index, UT_WorkBuffer &error_msg) const;
 	void SetParticleState(size_t index, ParticleState state, UT_WorkBuffer &error_msg) const;
 
+	GETSET_DATA_FUNCS_V3("ParticlesDomain", ParticlesDomain)
+	GETSET_DATA_FUNCS_F("ParticleRadius", ParticleRadius)
+	GETSET_DATA_FUNCS_F("TargetSpacing", TargetSpacing)
+
+	GET_GUIDE_FUNC_B(SIM_NAME_SHOWGUIDE, ShowGuideGeometry, true);
+	GET_GUIDE_FUNC_V3("DomainColor", DomainColor, (.0156356, 0, .5))
+
 protected:
 	SIM_CF_ParticleSystemData(const SIM_DataFactory *factory) : SIM_Data(factory), SIM_OptionsUser(this) {}
 	~SIM_CF_ParticleSystemData() override = default;
@@ -40,7 +47,10 @@ protected:
 	void makeEqualSubclass(const SIM_Data *source) override;
 	static const SIM_DopDescription *GetDescription();
 
-	DECLARE_STANDARD_GETCASTTOTYPE();
+	SIM_Guide *createGuideObjectSubclass() const override;
+	void buildGuideGeometrySubclass(const SIM_RootData &root, const SIM_Options &options, const GU_DetailHandle &gdh, UT_DMatrix4 *xform, const SIM_Time &t) const override;
+
+DECLARE_STANDARD_GETCASTTOTYPE();
 	DECLARE_DATAFACTORY(SIM_CF_ParticleSystemData, SIM_Data, "CF_ParticleSystemData", GetDescription());
 };
 

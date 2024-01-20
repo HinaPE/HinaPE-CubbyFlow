@@ -53,11 +53,12 @@ void SIM_CF_Sphere::initializeSubclass()
 {
 	SIM_Geometry::initializeSubclass();
 
-	// IMPORTANT!!!
-	// NEVER CALL GET_SET FUNCTION HERE!!!
-
 	/// Implement Initializations of Your Custom Fields
 	this->my_detail_handle.clear();
+
+// 					[!!! IMPORTANT !!!]
+// 		[!!! NEVER CALL GET_SET FUNCTION HERE !!!]
+// 					[!!! IMPORTANT !!!]
 }
 
 void SIM_CF_Sphere::makeEqualSubclass(const SIM_Data *source)

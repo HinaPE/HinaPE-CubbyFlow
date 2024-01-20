@@ -79,11 +79,11 @@ const SIM_DopDescription *GAS_CF_VolumeParticleEmitter::getDopDescription()
 {
 	static PRM_Name IsOneShot("IsOneShot", "IsOneShot");
 
-	static PRM_Name Spacing("Spacing", "Spacing");
-	static PRM_Default SpacingDefault(0.02);
+//	static PRM_Name Spacing("Spacing", "Spacing"); # Please use FluidDomain in SPHSystemData
+//	static PRM_Default SpacingDefault(0.02);
 
-	static PRM_Name MaxRegion("MaxRegion", "MaxRegion");
-	static std::array<PRM_Default, 3> MaxRegionDefault{2, 2, 2};
+//	static PRM_Name MaxRegion("MaxRegion", "MaxRegion"); # Please use Spacing in SPHSystemData
+//	static std::array<PRM_Default, 3> MaxRegionDefault{2, 2, 2};
 
 	static PRM_Name MaxNumberOfParticles("MaxNumberOfParticles", "MaxNumberOfParticles");
 	static PRM_Default MaxNumberOfParticlesDefault(20000);
@@ -91,10 +91,8 @@ const SIM_DopDescription *GAS_CF_VolumeParticleEmitter::getDopDescription()
 	static PRM_Name RandomSeed("RandomSeed", "RandomSeed");
 	static PRM_Default RandomSeedDefault(0);
 
-	static std::array<PRM_Template, 8> PRMS{
+	static std::array<PRM_Template, 4> PRMS{
 			PRM_Template(PRM_TOGGLE, 1, &IsOneShot, PRMzeroDefaults),
-			PRM_Template(PRM_FLT, 1, &Spacing, &SpacingDefault),
-			PRM_Template(PRM_FLT, 3, &MaxRegion, MaxRegionDefault.data()),
 			PRM_Template(PRM_INT, 1, &MaxNumberOfParticles, &MaxNumberOfParticlesDefault),
 			PRM_Template(PRM_INT, 1, &RandomSeed, &RandomSeedDefault),
 			PRM_Template()
@@ -229,20 +227,11 @@ bool GAS_CF_VolumeParticleEmitter::InitRuntime(SIM_Engine &, SIM_Object *, SIM_T
 	CubbyFlow::ImplicitSurfaceSet3Ptr implicit = CubbyFlow::ImplicitSurfaceSet3::GetBuilder().WithExplicitSurfaces(MultipleSurfaces).MakeShared();
 
 	bool IsOneShot = getIsOneShot();
-	UT_Vector3 MaxRegion = getMaxRegion();
-	fpreal Spacing = getSpacing();
 	size_t MaxNumberOfParticles = getMaxNumberOfParticles();
 	size_t RandomSeed = getRandomSeed();
 
-	CubbyFlow::BoundingBox3D bbox(
-			CubbyFlow::Vector3D(-MaxRegion.x() / 2, -MaxRegion.y() / 2, -MaxRegion.z() / 2),
-			CubbyFlow::Vector3D(MaxRegion.x() / 2, MaxRegion.y() / 2, MaxRegion.z() / 2)
-	);
-
 	this->InnerPtr = CubbyFlow::VolumeParticleEmitter3::GetBuilder()
 			.WithImplicitSurface(implicit)
-			.WithSpacing(Spacing)
-			.WithMaxRegion(bbox)
 			.WithIsOneShot(IsOneShot)
 			.WithMaxNumberOfParticles(MaxNumberOfParticles)
 			.WithRandomSeed(RandomSeed)
@@ -289,6 +278,13 @@ bool GAS_CF_VolumeParticleEmitter::Solve(SIM_Engine &engine, SIM_Object *obj, SI
 		}
 
 		this->InnerPtr->SetTarget(psdata->InnerPtr);
+		this->InnerPtr->SetSpacing(psdata->getTargetSpacing());
+		UT_Vector3 MaxRegion = psdata->getParticlesDomain();
+		CubbyFlow::BoundingBox3D fluid_domain(
+				CubbyFlow::Vector3D(-MaxRegion.x() / 2, -MaxRegion.y() / 2, -MaxRegion.z() / 2),
+				CubbyFlow::Vector3D(MaxRegion.x() / 2, MaxRegion.y() / 2, MaxRegion.z() / 2)
+		);
+		this->InnerPtr->SetMaxRegion(fluid_domain);
 		this->InnerPtr->Update(time, timestep);
 	}
 
@@ -307,6 +303,13 @@ bool GAS_CF_VolumeParticleEmitter::Solve(SIM_Engine &engine, SIM_Object *obj, SI
 		}
 
 		this->InnerPtr->SetTarget(sphdata->InnerPtr);
+		this->InnerPtr->SetSpacing(sphdata->getTargetSpacing());
+		UT_Vector3 MaxRegion = sphdata->getFluidDomain();
+		CubbyFlow::BoundingBox3D fluid_domain(
+				CubbyFlow::Vector3D(-MaxRegion.x() / 2, -MaxRegion.y() / 2, -MaxRegion.z() / 2),
+				CubbyFlow::Vector3D(MaxRegion.x() / 2, MaxRegion.y() / 2, MaxRegion.z() / 2)
+		);
+		this->InnerPtr->SetMaxRegion(fluid_domain);
 		this->InnerPtr->Update(time, timestep);
 	}
 

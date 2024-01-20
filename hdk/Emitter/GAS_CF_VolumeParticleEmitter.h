@@ -13,8 +13,8 @@ public:
 	CubbyFlow::VolumeParticleEmitter3Ptr InnerPtr;
 
 	GETSET_DATA_FUNCS_B("IsOneShot", IsOneShot)
-	GETSET_DATA_FUNCS_V3("MaxRegion", MaxRegion)
-	GETSET_DATA_FUNCS_F("Spacing", Spacing)
+//	GETSET_DATA_FUNCS_V3("MaxRegion", MaxRegion) # Please use FluidDomain in SPHSystemData
+//	GETSET_DATA_FUNCS_F("Spacing", Spacing) # Please use Spacing in SPHSystemData
 	GETSET_DATA_FUNCS_I("MaxNumberOfParticles", MaxNumberOfParticles)
 	GETSET_DATA_FUNCS_I("RandomSeed", RandomSeed)
 

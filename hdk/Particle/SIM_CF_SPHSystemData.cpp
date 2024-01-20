@@ -46,6 +46,7 @@ const char *SIM_CF_SPHSystemData::DATANAME = "CF_SPHSystemData";
 const char *SIM_CF_SPHSystemData::FORCE_ATTRIBUTE_NAME = "force";
 const char *SIM_CF_SPHSystemData::DENSITY_ATTRIBUTE_NAME = "density";
 const char *SIM_CF_SPHSystemData::PRESSURE_ATTRIBUTE_NAME = "pressure";
+const char *SIM_CF_SPHSystemData::NEIGHBOR_SUM_ATTRIBUTE_NAME = "neighbor_sum";
 const SIM_DopDescription *SIM_CF_SPHSystemData::GetDescription()
 {
 	static PRM_Name FluidDomain("FluidDomain", "FluidDomain");

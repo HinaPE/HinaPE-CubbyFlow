@@ -92,7 +92,7 @@ const SIM_DopDescription *GAS_CF_VolumeParticleEmitter::getDopDescription()
 	static PRM_Default RandomSeedDefault(0);
 
 	static std::array<PRM_Template, 4> PRMS{
-			PRM_Template(PRM_TOGGLE, 1, &IsOneShot, PRMzeroDefaults),
+			PRM_Template(PRM_TOGGLE, 1, &IsOneShot, PRMoneDefaults),
 			PRM_Template(PRM_INT, 1, &MaxNumberOfParticles, &MaxNumberOfParticlesDefault),
 			PRM_Template(PRM_INT, 1, &RandomSeed, &RandomSeedDefault),
 			PRM_Template()

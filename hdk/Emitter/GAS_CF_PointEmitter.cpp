@@ -45,6 +45,7 @@ bool GAS_CF_PointEmitter::solveGasSubclass(SIM_Engine &engine, SIM_Object *obj, 
 
 	return true;
 }
+
 void GAS_CF_PointEmitter::initializeSubclass()
 {
 	SIM_Data::initializeSubclass();

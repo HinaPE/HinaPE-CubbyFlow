@@ -61,8 +61,8 @@ const SIM_DopDescription *SIM_CF_SPHSystemData::GetDescription()
 
 
 	/// ParticleSystemData Parameters
-	static PRM_Name ParticleRadius("ParticleRadius", "ParticleRadius");
-	static PRM_Default ParticleRadiusDefault{1e-3};
+//	static PRM_Name ParticleRadius("ParticleRadius", "ParticleRadius");
+//	static PRM_Default ParticleRadiusDefault{1e-3};
 
 
 	/// SPHSystemData Parameters
@@ -75,8 +75,8 @@ const SIM_DopDescription *SIM_CF_SPHSystemData::GetDescription()
 	static PRM_Name KernelRadiusOverTargetSpacing("KernelRadiusOverTargetSpacing", "KernelRadiusOverTargetSpacing");
 	static PRM_Default KernelRadiusOverTargetSpacingDefault{1.8};
 
-	static PRM_Name KernelRadius("KernelRadius", "KernelRadius");
-	static PRM_Default KernelRadiusDefault{.1};
+//	static PRM_Name KernelRadius("KernelRadius", "KernelRadius");
+//	static PRM_Default KernelRadiusDefault{.1};
 
 
 	/// ParticleSystemSolver Parameters
@@ -111,11 +111,11 @@ const SIM_DopDescription *SIM_CF_SPHSystemData::GetDescription()
 
 	static std::array<PRM_Template, 15> PRMS{
 			PRM_Template(PRM_FLT, 3, &FluidDomain, FluidDomainDefault.data()),
-			PRM_Template(PRM_FLT, 1, &ParticleRadius, &ParticleRadiusDefault),
+//			PRM_Template(PRM_FLT, 1, &ParticleRadius, &ParticleRadiusDefault),
 			PRM_Template(PRM_FLT, 1, &TargetDensity, &TargetDensityDefault),
 			PRM_Template(PRM_FLT, 1, &TargetSpacing, &TargetSpacingDefault),
 			PRM_Template(PRM_FLT, 1, &KernelRadiusOverTargetSpacing, &KernelRadiusOverTargetSpacingDefault),
-			PRM_Template(PRM_FLT, 1, &KernelRadius, &KernelRadiusDefault),
+//			PRM_Template(PRM_FLT, 1, &KernelRadius, &KernelRadiusDefault),
 			PRM_Template(PRM_FLT, 3, &Gravity, GravityDefault.data()),
 			PRM_Template(PRM_FLT, 1, &RestitutionCoefficient, &RestitutionCoefficientDefault),
 			PRM_Template(PRM_FLT, 1, &EosExponent, &EosExponentDefault),

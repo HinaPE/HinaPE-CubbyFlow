@@ -172,6 +172,7 @@ bool GAS_CF_PressureForceSolver::Solve(SIM_Engine &engine, SIM_Object *obj, SIM_
 
 		GA_RWHandleV3 gdp_handle_force = gdp.findPointAttribute(SIM_CF_SPHSystemData::FORCE_ATTRIBUTE_NAME);
 		GA_RWHandleI gdp_handle_CL_PT_IDX = gdp.findPointAttribute(SIM_CF_SPHSystemData::CL_PT_IDX_ATTRIBUTE_NAME);
+		GA_RWHandleF gdp_handle_pressure = gdp.findPointAttribute(SIM_CF_SPHSystemData::PRESSURE_ATTRIBUTE_NAME);
 
 		GA_Offset pt_off;
 		GA_FOR_ALL_PTOFF(&gdp, pt_off)
@@ -180,6 +181,10 @@ bool GAS_CF_PressureForceSolver::Solve(SIM_Engine &engine, SIM_Object *obj, SIM_
 				int cl_index = gdp_handle_CL_PT_IDX.get(pt_off);
 				UT_Vector3 pressure_force = UT_Vector3D{pressure_cache[cl_index].x, pressure_cache[cl_index].y, pressure_cache[cl_index].z};
 				gdp_handle_force.set(pt_off, pressure_force + exist_force);
+				auto pressure = pressure_cache[cl_index].Norm();
+				gdp_handle_pressure.set(pt_off, pressure);
 			}
 	}
+
+	return true;
 }

@@ -42,11 +42,11 @@ public:
 	void SetParticleState(size_t index, ParticleState state, UT_WorkBuffer &error_msg) const;
 
 	GETSET_DATA_FUNCS_V3("FluidDomain", FluidDomain)
-	GETSET_DATA_FUNCS_F("ParticleRadius", ParticleRadius)
+//	GETSET_DATA_FUNCS_F("ParticleRadius", ParticleRadius)
 	GETSET_DATA_FUNCS_F("TargetDensity", TargetDensity)
 	GETSET_DATA_FUNCS_F("TargetSpacing", TargetSpacing)
 	GETSET_DATA_FUNCS_F("KernelRadiusOverTargetSpacing", KernelRadiusOverTargetSpacing)
-	GETSET_DATA_FUNCS_F("KernelRadius", KernelRadius)
+//	GETSET_DATA_FUNCS_F("KernelRadius", KernelRadius)
 	GETSET_DATA_FUNCS_V3("Gravity", Gravity)
 	GETSET_DATA_FUNCS_F("RestitutionCoefficient", RestitutionCoefficient)
 	GETSET_DATA_FUNCS_F("EosExponent", EosExponent)

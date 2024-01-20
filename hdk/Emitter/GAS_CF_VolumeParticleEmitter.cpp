@@ -116,8 +116,68 @@ const SIM_DopDescription *GAS_CF_VolumeParticleEmitter::getDopDescription()
  * - It would take A LOG OF TIME to construct Implicit Surface for a Geometry From a Mesh (SOP Networks, etc.)
  * - It is more recommended to use Our Own SIM_Geometry(SIM_CF_Sphere, etc.), It would be more efficient.
  */
-bool GAS_CF_VolumeParticleEmitter::InitRuntime(SIM_Engine &, SIM_Object *, SIM_Time, SIM_Time, UT_WorkBuffer &error_msg)
+bool GAS_CF_VolumeParticleEmitter::InitRuntime(SIM_Engine &, SIM_Object *obj, SIM_Time, SIM_Time, UT_WorkBuffer &error_msg)
 {
+	if (!obj)
+	{
+		error_msg.appendSprintf("Object Is Null, From %s\n", DATANAME);
+		return false;
+	}
+
+	SIM_GeometryCopy *geo = SIM_DATA_GET(*obj, SIM_GEOMETRY_DATANAME, SIM_GeometryCopy);
+	if (!geo)
+	{
+		error_msg.appendSprintf("Geometry Is Null, From %s\n", DATANAME);
+		return false;
+	}
+
+	SIM_CF_ParticleSystemData *psdata = SIM_DATA_GET(*obj, SIM_CF_ParticleSystemData::DATANAME, SIM_CF_ParticleSystemData);
+	SIM_CF_SPHSystemData *sphdata = SIM_DATA_GET(*obj, SIM_CF_SPHSystemData::DATANAME, SIM_CF_SPHSystemData);
+	if (!psdata && !sphdata)
+	{
+		error_msg.appendSprintf("No Valid Target Data, From %s\n", DATANAME);
+		return false;
+	}
+
+	fpreal TargetSpacing;
+	UT_Vector3 MaxRegion;
+	if (psdata)
+	{
+		if (!psdata->Configured)
+		{
+			error_msg.appendSprintf("ParticleSystemData Not Configured Yet, From %s\n", DATANAME);
+			return false;
+		}
+
+		if (!psdata->InnerPtr)
+		{
+			error_msg.appendSprintf("ParticleSystemData InnerPtr is nullptr, From %s\n", DATANAME);
+			return false;
+		}
+
+		fpreal ParticleRadius = psdata->getParticleRadius();
+		TargetSpacing = psdata->getTargetSpacing();
+		MaxRegion = psdata->getParticlesDomain();
+	}
+
+	if (sphdata)
+	{
+		if (!sphdata->Configured)
+		{
+			error_msg.appendSprintf("SPHSystemData Not Configured Yet, From %s\n", DATANAME);
+			return false;
+		}
+
+		if (!sphdata->InnerPtr)
+		{
+			error_msg.appendSprintf("SPHSystemData InnerPtr is nullptr, From %s\n", DATANAME);
+			return false;
+		}
+
+		MaxRegion = sphdata->getFluidDomain();
+		TargetSpacing = sphdata->getTargetSpacing();
+	}
+
 	CubbyFlow::Array1<CubbyFlow::Surface3Ptr> MultipleSurfaces;
 
 	// Find All SIM_CF_Sphere
@@ -230,11 +290,18 @@ bool GAS_CF_VolumeParticleEmitter::InitRuntime(SIM_Engine &, SIM_Object *, SIM_T
 	size_t MaxNumberOfParticles = getMaxNumberOfParticles();
 	size_t RandomSeed = getRandomSeed();
 
+	CubbyFlow::BoundingBox3D fluid_domain(
+			CubbyFlow::Vector3D(-MaxRegion.x() / 2, -MaxRegion.y() / 2, -MaxRegion.z() / 2),
+			CubbyFlow::Vector3D(MaxRegion.x() / 2, MaxRegion.y() / 2, MaxRegion.z() / 2)
+	);
+
 	this->InnerPtr = CubbyFlow::VolumeParticleEmitter3::GetBuilder()
 			.WithImplicitSurface(implicit)
+			.WithSpacing(TargetSpacing)
 			.WithIsOneShot(IsOneShot)
 			.WithMaxNumberOfParticles(MaxNumberOfParticles)
 			.WithRandomSeed(RandomSeed)
+			.WithMaxRegion(fluid_domain)
 			.MakeShared();
 
 	return true;
@@ -278,13 +345,6 @@ bool GAS_CF_VolumeParticleEmitter::Solve(SIM_Engine &engine, SIM_Object *obj, SI
 		}
 
 		this->InnerPtr->SetTarget(psdata->InnerPtr);
-		this->InnerPtr->SetSpacing(psdata->getTargetSpacing());
-		UT_Vector3 MaxRegion = psdata->getParticlesDomain();
-		CubbyFlow::BoundingBox3D fluid_domain(
-				CubbyFlow::Vector3D(-MaxRegion.x() / 2, -MaxRegion.y() / 2, -MaxRegion.z() / 2),
-				CubbyFlow::Vector3D(MaxRegion.x() / 2, MaxRegion.y() / 2, MaxRegion.z() / 2)
-		);
-		this->InnerPtr->SetMaxRegion(fluid_domain);
 		this->InnerPtr->Update(time, timestep);
 	}
 
@@ -303,13 +363,6 @@ bool GAS_CF_VolumeParticleEmitter::Solve(SIM_Engine &engine, SIM_Object *obj, SI
 		}
 
 		this->InnerPtr->SetTarget(sphdata->InnerPtr);
-		this->InnerPtr->SetSpacing(sphdata->getTargetSpacing());
-		UT_Vector3 MaxRegion = sphdata->getFluidDomain();
-		CubbyFlow::BoundingBox3D fluid_domain(
-				CubbyFlow::Vector3D(-MaxRegion.x() / 2, -MaxRegion.y() / 2, -MaxRegion.z() / 2),
-				CubbyFlow::Vector3D(MaxRegion.x() / 2, MaxRegion.y() / 2, MaxRegion.z() / 2)
-		);
-		this->InnerPtr->SetMaxRegion(fluid_domain);
 		this->InnerPtr->Update(time, timestep);
 	}
 

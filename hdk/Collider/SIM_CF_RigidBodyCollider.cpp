@@ -50,6 +50,6 @@ const SIM_DopDescription *SIM_CF_RigidBodyCollider::GetDescription()
 								   DATANAME,
 								   classname(),
 								   PRMS.data());
-	DESC.setDefaultUniqueDataName(true);
+//	DESC.setDefaultUniqueDataName(true);
 	return &DESC;
 }

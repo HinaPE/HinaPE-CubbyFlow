@@ -54,8 +54,8 @@ const SIM_DopDescription *GAS_CF_CommitCache::getDopDescription()
 	};
 
 	static SIM_DopDescription DESC(true,
-								   "cf_semi_implicit_euler",
-								   "CF Semi Implicit Euler",
+								   "cf_commit_cache",
+								   "CF Commit Cache",
 								   DATANAME,
 								   classname(),
 								   PRMS.data());
@@ -109,6 +109,14 @@ bool GAS_CF_CommitCache::Solve(SIM_Engine &engine, SIM_Object *obj, SIM_Time tim
 		return false;
 	}
 
+	// Commit Data in CubbyFlow
+	for (int i = 0; i < sphdata->newPositions_Cache.Size().x; ++i)
+		sphdata->InnerPtr->Positions()[i] = sphdata->newPositions_Cache[i];
+	for (int i = 0; i < sphdata->newPositions_Cache.Size().x; ++i)
+		sphdata->InnerPtr->Velocities()[i] = sphdata->newVelocities_Cache[i];
+
+
+	// Commit Data in Geometry Sheet
 	{
 		SIM_GeometryAutoWriteLock lock(geo);
 		GU_Detail &gdp = lock.getGdp();
@@ -127,4 +135,6 @@ bool GAS_CF_CommitCache::Solve(SIM_Engine &engine, SIM_Object *obj, SIM_Time tim
 				gdp_handle_vel.set(pt_off, new_vel);
 			}
 	}
+
+	return true;
 }

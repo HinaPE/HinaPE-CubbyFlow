@@ -10,6 +10,7 @@
 #include "Geometry/SIM_CF_Box.h"
 #include "Geometry/SIM_CF_Plane.h"
 
+#include "Particle/GAS_CF_CommitCache.h"
 #include "Particle/GAS_CF_ConfigureParticleSystemData.h"
 #include "Particle/GAS_CF_ConfigureSPHSystemData.h"
 #include "Particle/GAS_CF_UpdateToGeometrySheet.h"
@@ -43,6 +44,7 @@ void initializeSIM(void *)
 	IMPLEMENT_DATAFACTORY(SIM_CF_Plane)
 
 	// Particle
+	IMPLEMENT_DATAFACTORY(GAS_CF_CommitCache)
 	IMPLEMENT_DATAFACTORY(GAS_CF_ConfigureParticleSystemData)
 	IMPLEMENT_DATAFACTORY(GAS_CF_ConfigureSPHSystemData)
 	IMPLEMENT_DATAFACTORY(GAS_CF_UpdateToGeometrySheet)

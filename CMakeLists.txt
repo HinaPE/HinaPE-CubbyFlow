@@ -37,6 +37,8 @@ add_library(
         hdk/Geometry/SIM_CF_Sphere.cpp
         hdk/Geometry/SIM_CF_Sphere.h
 
+        hdk/Particle/GAS_CF_CommitCache.cpp
+        hdk/Particle/GAS_CF_CommitCache.h
         hdk/Particle/GAS_CF_ConfigureParticleSystemData.cpp
         hdk/Particle/GAS_CF_ConfigureParticleSystemData.h
         hdk/Particle/GAS_CF_ConfigureSPHSystemData.cpp

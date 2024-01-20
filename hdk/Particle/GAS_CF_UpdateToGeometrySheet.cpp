@@ -218,6 +218,11 @@ bool GAS_CF_UpdateToGeometrySheet::Solve(SIM_Engine &, SIM_Object *obj, SIM_Time
 			error_msg.appendSprintf("Error Array Size::cf_array_neighbor_list, From %s\n", DATANAME);
 			return false;
 		}
+		// Deal With Caches
+		if (sphdata->newPositions_Cache.IsEmpty())
+			sphdata->newPositions_Cache.Resize(p_size);
+		if (sphdata->newVelocities_Cache.IsEmpty())
+			sphdata->newVelocities_Cache.Resize(p_size);
 
 		{
 			SIM_GeometryAutoWriteLock lock(geo);
@@ -262,6 +267,14 @@ bool GAS_CF_UpdateToGeometrySheet::Solve(SIM_Engine &, SIM_Object *obj, SIM_Time
 				GA_RWHandleI gdp_handle_neighbor_list = gdp.findPointAttribute(SIM_CF_SPHSystemData::NEIGHBOR_SUM_ATTRIBUTE_NAME);
 				const auto &neighbor_list = cf_array_neighbor_list[i];
 				gdp_handle_neighbor_list.set(pt_off, neighbor_list.Size().x);
+
+				GA_RWHandleV3 gdp_handle_new_pos = gdp.findPointAttribute(SIM_CF_SPHSystemData::NEW_POSITION_CACHE_ATTRIBUTE_NAME);
+				UT_Vector3 new_pos = UT_Vector3D{sphdata->newPositions_Cache[i].x,sphdata->newPositions_Cache[i].y,sphdata->newPositions_Cache[i].z};
+				gdp_handle_new_pos.set(pt_off, new_pos);
+
+				GA_RWHandleV3 gdp_handle_new_vel = gdp.findPointAttribute(SIM_CF_SPHSystemData::NEW_VELOCITY_CACHE_ATTRIBUTE_NAME);
+				UT_Vector3 new_vel = UT_Vector3D{sphdata->newVelocities_Cache[i].x,sphdata->newVelocities_Cache[i].y,sphdata->newVelocities_Cache[i].z};
+				gdp_handle_new_vel.set(pt_off, new_vel);
 
 				sphdata->SetParticleState(i, SIM_CF_SPHSystemData::PARTICLE_CLEAN, error_msg);
 			}

@@ -1,4 +1,4 @@
-#include "GAS_CF_Semi_Implicit_Euler.h"
+#include "GAS_CF_CommitCache.h"
 
 #include <SIM/SIM_Engine.h>
 #include <SIM/SIM_DopDescription.h>
@@ -24,7 +24,7 @@
 
 #include <Particle/SIM_CF_SPHSystemData.h>
 
-bool GAS_CF_Semi_Implicit_Euler::solveGasSubclass(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep)
+bool GAS_CF_CommitCache::solveGasSubclass(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep)
 {
 	UT_WorkBuffer error_msg;
 	if (!Solve(engine, obj, time, timestep, error_msg) || UTisstring(error_msg.buffer()))
@@ -36,18 +36,18 @@ bool GAS_CF_Semi_Implicit_Euler::solveGasSubclass(SIM_Engine &engine, SIM_Object
 	return true;
 }
 
-void GAS_CF_Semi_Implicit_Euler::initializeSubclass()
+void GAS_CF_CommitCache::initializeSubclass()
 {
 	SIM_Data::initializeSubclass();
 }
 
-void GAS_CF_Semi_Implicit_Euler::makeEqualSubclass(const SIM_Data *source)
+void GAS_CF_CommitCache::makeEqualSubclass(const SIM_Data *source)
 {
 	SIM_Data::makeEqualSubclass(source);
 }
 
-const char *GAS_CF_Semi_Implicit_Euler::DATANAME = "CF_Semi_Implicit_Euler";
-const SIM_DopDescription *GAS_CF_Semi_Implicit_Euler::getDopDescription()
+const char *GAS_CF_CommitCache::DATANAME = "CF_CommitCache";
+const SIM_DopDescription *GAS_CF_CommitCache::getDopDescription()
 {
 	static std::array<PRM_Template, 1> PRMS{
 			PRM_Template()
@@ -59,12 +59,12 @@ const SIM_DopDescription *GAS_CF_Semi_Implicit_Euler::getDopDescription()
 								   DATANAME,
 								   classname(),
 								   PRMS.data());
-//	DESC.setDefaultUniqueDataName(true); // We Only Need ONE in a simulation
+	DESC.setDefaultUniqueDataName(true);
 	setGasDescription(DESC);
 	return &DESC;
 }
 
-bool GAS_CF_Semi_Implicit_Euler::Solve(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep, UT_WorkBuffer &error_msg) const
+bool GAS_CF_CommitCache::Solve(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep, UT_WorkBuffer &error_msg) const
 {
 	if (!obj)
 	{
@@ -98,53 +98,33 @@ bool GAS_CF_Semi_Implicit_Euler::Solve(SIM_Engine &engine, SIM_Object *obj, SIM_
 		return false;
 	}
 
-	// Apply Semi Implicit Euler in CubbyFlow
+	if (sphdata->newPositions_Cache.IsEmpty())
 	{
-		using namespace CubbyFlow;
-		auto &m_particleSystemData = sphdata->InnerPtr;
-		const size_t n = m_particleSystemData->NumberOfParticles();
-		ArrayView1<Vector3D> forces = m_particleSystemData->Forces();
-		ArrayView1<Vector3D> velocities = m_particleSystemData->Velocities();
-		ArrayView1<Vector3D> positions = m_particleSystemData->Positions();
-		const double mass = m_particleSystemData->Mass();
-
-		auto &m_newPositions = sphdata->newPositions_Cache;
-		auto &m_newVelocities = sphdata->newVelocities_Cache;
-		double timeStepInSeconds = timestep;
-		m_newPositions.Resize(n);
-		m_newVelocities.Resize(n);
-		ParallelFor(ZERO_SIZE, n, [&](size_t i)
-		{
-			// Integrate velocity first
-			Vector3D &newVelocity = m_newVelocities[i];
-			newVelocity = velocities[i] + timeStepInSeconds * forces[i] / mass;
-
-			// Integrate position.
-			Vector3D &newPosition = m_newPositions[i];
-			newPosition = positions[i] + timeStepInSeconds * newVelocity;
-		});
+		error_msg.appendSprintf("newPositions_Cache is Empty, From %s\n", DATANAME);
+		return false;
+	}
+	if (sphdata->newVelocities_Cache.IsEmpty())
+	{
+		error_msg.appendSprintf("newVelocities_Cache is Empty, From %s\n", DATANAME);
+		return false;
 	}
 
-
-	// Apply Semi Implicit Euler in Geometry Sheet
 	{
 		SIM_GeometryAutoWriteLock lock(geo);
 		GU_Detail &gdp = lock.getGdp();
+		GA_RWHandleV3 gdp_handle_pos = gdp.getP();
+		GA_RWHandleV3 gdp_handle_vel = gdp.findPointAttribute(gdp.getStdAttributeName(GEO_ATTRIBUTE_VELOCITY));
 
 		GA_RWHandleV3 gdp_handle_new_pos = gdp.findPointAttribute(SIM_CF_SPHSystemData::NEW_POSITION_CACHE_ATTRIBUTE_NAME);
 		GA_RWHandleV3 gdp_handle_new_vel = gdp.findPointAttribute(SIM_CF_SPHSystemData::NEW_VELOCITY_CACHE_ATTRIBUTE_NAME);
-		GA_RWHandleI gdp_handle_CL_PT_IDX = gdp.findPointAttribute(SIM_CF_SPHSystemData::CL_PT_IDX_ATTRIBUTE_NAME);
 
 		GA_Offset pt_off;
 		GA_FOR_ALL_PTOFF(&gdp, pt_off)
 			{
-				int cl_index = gdp_handle_CL_PT_IDX.get(pt_off);
-				UT_Vector3 new_pos = UT_Vector3D{sphdata->newPositions_Cache[cl_index].x, sphdata->newPositions_Cache[cl_index].y, sphdata->newPositions_Cache[cl_index].z};
-				gdp_handle_new_pos.set(pt_off, new_pos);
-				UT_Vector3 new_vel = UT_Vector3D{sphdata->newVelocities_Cache[cl_index].x, sphdata->newVelocities_Cache[cl_index].y, sphdata->newVelocities_Cache[cl_index].z};
-				gdp_handle_new_vel.set(pt_off, new_vel);
+				UT_Vector3 new_pos = gdp_handle_new_pos.get(pt_off);
+				UT_Vector3 new_vel = gdp_handle_new_vel.get(pt_off);
+				gdp_handle_pos.set(pt_off, new_pos);
+				gdp_handle_vel.set(pt_off, new_vel);
 			}
 	}
-
-	return true;
 }

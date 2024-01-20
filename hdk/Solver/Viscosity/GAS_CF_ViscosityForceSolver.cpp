@@ -25,6 +25,8 @@
 #include <Particle/SIM_CF_ParticleSystemData.h>
 #include <Particle/SIM_CF_SPHSystemData.h>
 
+#include "Core/Particle/SPHKernels.hpp"
+
 bool GAS_CF_ViscosityForceSolver::solveGasSubclass(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep)
 {
 	UT_WorkBuffer error_msg;
@@ -73,7 +75,77 @@ bool GAS_CF_ViscosityForceSolver::Solve(SIM_Engine &engine, SIM_Object *obj, SIM
 		return false;
 	}
 
+	SIM_CF_SPHSystemData *sphdata = SIM_DATA_GET(*obj, SIM_CF_SPHSystemData::DATANAME, SIM_CF_SPHSystemData);
+	if (!sphdata)
+	{
+		error_msg.appendSprintf("No Valid Target Data, From %s\n", DATANAME);
+		return false;
+	}
 
+	SIM_GeometryCopy *geo = SIM_DATA_GET(*obj, SIM_GEOMETRY_DATANAME, SIM_GeometryCopy);
+	if (!geo)
+	{
+		error_msg.appendSprintf("Geometry Is Null, From %s\n", DATANAME);
+		return false;
+	}
+
+	if (!sphdata->Configured)
+	{
+		error_msg.appendSprintf("SPHSystemData Not Configured Yet, From %s\n", DATANAME);
+		return false;
+	}
+
+	if (!sphdata->InnerPtr)
+	{
+		error_msg.appendSprintf("SPHSystemData InnerPtr is nullptr, From %s\n", DATANAME);
+		return false;
+	}
+
+	// Add Viscosity Force in CubbyFlow
+	size_t p_size = sphdata->InnerPtr->NumberOfParticles();
+
+	CubbyFlow::ArrayView1<CubbyFlow::Vector3D> x = sphdata->InnerPtr->Positions();
+	CubbyFlow::ArrayView1<CubbyFlow::Vector3D> v = sphdata->InnerPtr->Velocities();
+	CubbyFlow::ArrayView1<double> d = sphdata->InnerPtr->Densities();
+	CubbyFlow::ArrayView1<CubbyFlow::Vector3D> f = sphdata->InnerPtr->Forces();
+
+	const double viscosity = sphdata->getViscosityCoefficient();
+	const double mass_squared = sphdata->InnerPtr->Mass() * sphdata->InnerPtr->Mass();
+	const CubbyFlow::SPHSpikyKernel3 kernel{sphdata->InnerPtr->KernelRadius()};
+
+	std::vector<CubbyFlow::Vector3D> viscosity_cache;
+	viscosity_cache.resize(p_size);
+	CubbyFlow::ParallelFor(CubbyFlow::ZERO_SIZE, p_size, [&](size_t i)
+	{
+		const auto &neighbors = sphdata->InnerPtr->NeighborLists()[i];
+		for (size_t j: neighbors)
+		{
+			const double dist = x[i].DistanceTo(x[j]);
+
+			viscosity_cache[i] = viscosity * mass_squared * (v[j] - v[i]) /
+								 d[j] * kernel.SecondDerivative(dist);
+			f[i] += viscosity_cache[i];
+		}
+	});
+
+
+	// Add Viscosity Force in Geometry Sheet
+	{
+		SIM_GeometryAutoWriteLock lock(geo);
+		GU_Detail &gdp = lock.getGdp();
+
+		GA_RWHandleV3 gdp_handle_force = gdp.findPointAttribute(SIM_CF_SPHSystemData::FORCE_ATTRIBUTE_NAME);
+		GA_RWHandleI gdp_handle_CL_PT_IDX = gdp.findPointAttribute(SIM_CF_SPHSystemData::CL_PT_IDX_ATTRIBUTE_NAME);
+
+		GA_Offset pt_off;
+		GA_FOR_ALL_PTOFF(&gdp, pt_off)
+			{
+				UT_Vector3 exist_force = gdp_handle_force.get(pt_off);
+				int cl_index = gdp_handle_CL_PT_IDX.get(pt_off);
+				UT_Vector3 viscosity_force = UT_Vector3D{viscosity_cache[cl_index].x, viscosity_cache[cl_index].y, viscosity_cache[cl_index].z};
+				gdp_handle_force.set(pt_off, viscosity_force + exist_force);
+			}
+	}
 
 	return true;
 }

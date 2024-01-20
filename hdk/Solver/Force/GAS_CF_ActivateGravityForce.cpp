@@ -152,12 +152,13 @@ bool GAS_CF_ActivateGravityForce::Solve(SIM_Engine &engine, SIM_Object *obj, SIM
 			GU_Detail &gdp = lock.getGdp();
 
 			GA_RWHandleV3 gdp_handle_force = gdp.findPointAttribute(SIM_CF_SPHSystemData::FORCE_ATTRIBUTE_NAME);
+			UT_Vector3 gravity_force = mass * gravity;
 
 			GA_Offset pt_off;
 			GA_FOR_ALL_PTOFF(&gdp, pt_off)
 				{
 					UT_Vector3 exist_force = gdp_handle_force.get(pt_off);
-					gdp_handle_force.set(pt_off, mass * gravity + exist_force);
+					gdp_handle_force.set(pt_off, gravity_force + exist_force);
 				}
 		}
 	}

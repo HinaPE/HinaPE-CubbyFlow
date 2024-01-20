@@ -100,6 +100,8 @@ bool GAS_CF_UpdateDensitySolver::Solve(SIM_Engine &, SIM_Object *obj, SIM_Time, 
 
 	sphdata->InnerPtr->UpdateDensities();
 
+
+	// Update Density To Geometry Sheet
 	size_t p_size = sphdata->InnerPtr->NumberOfParticles();
 	const auto &cf_array_density = sphdata->InnerPtr->Densities();
 	if (p_size != cf_array_density.Size().x)
@@ -117,6 +119,12 @@ bool GAS_CF_UpdateDensitySolver::Solve(SIM_Engine &, SIM_Object *obj, SIM_Time, 
 		for (int i = 0; i < p_size; ++i)
 		{
 			GA_Offset pt_off = sphdata->GetParticleOffset(i, error_msg);
+
+			if (!gdp_handle_density->getIndexMap().isOffsetActive(pt_off))
+			{
+				error_msg.appendSprintf("Offset INVALID, Please use UpdateToGeometry Sheet First! From %s\n", DATANAME);
+				return false;
+			}
 
 			auto density = cf_array_density[i];
 			gdp_handle_density.set(pt_off, density);

@@ -140,7 +140,6 @@ bool GAS_CF_UpdateToGeometrySheet::Solve(SIM_Engine &, SIM_Object *obj, SIM_Time
 					psdata->SetParticleOffset(i, new_offset, error_msg);
 				}
 				GA_Offset pt_off = psdata->GetParticleOffset(i, error_msg);
-				psdata->SetParticleState(i, SIM_CF_ParticleSystemData::PARTICLE_CLEAN, error_msg);
 
 				auto pos = cf_array_pos[i];
 				gdp.setPos3(pt_off, UT_Vector3D{pos.x, pos.y, pos.z});
@@ -156,6 +155,8 @@ bool GAS_CF_UpdateToGeometrySheet::Solve(SIM_Engine &, SIM_Object *obj, SIM_Time
 				GA_RWHandleF gdp_handle_mass = gdp.findPointAttribute(gdp.getStdAttributeName(GEO_ATTRIBUTE_MASS));
 				auto mass = cf_constant_mass;
 				gdp_handle_mass.set(pt_off, mass);
+
+				psdata->SetParticleState(i, SIM_CF_ParticleSystemData::PARTICLE_CLEAN, error_msg);
 			}
 		}
 	}

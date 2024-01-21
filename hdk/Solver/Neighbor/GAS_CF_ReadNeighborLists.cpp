@@ -1,4 +1,4 @@
-#include "GAS_CF_BuildNeighborLists.h"
+#include "GAS_CF_ReadNeighborLists.h"
 
 #include <SIM/SIM_Engine.h>
 #include <SIM/SIM_DopDescription.h>
@@ -25,7 +25,7 @@
 #include <Particle/ParticleSystemData/SIM_CF_ParticleSystemData.h>
 #include <Particle/SPHSystemData/SIM_CF_SPHSystemData.h>
 
-bool GAS_CF_BuildNeighborLists::solveGasSubclass(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep)
+bool GAS_CF_ReadNeighborLists::solveGasSubclass(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep)
 {
 	UT_WorkBuffer error_msg;
 	if (!Solve(engine, obj, time, timestep, error_msg) || UTisstring(error_msg.buffer()))
@@ -37,26 +37,26 @@ bool GAS_CF_BuildNeighborLists::solveGasSubclass(SIM_Engine &engine, SIM_Object 
 	return true;
 }
 
-void GAS_CF_BuildNeighborLists::initializeSubclass()
+void GAS_CF_ReadNeighborLists::initializeSubclass()
 {
 	SIM_Data::initializeSubclass();
 }
 
-void GAS_CF_BuildNeighborLists::makeEqualSubclass(const SIM_Data *source)
+void GAS_CF_ReadNeighborLists::makeEqualSubclass(const SIM_Data *source)
 {
 	SIM_Data::makeEqualSubclass(source);
 }
 
-const char *GAS_CF_BuildNeighborLists::DATANAME = "CF_BuildNeighborLists";
-const SIM_DopDescription *GAS_CF_BuildNeighborLists::getDopDescription()
+const char *GAS_CF_ReadNeighborLists::DATANAME = "CF_ReadNeighborLists";
+const SIM_DopDescription *GAS_CF_ReadNeighborLists::getDopDescription()
 {
 	static std::array<PRM_Template, 1> PRMS{
 			PRM_Template()
 	};
 
 	static SIM_DopDescription DESC(true,
-								   "cf_build_neighbor_lists",
-								   "CF Build Neighbor Lists",
+								   "cf_read_neighbor_lists",
+								   "CF Read Neighbor Lists",
 								   DATANAME,
 								   classname(),
 								   PRMS.data());
@@ -65,11 +65,7 @@ const SIM_DopDescription *GAS_CF_BuildNeighborLists::getDopDescription()
 	return &DESC;
 }
 
-/**
- * Now, We Only BuildNeighborLists for
- * - SIM_CF_SPHSystemData
- */
-bool GAS_CF_BuildNeighborLists::Solve(SIM_Engine &, SIM_Object *obj, SIM_Time, SIM_Time, UT_WorkBuffer &error_msg) const
+bool GAS_CF_ReadNeighborLists::Solve(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep, UT_WorkBuffer &error_msg) const
 {
 	if (!obj)
 	{
@@ -107,8 +103,6 @@ bool GAS_CF_BuildNeighborLists::Solve(SIM_Engine &, SIM_Object *obj, SIM_Time, S
 		}
 
 		// TODO: consider whether need to enable particle system data to support neighbor lists
-//		psdata->InnerPtr->BuildNeighborSearcher();
-//		psdata->InnerPtr->BuildNeighborLists();
 	}
 
 	if (sphdata)
@@ -125,37 +119,37 @@ bool GAS_CF_BuildNeighborLists::Solve(SIM_Engine &, SIM_Object *obj, SIM_Time, S
 			return false;
 		}
 
-		sphdata->InnerPtr->BuildNeighborSearcher();
-		sphdata->InnerPtr->BuildNeighborLists();
+		int p_size = sphdata->InnerPtr->NumberOfParticles();
 
-		// Update Neighbor Sum To Geometry Sheet
-		const auto &cf_array_neighbor_list = sphdata->InnerPtr->NeighborLists();
-		size_t p_size = sphdata->InnerPtr->NumberOfParticles();
-		if (p_size != cf_array_neighbor_list.Size().x)
-		{
-			error_msg.appendSprintf("Error Array Size::cf_array_neighbor_list, From %s\n", DATANAME);
-			return false;
-		}
+		// First we should build Searcher as normal.
+		sphdata->InnerPtr->BuildNeighborSearcher();
+
+		// Then, directly read in neighbor lists without calling [sphdata->InnerPtr->BuildNeighborLists()]
+		// Drop "const" modifier (though it is dangerous, we can do this in current situation)
+		auto &lists = const_cast<CubbyFlow::Array1<CubbyFlow::Array1<size_t>> &>(sphdata->InnerPtr->NeighborLists());
+		lists.Resize(p_size);
 
 		{
 			SIM_GeometryAutoWriteLock lock(geo);
 			GU_Detail &gdp = lock.getGdp();
 			GA_RWHandleI gdp_handle_neighbor_sum = gdp.findPointAttribute(SIM_CF_SPHSystemData::NEIGHBOR_SUM_ATTRIBUTE_NAME);
-			GA_RWHandleIA gdp_handle_neighbor_list = gdp.findPointAttribute(SIM_CF_SPHSystemData::NEIGHBOR_LIST_ATTRIBUTE_NAME);
+			GA_ROHandleIA gdp_handle_neighbor_list = gdp.findPointAttribute(SIM_CF_SPHSystemData::NEIGHBOR_LIST_ATTRIBUTE_NAME);
 			GA_ROHandleI gdp_handle_CL_PT_IDX = gdp.findPointAttribute(SIM_CF_SPHSystemData::CL_PT_IDX_ATTRIBUTE_NAME);
 
 			GA_Offset pt_off;
 			GA_FOR_ALL_PTOFF(&gdp, pt_off)
 				{
 					int cl_index = gdp_handle_CL_PT_IDX.get(pt_off);
-					const auto &neighbor_list = cf_array_neighbor_list[cl_index];
-					gdp_handle_neighbor_sum.set(pt_off, neighbor_list.Size().x);
 
 					UT_Int32Array nArray;
-					nArray.setSize(neighbor_list.Size().x);
-					for (int nidx = 0; nidx < neighbor_list.Size().x; ++nidx)
-						nArray[nidx] = neighbor_list[nidx]; // TODO: this is index, not offset
-					gdp_handle_neighbor_list.set(pt_off, nArray);
+					gdp_handle_neighbor_list.get(pt_off, nArray);
+					int n_size = nArray.size();
+					lists[cl_index].Resize(n_size);
+
+					for (int i = 0; i < n_size; ++i)
+						lists[cl_index][i] = nArray[i];
+
+					gdp_handle_neighbor_sum.set(pt_off, n_size);
 				}
 		}
 	}

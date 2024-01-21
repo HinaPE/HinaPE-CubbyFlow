@@ -53,6 +53,7 @@ const char *SIM_CF_SPHSystemData::NEW_VELOCITY_CACHE_ATTRIBUTE_NAME = "new_vel";
 const char *SIM_CF_SPHSystemData::FORCE_ATTRIBUTE_NAME = "force";
 const char *SIM_CF_SPHSystemData::DENSITY_ATTRIBUTE_NAME = "density";
 const char *SIM_CF_SPHSystemData::PRESSURE_ATTRIBUTE_NAME = "pressure";
+const char *SIM_CF_SPHSystemData::NEIGHBOR_LIST_ATTRIBUTE_NAME = "neighbors";
 const char *SIM_CF_SPHSystemData::NEIGHBOR_SUM_ATTRIBUTE_NAME = "neighbor_sum";
 const SIM_DopDescription *SIM_CF_SPHSystemData::GetDescription()
 {
@@ -61,7 +62,7 @@ const SIM_DopDescription *SIM_CF_SPHSystemData::GetDescription()
 
 
 	/// ParticleSystemData Parameters
-//	static PRM_Name ParticleRadius("ParticleRadius", "ParticleRadius");
+//	static PRM_Name ParticleRadius("ParticleRadius", "ParticleRadius"); // Substituted With Target Spacing in Cubby
 //	static PRM_Default ParticleRadiusDefault{1e-3};
 
 
@@ -75,7 +76,7 @@ const SIM_DopDescription *SIM_CF_SPHSystemData::GetDescription()
 	static PRM_Name KernelRadiusOverTargetSpacing("KernelRadiusOverTargetSpacing", "KernelRadiusOverTargetSpacing");
 	static PRM_Default KernelRadiusOverTargetSpacingDefault{1.8};
 
-//	static PRM_Name KernelRadius("KernelRadius", "KernelRadius");
+//	static PRM_Name KernelRadius("KernelRadius", "KernelRadius");  // Auto Computed
 //	static PRM_Default KernelRadiusDefault{.1};
 
 

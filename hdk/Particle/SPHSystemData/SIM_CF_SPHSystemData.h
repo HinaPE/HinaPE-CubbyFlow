@@ -19,6 +19,7 @@ public:
 	static const char *FORCE_ATTRIBUTE_NAME;
 	static const char *DENSITY_ATTRIBUTE_NAME;
 	static const char *PRESSURE_ATTRIBUTE_NAME;
+	static const char *NEIGHBOR_LIST_ATTRIBUTE_NAME;
 	static const char *NEIGHBOR_SUM_ATTRIBUTE_NAME;
 	bool Configured = false;
 	CubbyFlow::SPHSystemData3Ptr InnerPtr;

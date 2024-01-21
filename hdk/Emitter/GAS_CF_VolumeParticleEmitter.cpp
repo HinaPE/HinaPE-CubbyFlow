@@ -154,7 +154,6 @@ bool GAS_CF_VolumeParticleEmitter::InitRuntime(SIM_Engine &, SIM_Object *obj, SI
 			return false;
 		}
 
-		fpreal ParticleRadius = psdata->getParticleRadius();
 		TargetSpacing = psdata->getTargetSpacing();
 		MaxRegion = psdata->getParticlesDomain();
 	}

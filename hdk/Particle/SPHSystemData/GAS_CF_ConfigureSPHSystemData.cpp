@@ -125,6 +125,8 @@ bool GAS_CF_ConfigureSPHSystemData::Solve(SIM_Engine &engine, SIM_Object *obj, S
 		densityref.setTypeInfo(GA_TYPE_VOID);
 		GA_RWAttributeRef pressureref = gdp.addFloatTuple(GA_ATTRIB_POINT, SIM_CF_SPHSystemData::PRESSURE_ATTRIBUTE_NAME, 1, GA_Defaults(0));
 		pressureref.setTypeInfo(GA_TYPE_VOID);
+		GA_RWAttributeRef neighborlistref = gdp.addIntArray(GA_ATTRIB_POINT, SIM_CF_SPHSystemData::NEIGHBOR_LIST_ATTRIBUTE_NAME);
+		neighborlistref.setTypeInfo(GA_TYPE_VOID);
 		GA_RWAttributeRef neighborsumref = gdp.addIntTuple(GA_ATTRIB_POINT, SIM_CF_SPHSystemData::NEIGHBOR_SUM_ATTRIBUTE_NAME, 1, GA_Defaults(0));
 		neighborsumref.setTypeInfo(GA_TYPE_VOID);
 		GA_RWAttributeRef CL_PT_IDXref = gdp.addIntTuple(GA_ATTRIB_POINT, SIM_CF_SPHSystemData::CL_PT_IDX_ATTRIBUTE_NAME, 1, GA_Defaults(-1));

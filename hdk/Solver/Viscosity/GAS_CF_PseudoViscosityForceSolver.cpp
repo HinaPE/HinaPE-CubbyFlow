@@ -156,7 +156,7 @@ bool GAS_CF_PseudoViscosityForceSolver::Solve(SIM_Engine &engine, SIM_Object *ob
 		GU_Detail &gdp = lock.getGdp();
 
 		GA_RWHandleV3 gdp_handle_vel = gdp.findPointAttribute(gdp.getStdAttributeName(GEO_ATTRIBUTE_VELOCITY));
-		GA_RWHandleI gdp_handle_CL_PT_IDX = gdp.findPointAttribute(SIM_CF_SPHSystemData::CL_PT_IDX_ATTRIBUTE_NAME);
+		GA_ROHandleI gdp_handle_CL_PT_IDX = gdp.findPointAttribute(SIM_CF_SPHSystemData::CL_PT_IDX_ATTRIBUTE_NAME);
 
 		GA_Offset pt_off;
 		GA_FOR_ALL_PTOFF(&gdp, pt_off)

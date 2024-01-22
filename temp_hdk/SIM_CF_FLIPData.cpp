@@ -24,6 +24,7 @@ void SIM_CF_FLIPData::initializeSubclass()
 	/// Implement Initializations of Your Custom Fields
 	Configured = false;
 	InnerPtr = nullptr;
+	SolverPtr = nullptr;
 
 // 					[!!! IMPORTANT !!!]
 // 		[!!! NEVER CALL GET_SET FUNCTION HERE !!!]
@@ -37,6 +38,7 @@ void SIM_CF_FLIPData::makeEqualSubclass(const SIM_Data *source)
 	/// Implement Equal Operator of Your Custom Fields
 	this->Configured = src->Configured;
 	this->InnerPtr = src->InnerPtr;
+	this->SolverPtr = src->SolverPtr;
 }
 
 const char *SIM_CF_FLIPData::DATANAME = "CF_GridSystemData";

@@ -9,6 +9,7 @@
 #include <UT/UT_WorkBuffer.h>
 
 #include <Core/Grid/GridSystemData.hpp>
+#include <Core/Solver/Hybrid/FLIP/FLIPSolver3.hpp>
 
 class SIM_CF_FLIPData : public SIM_Data, public SIM_OptionsUser
 {
@@ -17,6 +18,7 @@ public:
 	static constexpr int OPTIONS_SIZE = 13; // [MAKE SURE THIS VALUE IS ACCURATE]
 	bool Configured = false;
 	CubbyFlow::GridSystemData3Ptr InnerPtr;
+	CubbyFlow::FLIPSolver3Ptr SolverPtr;
 
 protected:
 	SIM_CF_FLIPData(const SIM_DataFactory *factory) : SIM_Data(factory), SIM_OptionsUser(this) {}

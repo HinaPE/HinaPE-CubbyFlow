@@ -24,6 +24,8 @@
 
 #include <SIM_CF_FLIPData.h>
 
+#include "Core/Array/ArrayUtils.hpp"
+
 bool GAS_CF_FLIPSolver::solveGasSubclass(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep)
 {
 	UT_WorkBuffer error_msg;
@@ -39,11 +41,16 @@ bool GAS_CF_FLIPSolver::solveGasSubclass(SIM_Engine &engine, SIM_Object *obj, SI
 void GAS_CF_FLIPSolver::initializeSubclass()
 {
 	SIM_Data::initializeSubclass();
+
+	frame = CubbyFlow::Frame(0, 1.0 / 60);
 }
 
 void GAS_CF_FLIPSolver::makeEqualSubclass(const SIM_Data *source)
 {
 	SIM_Data::makeEqualSubclass(source);
+	const GAS_CF_FLIPSolver *src = SIM_DATA_CASTCONST(source, GAS_CF_FLIPSolver);
+
+	this->frame = src->frame;
 }
 
 const char *GAS_CF_FLIPSolver::DATANAME = "CF_FLIPSolver";
@@ -64,7 +71,7 @@ const SIM_DopDescription *GAS_CF_FLIPSolver::getDopDescription()
 	return &DESC;
 }
 
-bool GAS_CF_FLIPSolver::Solve(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep, UT_WorkBuffer &error_msg) const
+bool GAS_CF_FLIPSolver::Solve(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep, UT_WorkBuffer &error_msg)
 {
 	if (!obj)
 	{
@@ -72,11 +79,49 @@ bool GAS_CF_FLIPSolver::Solve(SIM_Engine &engine, SIM_Object *obj, SIM_Time time
 		return false;
 	}
 
-	SIM_CF_FLIPData *data = SIM_DATA_GET(*obj, SIM_CF_FLIPData::DATANAME, SIM_CF_FLIPData);
-	if (!data)
+	SIM_CF_FLIPData *flipdata = SIM_DATA_GET(*obj, SIM_CF_FLIPData::DATANAME, SIM_CF_FLIPData);
+	if (!flipdata)
 	{
 		error_msg.appendSprintf("SIM_CF_FLIPData Is Null, From %s\n", DATANAME);
 		return false;
 	}
+
+	flipdata->SolverPtr->Update(++frame);
+	std::cout << frame.index << std::endl;
+
+	SIM_GeometryCopy *geo = SIM_DATA_CREATE(*obj, SIM_GEOMETRY_DATANAME, SIM_GeometryCopy,
+											SIM_DATA_RETURN_EXISTING | SIM_DATA_ADOPT_EXISTING_ON_DELETE);
+	if (!geo)
+	{
+		error_msg.appendSprintf("Geometry Is Null, From %s\n", DATANAME);
+		return false;
+	}
+
+	const auto particles = flipdata->SolverPtr->GetParticleSystemData();
+	CubbyFlow::Array1<CubbyFlow::Vector3D> positions(particles->NumberOfParticles());
+	CubbyFlow::Copy(particles->Positions(), positions.View());
+	{
+		SIM_GeometryAutoWriteLock lock(geo);
+		GU_Detail &gdp = lock.getGdp();
+
+		int gdp_pt_size = gdp.getNumPoints();
+		int flip_pt_size = positions.Size().x;
+
+		GA_Offset pt_off;
+		GA_FOR_ALL_PTOFF(&gdp, pt_off)
+			{
+				GA_Index pt_idx = gdp.pointIndex(pt_off);
+				auto pos = positions[pt_idx];
+				gdp.setPos3(pt_off, UT_Vector3(pos.x, pos.y, pos.z));
+			}
+
+		for (int new_pt_idx = gdp_pt_size; new_pt_idx < flip_pt_size; ++new_pt_idx)
+		{
+			pt_off = gdp.appendPoint();
+			auto pos = positions[new_pt_idx];
+			gdp.setPos3(pt_off, UT_Vector3(pos.x, pos.y, pos.z));
+		}
+	}
+
 	return true;
 }

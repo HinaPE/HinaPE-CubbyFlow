@@ -46,9 +46,22 @@ void GAS_CF_FLIPSolver::makeEqualSubclass(const SIM_Data *source)
 	SIM_Data::makeEqualSubclass(source);
 }
 
+const char *GAS_CF_FLIPSolver::DATANAME = "CF_FLIPSolver";
 const SIM_DopDescription *GAS_CF_FLIPSolver::getDopDescription()
 {
-	return nullptr;
+	static std::array<PRM_Template, 1> PRMS{
+			PRM_Template()
+	};
+
+	static SIM_DopDescription DESC(true,
+								   "cf_FLIP_solver",
+								   "CF FLIP Solver",
+								   DATANAME,
+								   classname(),
+								   PRMS.data());
+//	DESC.setDefaultUniqueDataName(true);
+	setGasDescription(DESC);
+	return &DESC;
 }
 
 bool GAS_CF_FLIPSolver::Solve(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep, UT_WorkBuffer &error_msg) const

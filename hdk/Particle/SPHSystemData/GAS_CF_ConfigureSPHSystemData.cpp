@@ -59,7 +59,7 @@ const SIM_DopDescription *GAS_CF_ConfigureSPHSystemData::getDopDescription()
 								   DATANAME,
 								   classname(),
 								   PRMS.data());
-	DESC.setDefaultUniqueDataName(true);
+//	DESC.setDefaultUniqueDataName(true);
 	setGasDescription(DESC);
 	return &DESC;
 }

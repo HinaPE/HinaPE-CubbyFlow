@@ -50,7 +50,7 @@ void GAS_CF_ConfigurePCISPHSystemData::makeEqualSubclass(const SIM_Data *source)
 	GAS_CF_ConfigureSPHSystemData::makeEqualSubclass(source);
 }
 
-const char *GAS_CF_ConfigurePCISPHSystemData::DATANAME = "CF_ConfigurePCISPHSystemData";
+const char *GAS_CF_ConfigurePCISPHSystemData::DATANAME = "CF_ConfigurePCISPHSystemData"; // TODO: maybe this should inherit the parent value...
 const SIM_DopDescription *GAS_CF_ConfigurePCISPHSystemData::getDopDescription()
 {
 	static std::array<PRM_Template, 1> PRMS{
@@ -63,7 +63,7 @@ const SIM_DopDescription *GAS_CF_ConfigurePCISPHSystemData::getDopDescription()
 								   DATANAME,
 								   classname(),
 								   PRMS.data());
-	DESC.setDefaultUniqueDataName(true);
+//	DESC.setDefaultUniqueDataName(true);
 	setGasDescription(DESC);
 	return &DESC;
 }

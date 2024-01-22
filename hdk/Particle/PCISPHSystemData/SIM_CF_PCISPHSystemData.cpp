@@ -44,7 +44,7 @@ void SIM_CF_PCISPHSystemData::makeEqualSubclass(const SIM_Data *source)
 	this->densityErrors_Cache.Clear(); // We don't need this cache
 }
 
-const char *SIM_CF_PCISPHSystemData::DATANAME = "CF_PCISPHSystemData";
+const char *SIM_CF_PCISPHSystemData::DATANAME = SIM_CF_SPHSystemData::DATANAME; // !!!Important!!! Write as this to support being found by SIM_DATA_GET(*obj, SIM_CF_SPHSystemData::DATANAME, SIM_CF_SPHSystemData);
 const SIM_DopDescription *SIM_CF_PCISPHSystemData::GetDescription()
 {
 	/// PCISPHSolver Parameters
@@ -60,8 +60,8 @@ const SIM_DopDescription *SIM_CF_PCISPHSystemData::GetDescription()
 	// Copy From Parent
 	std::vector<PRM_Template> TempPRMs;
 	const PRM_Template *parent_templates = SIM_CF_SPHSystemData::GetDescription()->getTemplates();
-	TempPRMs.reserve(15);
-	for (int i = 0; i < 12; ++i)
+	TempPRMs.reserve(SIM_CF_SPHSystemData::OPTIONS_SIZE + 2);
+	for (int i = 0; i < SIM_CF_SPHSystemData::OPTIONS_SIZE - 1; ++i)
 		TempPRMs.push_back(parent_templates[i]); // call copy operator=
 	TempPRMs.emplace_back(PRM_FLT, 1, &MaxDensityErrorRatio, &MaxDensityErrorRatioDefault);
 	TempPRMs.emplace_back(PRM_FLT, 1, &MaxNumberOfIterations, &MaxNumberOfIterationsDefault);

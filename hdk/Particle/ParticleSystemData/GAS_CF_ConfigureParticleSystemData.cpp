@@ -59,7 +59,7 @@ const SIM_DopDescription *GAS_CF_ConfigureParticleSystemData::getDopDescription(
 								   DATANAME,
 								   classname(),
 								   PRMS.data());
-	DESC.setDefaultUniqueDataName(true);
+//	DESC.setDefaultUniqueDataName(true);
 	setGasDescription(DESC);
 	return &DESC;
 }

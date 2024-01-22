@@ -13,6 +13,7 @@ class SIM_CF_SPHSystemData : public SIM_Data, public SIM_OptionsUser
 {
 public:
 	static const char *DATANAME;
+	static constexpr int OPTIONS_SIZE = 13; // [MAKE SURE THIS VALUE IS ACCURATE]
 	static const char *CL_PT_IDX_ATTRIBUTE_NAME;
 	static const char *NEW_POSITION_CACHE_ATTRIBUTE_NAME;
 	static const char *NEW_VELOCITY_CACHE_ATTRIBUTE_NAME;

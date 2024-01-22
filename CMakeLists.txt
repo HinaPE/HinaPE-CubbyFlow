@@ -123,3 +123,6 @@ houdini_configure_target(${TARGET})
 
 # Test
 add_subdirectory(test)
+
+# Developing Node
+add_subdirectory(temp_hdk)

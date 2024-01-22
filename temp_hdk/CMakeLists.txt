@@ -1,10 +1,21 @@
-set(TEST_TARGET TEST_CUBBYFLOW)
+set(TEMP_TARGET SIM_CubbyFlowTemp)
 
-add_executable(${TEST_TARGET} test_cubbyflow.cpp)
+add_library(${TEMP_TARGET} SHARED
+        Entrance.cpp
+
+        GAS_CF_FLIPSolver.cpp
+        GAS_CF_FLIPSolver.h
+
+        GAS_CF_ConfigureFLIPData.cpp
+        GAS_CF_ConfigureFLIPData.h
+
+        SIM_CF_FLIPData.cpp
+        SIM_CF_FLIPData.h
+)
 
 # Link Houdini Toolkit
 target_link_libraries(
-        ${TEST_TARGET}
+        ${TEMP_TARGET}
         PUBLIC
         Houdini
         CubbyFlow
@@ -12,13 +23,13 @@ target_link_libraries(
         ${DEFAULT_LIBRARIES}
 )
 target_link_directories(
-        ${TEST_TARGET}
+        ${TEMP_TARGET}
         PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_SOURCE_DIR}/install/lib
 )
 target_include_directories(
-        ${TEST_TARGET}
+        ${TEMP_TARGET}
         PUBLIC
         ${CMAKE_CURRENT_BINARY_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}
@@ -26,8 +37,8 @@ target_include_directories(
         ../hdk
 )
 target_compile_options(
-        ${TEST_TARGET}
+        ${TEMP_TARGET}
         PRIVATE
         -D_LIBCPP_ENABLE_CXX17_REMOVED_UNARY_BINARY_FUNCTION
 )
-houdini_configure_target(${TEST_TARGET})
+houdini_configure_target(${TEMP_TARGET})

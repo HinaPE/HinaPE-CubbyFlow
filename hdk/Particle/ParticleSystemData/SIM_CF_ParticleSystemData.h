@@ -1,7 +1,8 @@
 #ifndef HINAPE_CUBBYFLOW_SIM_CF_PARTICLESYSTEMDATA_H
 #define HINAPE_CUBBYFLOW_SIM_CF_PARTICLESYSTEMDATA_H
 
-#include <SIM/SIM_SingleSolver.h>
+#include <SIM/SIM_Data.h>
+#include <SIM/SIM_DataUtils.h>
 #include <SIM/SIM_OptionsUser.h>
 #include <SIM/SIM_DopDescription.h>
 #include <SIM/SIM_Utils.h>

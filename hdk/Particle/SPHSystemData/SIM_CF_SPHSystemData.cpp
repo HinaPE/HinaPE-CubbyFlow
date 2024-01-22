@@ -110,7 +110,7 @@ const SIM_DopDescription *SIM_CF_SPHSystemData::GetDescription()
 	static PRM_Name TimeStepLimitScale("TimeStepLimitScale", "TimeStepLimitScale");
 	static PRM_Default TimeStepLimitScaleDefault{1.};
 
-	static std::array<PRM_Template, 15> PRMS{
+	static std::array<PRM_Template, 13> PRMS{
 			PRM_Template(PRM_FLT, 3, &FluidDomain, FluidDomainDefault.data()),
 //			PRM_Template(PRM_FLT, 1, &ParticleRadius, &ParticleRadiusDefault),
 			PRM_Template(PRM_FLT, 1, &TargetDensity, &TargetDensityDefault),

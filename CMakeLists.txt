@@ -51,6 +51,10 @@ add_library(
         hdk/Particle/SPHSystemData/GAS_CF_ConfigureSPHSystemData.h
         hdk/Particle/SPHSystemData/SIM_CF_SPHSystemData.cpp
         hdk/Particle/SPHSystemData/SIM_CF_SPHSystemData.h
+        hdk/Particle/PCISPHSystemData/GAS_CF_ConfigurePCISPHSystemData.cpp
+        hdk/Particle/PCISPHSystemData/GAS_CF_ConfigurePCISPHSystemData.h
+        hdk/Particle/PCISPHSystemData/SIM_CF_PCISPHSystemData.cpp
+        hdk/Particle/PCISPHSystemData/SIM_CF_PCISPHSystemData.h
 
         hdk/Solver/Advection/GAS_CF_Semi_Implicit_Euler.cpp
         hdk/Solver/Advection/GAS_CF_Semi_Implicit_Euler.h

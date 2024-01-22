@@ -17,6 +17,9 @@
 #include <Particle/ParticleSystemData/SIM_CF_ParticleSystemData.h>
 #include <Particle/SPHSystemData/GAS_CF_ConfigureSPHSystemData.h>
 #include <Particle/SPHSystemData/SIM_CF_SPHSystemData.h>
+#include <Particle/PCISPHSystemData/GAS_CF_ConfigurePCISPHSystemData.h>
+#include <Particle/PCISPHSystemData/SIM_CF_PCISPHSystemData.h>
+
 
 #include <Solver/Advection/GAS_CF_Semi_Implicit_Euler.h>
 #include <Solver/Advection/GAS_CF_SemiLagrangianAdvector.h>
@@ -55,6 +58,8 @@ void initializeSIM(void *)
 	IMPLEMENT_DATAFACTORY(SIM_CF_ParticleSystemData)
 	IMPLEMENT_DATAFACTORY(GAS_CF_ConfigureSPHSystemData)
 	IMPLEMENT_DATAFACTORY(SIM_CF_SPHSystemData)
+	IMPLEMENT_DATAFACTORY(GAS_CF_ConfigurePCISPHSystemData)
+	IMPLEMENT_DATAFACTORY(SIM_CF_PCISPHSystemData)
 
 	// Solver
 	IMPLEMENT_DATAFACTORY(GAS_CF_Semi_Implicit_Euler)

@@ -2,7 +2,6 @@
 #define HINAPE_CUBBYFLOW_GAS_CF_CONFIGURESPHSYSTEMDATA_H
 
 #include <GAS/GAS_SubSolver.h>
-#include <PRM/PRM_Default.h>
 
 class GAS_CF_ConfigureSPHSystemData : public GAS_SubSolver
 {

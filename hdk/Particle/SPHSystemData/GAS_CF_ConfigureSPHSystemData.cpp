@@ -75,7 +75,7 @@ bool GAS_CF_ConfigureSPHSystemData::Solve(SIM_Engine &engine, SIM_Object *obj, S
 	SIM_CF_SPHSystemData *data = SIM_DATA_GET(*obj, SIM_CF_SPHSystemData::DATANAME, SIM_CF_SPHSystemData);
 	if (!data)
 	{
-		error_msg.appendSprintf("CF_ParticleSystemData Is Null, From %s\n", DATANAME);
+		error_msg.appendSprintf("SIM_CF_SPHSystemData Is Null, From %s\n", DATANAME);
 		return false;
 	}
 
@@ -95,7 +95,7 @@ bool GAS_CF_ConfigureSPHSystemData::Solve(SIM_Engine &engine, SIM_Object *obj, S
 	data->InnerPtr->SetTargetSpacing(TargetSpacing);
 	data->InnerPtr->SetRelativeKernelRadius(KernelRadiusOverTargetSpacing);
 
-	SIM_GeometryCopy *geo_exist = SIM_DATA_GET(*obj, SIM_GEOMETRY_DATANAME, SIM_GeometryCopy);
+	SIM_Geometry *geo_exist = SIM_DATA_GET(*obj, SIM_GEOMETRY_DATANAME, SIM_Geometry);
 	if (geo_exist)
 	{
 		error_msg.appendSprintf("Geometry Already Exist, From %s\n", DATANAME);

@@ -153,13 +153,13 @@ GA_Offset SIM_CF_SPHSystemData::GetParticleOffset(size_t index, UT_WorkBuffer &e
 {
 	if (!Configured)
 	{
-		error_msg.appendSprintf("ParticleSystemData Not Configured, Please use GAS_CF_ConfigureSPHSystemData, From %s\n", DATANAME);
+		error_msg.appendSprintf("SIM_CF_SPHSystemData Not Configured, Please use GAS_CF_ConfigureSPHSystemData, From %s\n", DATANAME);
 		return -1;
 	}
 
 	if (!InnerPtr)
 	{
-		error_msg.appendSprintf("ParticleSystemData InnerPtr is nullptr, From %s\n", DATANAME);
+		error_msg.appendSprintf("SIM_CF_SPHSystemData InnerPtr is nullptr, From %s\n", DATANAME);
 		return -1;
 	}
 
@@ -176,13 +176,13 @@ void SIM_CF_SPHSystemData::SetParticleOffset(size_t index, GA_Offset offset, UT_
 {
 	if (!Configured)
 	{
-		error_msg.appendSprintf("ParticleSystemData Not Configured, Please use GAS_CF_ConfigureSPHSystemData, From %s\n", DATANAME);
+		error_msg.appendSprintf("SIM_CF_SPHSystemData Not Configured, Please use GAS_CF_ConfigureSPHSystemData, From %s\n", DATANAME);
 		return;
 	}
 
 	if (!InnerPtr)
 	{
-		error_msg.appendSprintf("ParticleSystemData InnerPtr is nullptr, From %s\n", DATANAME);
+		error_msg.appendSprintf("SIM_CF_SPHSystemData InnerPtr is nullptr, From %s\n", DATANAME);
 		return;
 	}
 
@@ -199,13 +199,13 @@ SIM_CF_SPHSystemData::ParticleState SIM_CF_SPHSystemData::GetParticleState(size_
 {
 	if (!Configured)
 	{
-		error_msg.appendSprintf("ParticleSystemData Not Configured, Please use GAS_CF_ConfigureSPHSystemData, From %s\n", DATANAME);
+		error_msg.appendSprintf("SIM_CF_SPHSystemData Not Configured, Please use GAS_CF_ConfigureSPHSystemData, From %s\n", DATANAME);
 		return PARTICLE_INVALID;
 	}
 
 	if (!InnerPtr)
 	{
-		error_msg.appendSprintf("ParticleSystemData InnerPtr is nullptr, From %s\n", DATANAME);
+		error_msg.appendSprintf("SIM_CF_SPHSystemData InnerPtr is nullptr, From %s\n", DATANAME);
 		return PARTICLE_INVALID;
 	}
 
@@ -222,13 +222,13 @@ void SIM_CF_SPHSystemData::SetParticleState(size_t index, SIM_CF_SPHSystemData::
 {
 	if (!Configured)
 	{
-		error_msg.appendSprintf("ParticleSystemData Not Configured, Please use GAS_CF_ConfigureSPHSystemData, From %s\n", DATANAME);
+		error_msg.appendSprintf("SIM_CF_SPHSystemData Not Configured, Please use GAS_CF_ConfigureSPHSystemData, From %s\n", DATANAME);
 		return;
 	}
 
 	if (!InnerPtr)
 	{
-		error_msg.appendSprintf("ParticleSystemData InnerPtr is nullptr, From %s\n", DATANAME);
+		error_msg.appendSprintf("SIM_CF_SPHSystemData InnerPtr is nullptr, From %s\n", DATANAME);
 		return;
 	}
 

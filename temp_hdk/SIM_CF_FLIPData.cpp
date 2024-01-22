@@ -32,7 +32,7 @@ void SIM_CF_FLIPData::initializeSubclass()
 void SIM_CF_FLIPData::makeEqualSubclass(const SIM_Data *source)
 {
 	SIM_Data::makeEqualSubclass(source);
-	const SIM_CF_GridSystemData *src = SIM_DATA_CASTCONST(source, SIM_CF_GridSystemData);
+	const SIM_CF_FLIPData *src = SIM_DATA_CASTCONST(source, SIM_CF_FLIPData);
 
 	/// Implement Equal Operator of Your Custom Fields
 	this->Configured = src->Configured;

@@ -15,11 +15,11 @@
 class SIM_CF_PCISPHSystemData : public SIM_CF_SPHSystemData
 {
 public:
-	static const char *DATANAME;
+//	static const char *DATANAME; // NO NEED TO SET THIS, // Write as this to support being found by SIM_DATA_GET(*obj, SIM_CF_SPHSystemData::DATANAME, SIM_CF_SPHSystemData);
 	CubbyFlow::ParticleSystemData3::VectorData tempPositions_Cache;
 	CubbyFlow::ParticleSystemData3::VectorData tempVelocities_Cache;
 	CubbyFlow::ParticleSystemData3::VectorData pressureForces_Cache;
-	CubbyFlow::ParticleSystemData3::VectorData densityErrors_Cache;
+	CubbyFlow::ParticleSystemData3::ScalarData densityErrors_Cache;
 
 	// From Parent
 	GETSET_DATA_FUNCS_V3("FluidDomain", FluidDomain)

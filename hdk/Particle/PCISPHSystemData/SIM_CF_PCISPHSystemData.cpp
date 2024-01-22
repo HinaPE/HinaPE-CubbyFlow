@@ -44,7 +44,7 @@ void SIM_CF_PCISPHSystemData::makeEqualSubclass(const SIM_Data *source)
 	this->densityErrors_Cache.Clear(); // We don't need this cache
 }
 
-const char *SIM_CF_PCISPHSystemData::DATANAME = SIM_CF_SPHSystemData::DATANAME; // !!!Important!!! Write as this to support being found by SIM_DATA_GET(*obj, SIM_CF_SPHSystemData::DATANAME, SIM_CF_SPHSystemData);
+//const char *SIM_CF_PCISPHSystemData::DATANAME = SIM_CF_SPHSystemData::DATANAME; // NO NEED TO SET THIS
 const SIM_DopDescription *SIM_CF_PCISPHSystemData::GetDescription()
 {
 	/// PCISPHSolver Parameters

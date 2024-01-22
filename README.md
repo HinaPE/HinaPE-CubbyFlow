@@ -7,3 +7,5 @@ activate bigfile transfer
 - git add .gitattributes
 
 https://www.sidefx.com/docs/houdini/ref/panes/perfmon.html
+
+https://youtu.be/a5-niu1e68Q?si=HjAvcwL_zZb-axhJ

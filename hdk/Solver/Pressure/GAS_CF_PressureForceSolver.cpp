@@ -62,7 +62,7 @@ const SIM_DopDescription *GAS_CF_PressureForceSolver::getDopDescription()
 								   DATANAME,
 								   classname(),
 								   PRMS.data());
-	DESC.setDefaultUniqueDataName(true);
+//	DESC.setDefaultUniqueDataName(true);
 	setGasDescription(DESC);
 	return &DESC;
 }
@@ -102,10 +102,6 @@ bool GAS_CF_PressureForceSolver::Solve(SIM_Engine &engine, SIM_Object *obj, SIM_
 	}
 
 	// Add Pressure Force in CubbyFlow
-	size_t p_size = sphdata->InnerPtr->NumberOfParticles();
-	std::vector<CubbyFlow::Vector3D> pressure_cache;
-	pressure_cache.resize(p_size);
-
 	{
 		// ComputePressure
 		double m_speedOfSound = sphdata->getSpeedOfSound();
@@ -154,11 +150,10 @@ bool GAS_CF_PressureForceSolver::Solve(SIM_Engine &engine, SIM_Object *obj, SIM_
 				if (dist > 0.0)
 				{
 					Vector3D dir = (positions[j] - positions[i]) / dist;
-					pressure_cache[i] = -massSquared *
-										(pressures[i] / (densities[i] * densities[i]) +
-										 pressures[j] / (densities[j] * densities[j])) *
-										kernel.Gradient(dist, dir);
-					pressureForces[i] += pressure_cache[i];
+					pressureForces[i] -= massSquared *
+										 (pressures[i] / (densities[i] * densities[i]) +
+										  pressures[j] / (densities[j] * densities[j])) *
+										 kernel.Gradient(dist, dir);
 				}
 			}
 		});
@@ -166,6 +161,7 @@ bool GAS_CF_PressureForceSolver::Solve(SIM_Engine &engine, SIM_Object *obj, SIM_
 
 
 	const CubbyFlow::ArrayView1<double> pressures = sphdata->InnerPtr->Pressures();
+	const CubbyFlow::ArrayView1<CubbyFlow::Vector3D> f = sphdata->InnerPtr->Forces();
 	// Add Pressure Force in Geometry Sheet
 	{
 		SIM_GeometryAutoWriteLock lock(geo);
@@ -180,7 +176,7 @@ bool GAS_CF_PressureForceSolver::Solve(SIM_Engine &engine, SIM_Object *obj, SIM_
 			{
 				UT_Vector3 exist_force = gdp_handle_force.get(pt_off);
 				int cl_index = gdp_handle_CL_PT_IDX.get(pt_off);
-				UT_Vector3 pressure_force = UT_Vector3D{pressure_cache[cl_index].x, pressure_cache[cl_index].y, pressure_cache[cl_index].z};
+				UT_Vector3 pressure_force = UT_Vector3D{f[cl_index].x, f[cl_index].y, f[cl_index].z};
 				gdp_handle_force.set(pt_off, pressure_force + exist_force);
 				auto pressure = pressures[cl_index];
 				gdp_handle_pressure.set(pt_off, pressure);

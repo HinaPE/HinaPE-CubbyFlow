@@ -4,6 +4,12 @@
 #include <GAS/GAS_SubSolver.h>
 #include <PRM/PRM_Default.h>
 
+/**
+ * [IMPORTANT]
+ * [DEPRECATED]
+ * - 请不要过度依赖这个类，这种强制大范围更新所有数据的操作是很难维护的，预计将在不久的将来移除这个类。
+ * - 作为替代，预计将会把所有节点分为会增加粒子的节点（比如Emitter）和不会增加粒子的节点（比如普通的solver），然后单独处理。
+ */
 class GAS_CF_UpdateToGeometrySheet : public GAS_SubSolver
 {
 public:

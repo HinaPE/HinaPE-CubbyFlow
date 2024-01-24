@@ -4,6 +4,9 @@
 #include <GAS/GAS_SubSolver.h>
 
 #include <SIM/SIM_Engine.h>
+#include <SIM/SIM_Data.h>
+#include <SIM/SIM_DataUtils.h>
+#include <SIM/SIM_OptionsUser.h>
 #include <SIM/SIM_DopDescription.h>
 #include <SIM/SIM_Object.h>
 #include <SIM/SIM_ObjectArray.h>
@@ -61,6 +64,7 @@ PRMS.emplace_back(PRM_FLT, SIZE, &NAME, Default##NAME.data());
 #define NEW_CUBBY_MICRPSOLVER_CLASS(NAME, ...) \
 class GAS_CF_##NAME : public GAS_SubSolver \
 { \
+public: \
 static const char *DATANAME; \
 __VA_ARGS__ \
 protected: \
@@ -114,6 +118,53 @@ static SIM_DopDescription DESC(true, \
                                PRMS.data()); \
 DESC.setDefaultUniqueDataName(UNIQUE); \
 setGasDescription(DESC); \
+return &DESC; \
+}
+
+#define NEW_CUBBY_DATA_CLASS(NAME, ...) \
+class SIM_CF_##NAME : public SIM_Data, public SIM_OptionsUser \
+{ \
+public: \
+static const char *DATANAME; \
+__VA_ARGS__ \
+protected: \
+SIM_CF_##NAME(const SIM_DataFactory *factory) : SIM_Data(factory), SIM_OptionsUser(this) {} \
+~SIM_CF_##NAME() override = default; \
+void initializeSubclass() override; \
+void makeEqualSubclass(const SIM_Data *source) override; \
+static const SIM_DopDescription *getDopDescription(); \
+DECLARE_STANDARD_GETCASTTOTYPE(); \
+DECLARE_DATAFACTORY(SIM_CF_##NAME, SIM_Data, "CF_"#NAME, getDopDescription());                    \
+private: \
+void _init(); \
+void _makeEqual(const SIM_CF_##NAME *src); \
+};
+
+#define NEW_CUBBY_DATA_IMPLEMENT(NAME, UNIQUE, ...) \
+void SIM_CF_##NAME::initializeSubclass() \
+{ \
+    SIM_Data::initializeSubclass(); \
+    _init(); \
+} \
+void SIM_CF_##NAME::makeEqualSubclass(const SIM_Data *source) \
+{ \
+    SIM_Data::makeEqualSubclass(source); \
+    const SIM_CF_##NAME *src = SIM_DATA_CASTCONST(source, SIM_CF_##NAME); \
+    _makeEqual(src); \
+} \
+const char *SIM_CF_##NAME::DATANAME = "CF_"#NAME; \
+const SIM_DopDescription *SIM_CF_##NAME::getDopDescription() \
+{ \
+static std::vector<PRM_Template> PRMS; \
+__VA_ARGS__ \
+PRMS.emplace_back(); \
+static SIM_DopDescription DESC(true, \
+                               "cf_"#NAME, \
+                               "CF "#NAME, \
+                               DATANAME, \
+                               classname(), \
+                               PRMS.data()); \
+DESC.setDefaultUniqueDataName(UNIQUE); \
 return &DESC; \
 }
 

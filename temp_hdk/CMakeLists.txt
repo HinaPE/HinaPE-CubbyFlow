@@ -3,14 +3,17 @@ set(TEMP_TARGET SIM_CubbyFlowTemp)
 add_library(${TEMP_TARGET} SHARED
         Entrance.cpp
 
-        GAS_CF_FLIPSolver.cpp
-        GAS_CF_FLIPSolver.h
+        FLIP/GAS_CF_FLIPSolver.cpp
+        FLIP/GAS_CF_FLIPSolver.h
 
-        GAS_CF_ConfigureFLIPData.cpp
-        GAS_CF_ConfigureFLIPData.h
+        FLIP/GAS_CF_ConfigureFLIPData.cpp
+        FLIP/GAS_CF_ConfigureFLIPData.h
 
-        SIM_CF_FLIPData.cpp
-        SIM_CF_FLIPData.h
+        FLIP/SIM_CF_FLIPData.cpp
+        FLIP/SIM_CF_FLIPData.h
+
+        VDB/GAS_VDB_TEST.cpp
+        VDB/GAS_VDB_TEST.h
 )
 
 # Link Houdini Toolkit
@@ -34,7 +37,8 @@ target_include_directories(
         ${CMAKE_CURRENT_BINARY_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_SOURCE_DIR}/install/include
-        ../hdk
+        FLIP
+        VDB
 )
 target_compile_options(
         ${TEMP_TARGET}

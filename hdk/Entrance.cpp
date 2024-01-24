@@ -36,6 +36,8 @@
 
 #include "Utils/SIM_CL_NoLog.h"
 
+#include "GAS_TEST_GENERATED_SOLVER.h"
+
 void initializeSIM(void *)
 {
 	// Collider
@@ -78,4 +80,7 @@ void initializeSIM(void *)
 
 	// Utils
 	IMPLEMENT_DATAFACTORY(SIM_CL_NoLog)
+
+	// JEST FOR TEST
+	IMPLEMENT_DATAFACTORY(GAS_CF_NEW_TEST)
 }

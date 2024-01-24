@@ -19,6 +19,9 @@ add_library(
         ${TARGET}
         SHARED
         hdk/Entrance.cpp
+        hdk/CubbyHDKClassGenerator.h
+        hdk/GAS_TEST_GENERATED_SOLVER.cpp
+        hdk/GAS_TEST_GENERATED_SOLVER.h
 
         hdk/Collider/GAS_CF_ConfigureRigidBodyCollider.cpp
         hdk/Collider/GAS_CF_ConfigureRigidBodyCollider.h

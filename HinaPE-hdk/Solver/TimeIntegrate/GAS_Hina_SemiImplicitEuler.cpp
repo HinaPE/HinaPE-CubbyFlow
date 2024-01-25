@@ -20,19 +20,13 @@ bool GAS_Hina_SemiImplicitEuler::_solve(SIM_Engine &engine, SIM_Object *obj, SIM
 	double dt = timestep;
 	double mass = data->InnerPtr->Mass();
 	size_t pt_size = data->pt_size();
+	CubbyFlow::ParallelFor(CubbyFlow::ZERO_SIZE, pt_size, [&](size_t pt_idx)
 	{
-		SIM_GeometryAutoWriteLock lock(geo);
-		GU_Detail &gdp = lock.getGdp();
-		data->runtime_init_handles(gdp);
-
-		CubbyFlow::ParallelFor(CubbyFlow::ZERO_SIZE, pt_size, [&](size_t pt_idx)
-		{
-			data->velocity(pt_idx) += dt * data->force(pt_idx) / mass;
-			data->position(pt_idx) += dt * data->velocity(pt_idx);
-			data->set_gdp_velocity(pt_idx, AS_UTVector3D(data->velocity(pt_idx)));
-			data->set_gdp_position(pt_idx, AS_UTVector3D(data->position(pt_idx)));
-		}, CubbyFlow::ExecutionPolicy::Serial);
-	}
+		data->velocity(pt_idx) += dt * data->force(pt_idx) / mass;
+		data->position(pt_idx) += dt * data->velocity(pt_idx);
+	});
+	data->sync_position(geo);
+	data->sync_velocity(geo);
 
 	return true;
 }

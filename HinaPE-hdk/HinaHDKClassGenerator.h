@@ -127,13 +127,13 @@ return return_value; \
 }
 
 #define CHECK_GDP_HANDLE_VALID_NO_RETURN(handle) \
-if (handle.isValid())                                           \
+if (handle.isInvalid())                                           \
 { \
 error_msg.appendSprintf("HANDLE INVALID, PLEASE ENSURE YOU HAVE INIT THIS ATTRIBUTE::%s, From %s\n", handle->getName().c_str(), DATANAME); \
 }
 
 #define CHECK_GDP_HANDLE_VALID_WITH_RETURN(handle, return_value) \
-if (handle.isValid())                                           \
+if (handle.isInvalid())                                           \
 { \
 error_msg.appendSprintf("HANDLE INVALID, PLEASE ENSURE YOU HAVE INIT THIS ATTRIBUTE::%s, From %s\n", handle->getName().c_str(), DATANAME); \
 return return_value; \

@@ -13,13 +13,15 @@
 const CubbyFlow::Vector3D &NAME(size_t index) const;\
 CubbyFlow::Vector3D &NAME(size_t index);\
 UT_Vector3D gdp_##NAME(size_t index); \
-void set_gdp_##NAME(size_t index, UT_Vector3D v3);
+void set_gdp_##NAME(size_t index, UT_Vector3D v3); \
+void sync_##NAME(SIM_GeometryCopy *geo);
 
 #define NEW_HINA_DATA_GETSET_D(NAME) \
 const double &NAME(size_t index) const; \
 double &NAME(size_t index); \
 fpreal gdp_##NAME(size_t index); \
-void set_gdp_##NAME(size_t index, fpreal v);
+void set_gdp_##NAME(size_t index, fpreal v); \
+void sync_##NAME(SIM_GeometryCopy *geo);
 
 NEW_HINA_DATA_CLASS(
 		ParticleFluidData,
@@ -72,6 +74,7 @@ NEW_HINA_DATA_CLASS(
 				void set_gdp_neighbor_sum(size_t index, int n); // Call Inside Lock
 				UT_Int32Array gdp_neighbors(size_t index); // Call Inside Lock
 				void set_gdp_neighbors(size_t index, UT_Int32Array &array); // Call Inside Lock
+				void sync_neighbors(SIM_GeometryCopy *geo);
 
 				GA_Offset offset(size_t index);
 				void set_offset(size_t index, GA_Offset pt_off);

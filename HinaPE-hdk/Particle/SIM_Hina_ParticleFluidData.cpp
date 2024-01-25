@@ -20,51 +20,75 @@ return SRC[index]; \
 } \
 CubbyFlow::Vector3D &SIM_Hina_ParticleFluidData::NAME(size_t index) \
 { \
-	CHECK_CONFIGURED_WITH_RETURN(this, ZERO_V3) \
-	CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, ZERO_V3) \
-	return SRC[index]; \
+    CHECK_CONFIGURED_WITH_RETURN(this, ZERO_V3) \
+    CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, ZERO_V3) \
+    return SRC[index]; \
 } \
 UT_Vector3D SIM_Hina_ParticleFluidData::gdp_##NAME(size_t index) \
 { \
-	CHECK_CONFIGURED_WITH_RETURN(this, ZERO_V3_HDK) \
-	CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, ZERO_V3_HDK) \
-	CHECK_GDP_HANDLE_VALID_WITH_RETURN(HANDLE, ZERO_V3_HDK) \
-	return HANDLE.get(offset(index)); \
+    CHECK_CONFIGURED_WITH_RETURN(this, ZERO_V3_HDK) \
+    CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, ZERO_V3_HDK) \
+    CHECK_GDP_HANDLE_VALID_WITH_RETURN(HANDLE, ZERO_V3_HDK) \
+    return HANDLE.get(offset(index)); \
 } \
 void SIM_Hina_ParticleFluidData::set_gdp_##NAME(size_t index, UT_Vector3D v3) \
 { \
-	CHECK_CONFIGURED_NO_RETURN(this) \
-	CHECK_CUBBY_ARRAY_BOUND_NO_RETURN(InnerPtr, index) \
-	CHECK_GDP_HANDLE_VALID_NO_RETURN(HANDLE) \
-	HANDLE.set(offset(index), v3); \
+    CHECK_CONFIGURED_NO_RETURN(this) \
+    CHECK_CUBBY_ARRAY_BOUND_NO_RETURN(InnerPtr, index) \
+    CHECK_GDP_HANDLE_VALID_NO_RETURN(HANDLE) \
+    HANDLE.set(offset(index), v3); \
+} \
+void SIM_Hina_ParticleFluidData::sync_##NAME(SIM_GeometryCopy *geo) \
+{ \
+SIM_GeometryAutoWriteLock lock(geo); \
+GU_Detail &gdp = lock.getGdp(); \
+runtime_init_handles(gdp); \
+GA_Offset pt_off; \
+GA_FOR_ALL_PTOFF(&gdp, pt_off) \
+{ \
+size_t pt_idx = gdp_index(pt_off); \
+HANDLE.set(pt_off, AS_UTVector3D(NAME(pt_idx))); \
+} \
 }
 
 #define NEW_HINA_DATA_GETSET_D_IMPL(NAME, SRC, HANDLE) \
 const double &SIM_Hina_ParticleFluidData::NAME(size_t index) const \
 { \
-	CHECK_CONFIGURED_WITH_RETURN(this, ZERO) \
-	CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, ZERO) \
-	return SRC[index]; \
+    CHECK_CONFIGURED_WITH_RETURN(this, ZERO) \
+    CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, ZERO) \
+    return SRC[index]; \
 } \
 double &SIM_Hina_ParticleFluidData::NAME(size_t index) \
 { \
-	CHECK_CONFIGURED_WITH_RETURN(this, ZERO) \
-	CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, ZERO) \
-	return SRC[index]; \
+    CHECK_CONFIGURED_WITH_RETURN(this, ZERO) \
+    CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, ZERO) \
+    return SRC[index]; \
 } \
 fpreal SIM_Hina_ParticleFluidData::gdp_##NAME(size_t index) \
 { \
-	CHECK_CONFIGURED_WITH_RETURN(this, ZERO) \
-	CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, ZERO) \
-	CHECK_GDP_HANDLE_VALID_WITH_RETURN(HANDLE, ZERO) \
-	return HANDLE.get(offset(index)); \
+    CHECK_CONFIGURED_WITH_RETURN(this, ZERO) \
+    CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, ZERO) \
+    CHECK_GDP_HANDLE_VALID_WITH_RETURN(HANDLE, ZERO) \
+    return HANDLE.get(offset(index)); \
 } \
 void SIM_Hina_ParticleFluidData::set_gdp_##NAME(size_t index, fpreal v) \
 { \
-	CHECK_CONFIGURED_NO_RETURN(this) \
-	CHECK_CUBBY_ARRAY_BOUND_NO_RETURN(InnerPtr, index) \
-	CHECK_GDP_HANDLE_VALID_NO_RETURN(HANDLE) \
-	HANDLE.set(offset(index), v); \
+    CHECK_CONFIGURED_NO_RETURN(this) \
+    CHECK_CUBBY_ARRAY_BOUND_NO_RETURN(InnerPtr, index) \
+    CHECK_GDP_HANDLE_VALID_NO_RETURN(HANDLE) \
+    HANDLE.set(offset(index), v); \
+} \
+void SIM_Hina_ParticleFluidData::sync_##NAME(SIM_GeometryCopy *geo) \
+{ \
+SIM_GeometryAutoWriteLock lock(geo); \
+GU_Detail &gdp = lock.getGdp(); \
+runtime_init_handles(gdp); \
+GA_Offset pt_off; \
+GA_FOR_ALL_PTOFF(&gdp, pt_off) \
+{ \
+size_t pt_idx = gdp_index(pt_off); \
+HANDLE.set(pt_off, NAME(pt_idx)); \
+} \
 }
 
 NEW_HINA_DATA_IMPLEMENT(
@@ -248,6 +272,22 @@ void SIM_Hina_ParticleFluidData::set_gdp_neighbors(size_t index, UT_Int32Array &
 
 	gdp_handle_neighbors.set(offset(index), array);
 }
+void SIM_Hina_ParticleFluidData::sync_neighbors(SIM_GeometryCopy *geo)
+{
+	SIM_GeometryAutoWriteLock lock(geo);
+	GU_Detail &gdp = lock.getGdp();
+	runtime_init_handles(gdp);
+	GA_Offset pt_off;
+	GA_FOR_ALL_PTOFF(&gdp, pt_off)
+		{
+			size_t pt_idx = gdp_index(pt_off);
+			set_gdp_neighbor_sum(pt_idx, neighbor_sum(pt_idx));
+			UT_Int32Array ns;
+			for (auto n: neighbors(pt_idx))
+				ns.append(n);
+			set_gdp_neighbors(pt_idx, ns);
+		}
+}
 
 GA_Offset SIM_Hina_ParticleFluidData::offset(size_t index)
 {
@@ -277,7 +317,7 @@ void SIM_Hina_ParticleFluidData::set_gdp_index(GA_Offset pt_off, size_t index)
 {
 	CHECK_CONFIGURED_NO_RETURN(this)
 	CHECK_CUBBY_ARRAY_BOUND_NO_RETURN(InnerPtr, index)
-	CHECK_GDP_HANDLE_VALID_NO_RETURN(gdp_handle_position)
+	CHECK_GDP_HANDLE_VALID_NO_RETURN(gdp_handle_CF_IDX)
 
 	gdp_handle_CF_IDX.set(pt_off, index);
 }

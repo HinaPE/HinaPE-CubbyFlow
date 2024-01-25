@@ -18,17 +18,11 @@ bool GAS_Hina_ClearForce::_solve(SIM_Engine &engine, SIM_Object *obj, SIM_Time t
 	CHECK_NULL(geo)
 
 	size_t pt_size = data->pt_size();
+	CubbyFlow::ParallelFor(CubbyFlow::ZERO_SIZE, pt_size, [&](size_t pt_idx)
 	{
-		SIM_GeometryAutoWriteLock lock(geo);
-		GU_Detail &gdp = lock.getGdp();
-		data->runtime_init_handles(gdp);
-
-		CubbyFlow::ParallelFor(CubbyFlow::ZERO_SIZE, pt_size, [&](size_t pt_idx)
-		{
-			data->force(pt_idx) = CubbyFlow::Vector3D::MakeZero();
-			data->set_gdp_force(pt_idx, UT_Vector3D(0.));
-		}, CubbyFlow::ExecutionPolicy::Serial);
-	}
+		data->force(pt_idx) = CubbyFlow::Vector3D::MakeZero();
+	});
+	data->sync_force(geo); // sync gdp
 
 	return true;
 }

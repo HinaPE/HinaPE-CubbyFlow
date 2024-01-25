@@ -18,18 +18,6 @@ bool GAS_Hina_UpdateDensity::_solve(SIM_Engine &engine, SIM_Object *obj, SIM_Tim
 	CHECK_NULL(geo)
 
 	data->InnerPtr->UpdateDensities();
-
-	// Sync Density
-	{
-		SIM_GeometryAutoWriteLock lock(geo);
-		GU_Detail &gdp = lock.getGdp();
-		data->runtime_init_handles(gdp);
-		GA_Offset pt_off;
-		GA_FOR_ALL_PTOFF(&gdp, pt_off)
-			{
-				size_t pt_idx = data->gdp_index(pt_off);
-				data->gdp_handle_density.set(pt_off, data->density(pt_idx));
-			}
-	}
+	data->sync_density(geo); // sync gdp
 	return true;
 }

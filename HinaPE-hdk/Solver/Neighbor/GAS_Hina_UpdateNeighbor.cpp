@@ -19,23 +19,7 @@ bool GAS_Hina_UpdateNeighbor::_solve(SIM_Engine &engine, SIM_Object *obj, SIM_Ti
 
 	data->InnerPtr->BuildNeighborSearcher();
 	data->InnerPtr->BuildNeighborLists();
-
-	size_t pt_size = data->pt_size();
-	{
-		SIM_GeometryAutoWriteLock lock(geo);
-		GU_Detail &gdp = lock.getGdp();
-		data->runtime_init_handles(gdp);
-
-		CubbyFlow::ParallelFor(CubbyFlow::ZERO_SIZE, pt_size, [&](size_t pt_idx)
-		{
-			data->set_gdp_neighbor_sum(pt_idx, data->neighbor_sum(pt_idx));
-
-			UT_Int32Array neighbors;
-			for (auto n: data->neighbors(pt_idx))
-				neighbors.append(n);
-			data->set_gdp_neighbors(pt_idx, neighbors);
-		}, CubbyFlow::ExecutionPolicy::Serial);
-	}
+	data->sync_neighbors(geo); // sync gdp
 
 	return true;
 }

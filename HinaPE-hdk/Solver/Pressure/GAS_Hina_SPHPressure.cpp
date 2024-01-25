@@ -26,7 +26,7 @@ bool GAS_Hina_SPHPressure::_solve(SIM_Engine &engine, SIM_Object *obj, SIM_Time 
 		CubbyFlow::ParallelFor(CubbyFlow::ZERO_SIZE, pt_size, [&](size_t pt_idx)
 		{
 			
-		}, CubbyFlow::ExecutionPolicy::Serial);
+		});
 	}
 
 	return true;

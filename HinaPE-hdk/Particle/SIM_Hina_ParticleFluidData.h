@@ -38,6 +38,7 @@ NEW_HINA_DATA_CLASS(
 				NEW_GETSET_PARAMETER(TargetDensity, GETSET_DATA_FUNCS_F)
 				NEW_GETSET_PARAMETER(TargetSpacing, GETSET_DATA_FUNCS_F)
 				NEW_GETSET_PARAMETER(KernelRadiusOverTargetSpacing, GETSET_DATA_FUNCS_F)
+				NEW_GETSET_PARAMETER(RestitutionCoefficient, GETSET_DATA_FUNCS_F)
 				NEW_GETSET_PARAMETER(ActivateFluidDomainCollider, GETSET_DATA_FUNCS_B)
 
 				void configure_init(GU_Detail &gdp); // Call Inside Lock

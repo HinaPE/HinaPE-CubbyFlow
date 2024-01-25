@@ -86,7 +86,7 @@ class GAS_Hina_##NAME : public GAS_SubSolver \
 { \
 public: \
 static const char *DATANAME; \
-UT_WorkBuffer error_msg; \
+mutable UT_WorkBuffer error_msg; \
 __VA_ARGS__ \
 protected: \
 GAS_Hina_##NAME(const SIM_DataFactory *factory) : BaseClass(factory) {} \
@@ -116,14 +116,14 @@ bool GAS_Hina_##NAME::solveGasSubclass(SIM_Engine &engine, SIM_Object *obj, SIM_
 void GAS_Hina_##NAME::initializeSubclass() \
 { \
     SIM_Data::initializeSubclass(); \
-	this->error_msg.clear(); \
+    this->error_msg.clear(); \
     _init(); \
 } \
 void GAS_Hina_##NAME::makeEqualSubclass(const SIM_Data *source) \
 { \
     SIM_Data::makeEqualSubclass(source); \
     const GAS_Hina_##NAME *src = SIM_DATA_CASTCONST(source, GAS_Hina_##NAME); \
-	this->error_msg = source->error_msg; \
+    this->error_msg = src->error_msg; \
     _makeEqual(src); \
 } \
 const char *GAS_Hina_##NAME::DATANAME = "Hina_"#NAME; \
@@ -148,7 +148,8 @@ class SIM_Hina_##NAME : public SIM_Data, public SIM_OptionsUser \
 { \
 public: \
 static const char *DATANAME; \
-bool Configured; \
+bool Configured = false; \
+mutable UT_WorkBuffer error_msg; \
 __VA_ARGS__ \
 protected: \
 SIM_Hina_##NAME(const SIM_DataFactory *factory) : SIM_Data(factory), SIM_OptionsUser(this) {} \
@@ -168,13 +169,15 @@ void SIM_Hina_##NAME::initializeSubclass() \
 { \
     SIM_Data::initializeSubclass(); \
     this->Configured = false; \
+    this->error_msg.clear(); \
     _init(); \
 } \
 void SIM_Hina_##NAME::makeEqualSubclass(const SIM_Data *source) \
 { \
     SIM_Data::makeEqualSubclass(source); \
     const SIM_Hina_##NAME *src = SIM_DATA_CASTCONST(source, SIM_Hina_##NAME); \
-    this->Configured = source->Configured; \
+    this->Configured = src->Configured; \
+    this->error_msg = src->error_msg; \
     _makeEqual(src); \
 } \
 const char *SIM_Hina_##NAME::DATANAME = "Hina_"#NAME; \
@@ -207,13 +210,32 @@ error_msg.appendSprintf("%s::DATA NOT CONFIGURED Exception, From %s\n", dataptr-
 return false; \
 }
 
-#define CHECK_CONFIGURED_WITH_RETURN(dataptr, return_value) \
-if (!dataptr->Configured) \
+#define CHECK_CONFIGURED_NO_RETURN(data_ptr) \
+if (!data_ptr->Configured) \
 { \
-error_msg.appendSprintf("%s::DATA NOT CONFIGURED Exception, From %s\n", dataptr->getDataType().c_str(), DATANAME); \
+error_msg.appendSprintf("%s::DATA NOT CONFIGURED Exception, From %s\n", data_ptr->getDataType().c_str(), DATANAME); \
+}
+
+#define CHECK_CONFIGURED_WITH_RETURN(data_ptr, return_value) \
+if (!data_ptr->Configured) \
+{ \
+error_msg.appendSprintf("%s::DATA NOT CONFIGURED Exception, From %s\n", data_ptr->getDataType().c_str(), DATANAME); \
 return return_value; \
 }
 
+#define CHECK_CUBBY_ARRAY_BOUND_NO_RETURN(InnerPtr, index) \
+if (index >= InnerPtr->NumberOfParticles()) \
+{ \
+error_msg.appendSprintf("Index > Array Bound, From %s\n", DATANAME); \
+}
 
+#define CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, return_value) \
+if (index >= InnerPtr->NumberOfParticles()) \
+{ \
+error_msg.appendSprintf("Index > Array Bound, From %s\n", DATANAME); \
+return return_value; \
+}
+
+#define AS_UTVector3D(Vec3) UT_Vector3D(Vec3.x, Vec3.y, Vec3.z)
 
 #endif //HINAPE_HDK_CLASS_GENERATOR_H

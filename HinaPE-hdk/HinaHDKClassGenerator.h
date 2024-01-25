@@ -236,6 +236,19 @@ error_msg.appendSprintf("Index > Array Bound, From %s\n", DATANAME); \
 return return_value; \
 }
 
+#define CHECK_GDP_HANDLE_VALID_NO_RETURN(handle) \
+if (handle.isValid())                                           \
+{ \
+error_msg.appendSprintf("HANDLE INVALID, PLEASE ENSURE YOU HAVE INIT THIS ATTRIBUTE::%s, From %s\n", handle->getName().c_str(), DATANAME); \
+}
+
+#define CHECK_GDP_HANDLE_VALID_WITH_RETURN(handle, return_value) \
+if (handle.isValid())                                           \
+{ \
+error_msg.appendSprintf("HANDLE INVALID, PLEASE ENSURE YOU HAVE INIT THIS ATTRIBUTE::%s, From %s\n", handle->getName().c_str(), DATANAME); \
+return return_value; \
+}
+
 #define AS_UTVector3D(Vec3) UT_Vector3D(Vec3.x, Vec3.y, Vec3.z)
 
 #endif //HINAPE_HDK_CLASS_GENERATOR_H

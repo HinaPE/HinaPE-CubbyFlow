@@ -1,9 +1,9 @@
 #include "GAS_Hina_VolumeParticleEmittter.h"
 
 #include <Particle/SIM_Hina_ParticleFluidData.h>
-#include <Geometry/SIM_CF_Sphere.h>
-#include <Geometry/SIM_CF_Box.h>
-#include <Geometry/SIM_CF_Plane.h>
+#include <Geometry/SIM_Hina_Box.h>
+#include <Geometry/SIM_Hina_Plane.h>
+#include <Geometry/SIM_Hina_Sphere.h>
 
 #include "Core/Geometry/TriangleMesh3.hpp"
 #include "Core/Geometry/ImplicitSurfaceSet.hpp"
@@ -60,8 +60,8 @@ void GAS_Hina_VolumeParticleEmittter::search_and_add_all_sphere()
 	filterConstSubData(CF_Spheres, nullptr, SIM_DataFilterByType("SIM_CF_Sphere"), nullptr, SIM_DataFilterNone());
 	for (const auto &data: CF_Spheres)
 	{
-		const SIM_CF_Sphere *sphere = static_cast<const SIM_CF_Sphere *>(data);
-		auto suface_ptr = sphere->RuntimeConstructCFSphere();
+		const SIM_Hina_Sphere *sphere = static_cast<const SIM_Hina_Sphere *>(data);
+		auto suface_ptr = sphere->RuntimeConstruct();
 		_AllSurfaces.Append(suface_ptr);
 	}
 }
@@ -71,8 +71,8 @@ void GAS_Hina_VolumeParticleEmittter::search_and_add_geometry()
 	filterConstSubData(CF_Boxes, nullptr, SIM_DataFilterByType("SIM_CF_Box"), nullptr, SIM_DataFilterNone());
 	for (const auto &data: CF_Boxes)
 	{
-		const SIM_CF_Box *box = static_cast<const SIM_CF_Box *>(data);
-		auto suface_ptr = box->RuntimeConstructCFBox();
+		const SIM_Hina_Box *box = static_cast<const SIM_Hina_Box *>(data);
+		auto suface_ptr = box->RuntimeConstruct();
 		_AllSurfaces.Append(suface_ptr);
 	}
 }
@@ -82,8 +82,8 @@ void GAS_Hina_VolumeParticleEmittter::search_and_add_all_plane()
 	filterConstSubData(CF_Planes, nullptr, SIM_DataFilterByType("SIM_CF_Plane"), nullptr, SIM_DataFilterNone());
 	for (const auto &data: CF_Planes)
 	{
-		const SIM_CF_Plane *plane = static_cast<const SIM_CF_Plane *>(data);
-		auto suface_ptr = plane->RuntimeConstructCFPlane();
+		const SIM_Hina_Plane *plane = static_cast<const SIM_Hina_Plane *>(data);
+		auto suface_ptr = plane->RuntimeConstruct();
 		_AllSurfaces.Append(suface_ptr);
 	}
 }

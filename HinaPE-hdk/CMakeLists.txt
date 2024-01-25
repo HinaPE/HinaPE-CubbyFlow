@@ -32,7 +32,6 @@ target_include_directories(
         ${CMAKE_CURRENT_BINARY_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_SOURCE_DIR}/install/include
-        ${CMAKE_SOURCE_DIR}/hdk
         ${CMAKE_SOURCE_DIR}/HinaPE-hdk
 )
 target_compile_options(

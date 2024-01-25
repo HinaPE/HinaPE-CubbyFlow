@@ -26,6 +26,8 @@
 #include <PRM/PRM_SpareData.h>
 
 #include <GEO/GEO_PrimPoly.h>
+#include <GEO/GEO_PrimSphere.h>
+#include <GU/GU_PrimSphere.h>
 
 #include <UT/UT_WorkBuffer.h>
 #include <UT/UT_NetMessage.h>
@@ -161,7 +163,7 @@ bool _solve(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timeste
 #define NEW_HINA_MICRPSOLVER_IMPLEMENT(NAME, UNIQUE, ...) \
 bool GAS_Hina_##NAME::solveGasSubclass(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep) \
 { \
-	CHECK_NULL(obj) \
+    CHECK_NULL(obj) \
     if (!_solve(engine, obj, time, timestep, this->error_msg) || UTisstring(this->error_msg.buffer())) \
     { \
         SIM_Data::addError(obj, SIM_MESSAGE, error_msg.buffer(), UT_ERROR_ABORT); \
@@ -241,6 +243,65 @@ const char *SIM_Hina_##NAME::DATANAME = "Hina_"#NAME; \
 const SIM_DopDescription *SIM_Hina_##NAME::getDopDescription() \
 { \
 static std::vector<PRM_Template> PRMS;             \
+PRMS.clear(); \
+__VA_ARGS__ \
+PRMS.emplace_back(); \
+static SIM_DopDescription DESC(true, \
+                               "Hina_"#NAME, \
+                               "Hina "#NAME, \
+                               DATANAME, \
+                               classname(), \
+                               PRMS.data()); \
+DESC.setDefaultUniqueDataName(UNIQUE); \
+return &DESC; \
+}
+
+#define NEW_HINA_GEOMETRY_CLASS(NAME, InnerTypePtr, ...) \
+class SIM_Hina_##NAME : public SIM_Geometry \
+{ \
+public: \
+static const char *DATANAME; \
+bool Configured = false; \
+mutable GU_DetailHandle my_detail_handle; \
+mutable UT_WorkBuffer error_msg; \
+__VA_ARGS__ \
+InnerTypePtr RuntimeConstruct() const; \
+protected: \
+SIM_Hina_##NAME(const SIM_DataFactory *factory) : BaseClass(factory) {} \
+~SIM_Hina_##NAME() override = default; \
+GU_ConstDetailHandle getGeometrySubclass() const override; \
+void initializeSubclass() override; \
+void makeEqualSubclass(const SIM_Data *source) override; \
+static const SIM_DopDescription *getDopDescription(); \
+DECLARE_STANDARD_GETCASTTOTYPE(); \
+DECLARE_DATAFACTORY(SIM_Hina_##NAME, SIM_Geometry, "Hina_"#NAME, getDopDescription());                    \
+private: \
+void _init(); \
+void _makeEqual(const SIM_Hina_##NAME *src); \
+};
+
+#define NEW_HINA_GEOMETRY_IMPLEMENT(NAME, InnerTypePtr, UNIQUE, ...) \
+void SIM_Hina_##NAME::initializeSubclass() \
+{ \
+    SIM_Geometry::initializeSubclass(); \
+    this->Configured = false; \
+    this->my_detail_handle.clear(); \
+    this->error_msg.clear(); \
+    _init(); \
+} \
+void SIM_Hina_##NAME::makeEqualSubclass(const SIM_Data *source) \
+{ \
+    SIM_Geometry::makeEqualSubclass(source); \
+    const SIM_Hina_##NAME *src = SIM_DATA_CASTCONST(source, SIM_Hina_##NAME); \
+    this->Configured = src->Configured; \
+    this->my_detail_handle = src->my_detail_handle; \
+    this->error_msg = src->error_msg; \
+    _makeEqual(src); \
+}                                                                   \
+const char *SIM_Hina_##NAME::DATANAME = "Hina_"#NAME; \
+const SIM_DopDescription *SIM_Hina_##NAME::getDopDescription() \
+{ \
+static std::vector<PRM_Template> PRMS; \
 PRMS.clear(); \
 __VA_ARGS__ \
 PRMS.emplace_back(); \

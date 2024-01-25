@@ -12,6 +12,8 @@
 #include <Solver/Force/GAS_Hina_ClearForce.h>
 #include <Solver/Force/GAS_Hina_GravityForce.h>
 #include <Solver/Neighbor/GAS_Hina_UpdateNeighbor.h>
+#include <Solver/Pressure/GAS_Hina_PCISPHPressure.h>
+#include <Solver/Pressure/GAS_Hina_SPHPressure.h>
 #include <Solver/TimeIntegrate/GAS_Hina_SemiImplicitEuler.h>
 
 void initializeSIM(void *)
@@ -37,5 +39,7 @@ void initializeSIM(void *)
 	IMPLEMENT_DATAFACTORY(GAS_Hina_ClearForce)
 	IMPLEMENT_DATAFACTORY(GAS_Hina_GravityForce)
 	IMPLEMENT_DATAFACTORY(GAS_Hina_UpdateNeighbor)
+	IMPLEMENT_DATAFACTORY(GAS_Hina_PCISPHPressure)
+	IMPLEMENT_DATAFACTORY(GAS_Hina_SPHPressure)
 	IMPLEMENT_DATAFACTORY(GAS_Hina_SemiImplicitEuler)
 }

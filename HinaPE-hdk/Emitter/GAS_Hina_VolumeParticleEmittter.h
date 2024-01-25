@@ -2,7 +2,6 @@
 #define HINAPE_GAS_HINA_VOLUMEPARTICLEEMITTTER_H
 
 #include "HinaHDKClassGenerator.h"
-
 #include "Core/Emitter/VolumeParticleEmitter3.hpp"
 
 NEW_HINA_MICRPSOLVER_CLASS(

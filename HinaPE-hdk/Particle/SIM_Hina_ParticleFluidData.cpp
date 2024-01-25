@@ -119,56 +119,11 @@ void SIM_Hina_ParticleFluidData::runtime_init_handles(GU_Detail &gdp)
 	gdp_handle_n_sum = gdp.findPointAttribute(getNEIGHBORS_SUM_ATTRIBUTE_NAME());
 	gdp_handle_neighbors = gdp.findPointAttribute(getNEIGHBORS_ATTRIBUTE_NAME());
 }
-GA_Offset SIM_Hina_ParticleFluidData::offset(size_t index)
-{
-	CHECK_CONFIGURED_WITH_RETURN(this, ZERO)
-	CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, ZERO)
-
-	return (GA_Offset) InnerPtr->ScalarDataAt(scalar_idx_offset)[index];
-}
-void SIM_Hina_ParticleFluidData::set_offset(size_t index, GA_Offset pt_off)
-{
-	CHECK_CONFIGURED_NO_RETURN(this)
-	CHECK_CUBBY_ARRAY_BOUND_NO_RETURN(InnerPtr, index)
-
-	InnerPtr->ScalarDataAt(scalar_idx_offset)[index] = pt_off;
-}
-std::string SIM_Hina_ParticleFluidData::state(size_t index)
-{
-	CHECK_CONFIGURED_WITH_RETURN(this, "")
-	CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, "")
-
-	int state = (int) InnerPtr->ScalarDataAt(scalar_idx_state)[index];
-	switch (state)
-	{
-		case 0:
-			return PARTICLE_STATE_NEW_ADDED;
-		case 1:
-			return PARTICLE_STATE_DIRTY;
-		case 2:
-			return PARTICLE_STATE_CLEAN;
-		default:
-			return "ERROR";
-	}
-}
-void SIM_Hina_ParticleFluidData::set_state(size_t index, std::string state)
-{
-	CHECK_CONFIGURED_NO_RETURN(this)
-	CHECK_CUBBY_ARRAY_BOUND_NO_RETURN(InnerPtr, index)
-
-	if (state == PARTICLE_STATE_NEW_ADDED)
-		InnerPtr->ScalarDataAt(scalar_idx_state)[index] = 0;
-	else if (state == PARTICLE_STATE_DIRTY)
-		InnerPtr->ScalarDataAt(scalar_idx_state)[index] = 1;
-	else if (state == PARTICLE_STATE_CLEAN)
-		InnerPtr->ScalarDataAt(scalar_idx_state)[index] = 2;
-	else
-		InnerPtr->ScalarDataAt(scalar_idx_state)[index] = 99999;
-}
 size_t SIM_Hina_ParticleFluidData::pt_size() const
 {
 	return InnerPtr->NumberOfParticles();
 }
+
 const CubbyFlow::Vector3D &SIM_Hina_ParticleFluidData::operator[](size_t index) const
 {
 	CHECK_CONFIGURED_WITH_RETURN(this, ZERO_V3)
@@ -199,111 +154,6 @@ CubbyFlow::Vector3D &SIM_Hina_ParticleFluidData::position(size_t index)
 
 	return InnerPtr->Positions()[index];
 }
-const CubbyFlow::Vector3D &SIM_Hina_ParticleFluidData::velocity(size_t index) const
-{
-	CHECK_CONFIGURED_WITH_RETURN(this, ZERO_V3)
-	CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, ZERO_V3)
-
-	return InnerPtr->Velocities()[index];
-}
-CubbyFlow::Vector3D &SIM_Hina_ParticleFluidData::velocity(size_t index)
-{
-	CHECK_CONFIGURED_WITH_RETURN(this, ZERO_V3)
-	CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, ZERO_V3)
-
-	return InnerPtr->Velocities()[index];
-}
-const CubbyFlow::Vector3D &SIM_Hina_ParticleFluidData::force(size_t index) const
-{
-	CHECK_CONFIGURED_WITH_RETURN(this, ZERO_V3)
-	CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, ZERO_V3)
-
-	return InnerPtr->Forces()[index];
-}
-CubbyFlow::Vector3D &SIM_Hina_ParticleFluidData::force(size_t index)
-{
-	CHECK_CONFIGURED_WITH_RETURN(this, ZERO_V3)
-	CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, ZERO_V3)
-
-	return InnerPtr->Forces()[index];
-}
-const double &SIM_Hina_ParticleFluidData::density(size_t index) const
-{
-	CHECK_CONFIGURED_WITH_RETURN(this, ZERO)
-	CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, ZERO)
-
-	return InnerPtr->Densities()[index];
-}
-double &SIM_Hina_ParticleFluidData::density(size_t index)
-{
-	CHECK_CONFIGURED_WITH_RETURN(this, ZERO)
-	CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, ZERO)
-
-	return InnerPtr->Densities()[index];
-}
-const double &SIM_Hina_ParticleFluidData::pressure(size_t index) const
-{
-	CHECK_CONFIGURED_WITH_RETURN(this, ZERO)
-	CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, ZERO)
-
-	return InnerPtr->Pressures()[index];
-}
-double &SIM_Hina_ParticleFluidData::pressure(size_t index)
-{
-	CHECK_CONFIGURED_WITH_RETURN(this, ZERO)
-	CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, ZERO)
-
-	return InnerPtr->Pressures()[index];
-}
-int SIM_Hina_ParticleFluidData::neighbor_sum(size_t index) const
-{
-	CHECK_CONFIGURED_WITH_RETURN(this, ZERO_I)
-	CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, ZERO_I)
-
-	return (int) InnerPtr->NeighborLists()[index].Size().x;
-}
-CubbyFlow::Array1<size_t> &SIM_Hina_ParticleFluidData::neighbors(size_t index)
-{
-	CHECK_CONFIGURED_WITH_RETURN(this, ZERO_Arr)
-	CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, ZERO_Arr)
-
-	return const_cast<CubbyFlow::Array1<size_t> &>(InnerPtr->NeighborLists()[index]);
-}
-size_t SIM_Hina_ParticleFluidData::gdp_index(GA_Offset offset)
-{
-	CHECK_CONFIGURED_WITH_RETURN(this, ZERO)
-	CHECK_GDP_HANDLE_VALID_WITH_RETURN(gdp_handle_CF_IDX, ZERO)
-
-	size_t index = gdp_handle_CF_IDX.get(offset);
-	CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, ZERO)
-
-	return index;
-}
-void SIM_Hina_ParticleFluidData::set_gdp_index(GA_Offset pt_off, size_t index)
-{
-	CHECK_CONFIGURED_NO_RETURN(this)
-	CHECK_CUBBY_ARRAY_BOUND_NO_RETURN(InnerPtr, index)
-	CHECK_GDP_HANDLE_VALID_NO_RETURN(gdp_handle_position)
-
-	gdp_handle_CF_IDX.set(pt_off, index);
-}
-std::string SIM_Hina_ParticleFluidData::gdp_state(size_t index)
-{
-	CHECK_CONFIGURED_WITH_RETURN(this, "")
-	CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, "")
-	CHECK_GDP_HANDLE_VALID_NO_RETURN(gdp_handle_CF_STATE)
-
-	auto state = gdp_handle_CF_STATE.get(offset(index));
-	return state.toStdString();
-}
-void SIM_Hina_ParticleFluidData::set_gdp_state(size_t index, std::string state)
-{
-	CHECK_CONFIGURED_NO_RETURN(this)
-	CHECK_CUBBY_ARRAY_BOUND_NO_RETURN(InnerPtr, index)
-	CHECK_GDP_HANDLE_VALID_NO_RETURN(gdp_handle_CF_STATE)
-
-	gdp_handle_CF_STATE.set(offset(index), state);
-}
 UT_Vector3D SIM_Hina_ParticleFluidData::gdp_position(size_t index)
 {
 	CHECK_CONFIGURED_WITH_RETURN(this, ZERO_V3_HDK)
@@ -319,6 +169,21 @@ void SIM_Hina_ParticleFluidData::set_gdp_position(size_t index, UT_Vector3D v3)
 	CHECK_GDP_HANDLE_VALID_NO_RETURN(gdp_handle_position)
 
 	gdp_handle_position.set(offset(index), v3);
+}
+
+const CubbyFlow::Vector3D &SIM_Hina_ParticleFluidData::velocity(size_t index) const
+{
+	CHECK_CONFIGURED_WITH_RETURN(this, ZERO_V3)
+	CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, ZERO_V3)
+
+	return InnerPtr->Velocities()[index];
+}
+CubbyFlow::Vector3D &SIM_Hina_ParticleFluidData::velocity(size_t index)
+{
+	CHECK_CONFIGURED_WITH_RETURN(this, ZERO_V3)
+	CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, ZERO_V3)
+
+	return InnerPtr->Velocities()[index];
 }
 UT_Vector3D SIM_Hina_ParticleFluidData::gdp_velocity(size_t index)
 {
@@ -336,6 +201,21 @@ void SIM_Hina_ParticleFluidData::set_gdp_velocity(size_t index, UT_Vector3D v3)
 
 	gdp_handle_velocity.set(offset(index), v3);
 }
+
+const CubbyFlow::Vector3D &SIM_Hina_ParticleFluidData::force(size_t index) const
+{
+	CHECK_CONFIGURED_WITH_RETURN(this, ZERO_V3)
+	CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, ZERO_V3)
+
+	return InnerPtr->Forces()[index];
+}
+CubbyFlow::Vector3D &SIM_Hina_ParticleFluidData::force(size_t index)
+{
+	CHECK_CONFIGURED_WITH_RETURN(this, ZERO_V3)
+	CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, ZERO_V3)
+
+	return InnerPtr->Forces()[index];
+}
 UT_Vector3D SIM_Hina_ParticleFluidData::gdp_force(size_t index)
 {
 	CHECK_CONFIGURED_WITH_RETURN(this, ZERO_V3_HDK)
@@ -351,6 +231,21 @@ void SIM_Hina_ParticleFluidData::set_gdp_force(size_t index, UT_Vector3D v3)
 	CHECK_GDP_HANDLE_VALID_NO_RETURN(gdp_handle_force)
 
 	gdp_handle_force.set(offset(index), v3);
+}
+
+const double &SIM_Hina_ParticleFluidData::density(size_t index) const
+{
+	CHECK_CONFIGURED_WITH_RETURN(this, ZERO)
+	CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, ZERO)
+
+	return InnerPtr->Densities()[index];
+}
+double &SIM_Hina_ParticleFluidData::density(size_t index)
+{
+	CHECK_CONFIGURED_WITH_RETURN(this, ZERO)
+	CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, ZERO)
+
+	return InnerPtr->Densities()[index];
 }
 fpreal SIM_Hina_ParticleFluidData::gdp_density(size_t index)
 {
@@ -368,6 +263,21 @@ void SIM_Hina_ParticleFluidData::set_gdp_density(size_t index, fpreal v)
 
 	gdp_handle_density.set(offset(index), v);
 }
+
+const double &SIM_Hina_ParticleFluidData::pressure(size_t index) const
+{
+	CHECK_CONFIGURED_WITH_RETURN(this, ZERO)
+	CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, ZERO)
+
+	return InnerPtr->Pressures()[index];
+}
+double &SIM_Hina_ParticleFluidData::pressure(size_t index)
+{
+	CHECK_CONFIGURED_WITH_RETURN(this, ZERO)
+	CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, ZERO)
+
+	return InnerPtr->Pressures()[index];
+}
 fpreal SIM_Hina_ParticleFluidData::gdp_pressure(size_t index)
 {
 	CHECK_CONFIGURED_WITH_RETURN(this, ZERO)
@@ -383,6 +293,21 @@ void SIM_Hina_ParticleFluidData::set_gdp_pressure(size_t index, fpreal v)
 	CHECK_GDP_HANDLE_VALID_NO_RETURN(gdp_handle_pressure)
 
 	gdp_handle_pressure.set(offset(index), v);
+}
+
+int SIM_Hina_ParticleFluidData::neighbor_sum(size_t index) const
+{
+	CHECK_CONFIGURED_WITH_RETURN(this, ZERO_I)
+	CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, ZERO_I)
+
+	return (int) InnerPtr->NeighborLists()[index].Size().x;
+}
+CubbyFlow::Array1<size_t> &SIM_Hina_ParticleFluidData::neighbors(size_t index)
+{
+	CHECK_CONFIGURED_WITH_RETURN(this, ZERO_Arr)
+	CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, ZERO_Arr)
+
+	return const_cast<CubbyFlow::Array1<size_t> &>(InnerPtr->NeighborLists()[index]);
 }
 size_t SIM_Hina_ParticleFluidData::gdp_neighbor_sum(size_t index)
 {
@@ -416,4 +341,86 @@ void SIM_Hina_ParticleFluidData::set_gdp_neighbors(size_t index, UT_Int32Array &
 	// TODO: Check
 
 	gdp_handle_neighbors.set(offset(index), array);
+}
+
+GA_Offset SIM_Hina_ParticleFluidData::offset(size_t index)
+{
+	CHECK_CONFIGURED_WITH_RETURN(this, ZERO)
+	CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, ZERO)
+
+	return (GA_Offset) InnerPtr->ScalarDataAt(scalar_idx_offset)[index];
+}
+void SIM_Hina_ParticleFluidData::set_offset(size_t index, GA_Offset pt_off)
+{
+	CHECK_CONFIGURED_NO_RETURN(this)
+	CHECK_CUBBY_ARRAY_BOUND_NO_RETURN(InnerPtr, index)
+
+	InnerPtr->ScalarDataAt(scalar_idx_offset)[index] = pt_off;
+}
+size_t SIM_Hina_ParticleFluidData::gdp_index(GA_Offset offset)
+{
+	CHECK_CONFIGURED_WITH_RETURN(this, ZERO)
+	CHECK_GDP_HANDLE_VALID_WITH_RETURN(gdp_handle_CF_IDX, ZERO)
+
+	size_t index = gdp_handle_CF_IDX.get(offset);
+	CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, ZERO)
+
+	return index;
+}
+void SIM_Hina_ParticleFluidData::set_gdp_index(GA_Offset pt_off, size_t index)
+{
+	CHECK_CONFIGURED_NO_RETURN(this)
+	CHECK_CUBBY_ARRAY_BOUND_NO_RETURN(InnerPtr, index)
+	CHECK_GDP_HANDLE_VALID_NO_RETURN(gdp_handle_position)
+
+	gdp_handle_CF_IDX.set(pt_off, index);
+}
+std::string SIM_Hina_ParticleFluidData::state(size_t index)
+{
+	CHECK_CONFIGURED_WITH_RETURN(this, "")
+	CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, "")
+
+	int state = (int) InnerPtr->ScalarDataAt(scalar_idx_state)[index];
+	switch (state)
+	{
+		case 0:
+			return PARTICLE_STATE_NEW_ADDED;
+		case 1:
+			return PARTICLE_STATE_DIRTY;
+		case 2:
+			return PARTICLE_STATE_CLEAN;
+		default:
+			return "ERROR";
+	}
+}
+void SIM_Hina_ParticleFluidData::set_state(size_t index, std::string state)
+{
+	CHECK_CONFIGURED_NO_RETURN(this)
+	CHECK_CUBBY_ARRAY_BOUND_NO_RETURN(InnerPtr, index)
+
+	if (state == PARTICLE_STATE_NEW_ADDED)
+		InnerPtr->ScalarDataAt(scalar_idx_state)[index] = 0;
+	else if (state == PARTICLE_STATE_DIRTY)
+		InnerPtr->ScalarDataAt(scalar_idx_state)[index] = 1;
+	else if (state == PARTICLE_STATE_CLEAN)
+		InnerPtr->ScalarDataAt(scalar_idx_state)[index] = 2;
+	else
+		InnerPtr->ScalarDataAt(scalar_idx_state)[index] = 99999;
+}
+std::string SIM_Hina_ParticleFluidData::gdp_state(size_t index)
+{
+	CHECK_CONFIGURED_WITH_RETURN(this, "")
+	CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, "")
+	CHECK_GDP_HANDLE_VALID_NO_RETURN(gdp_handle_CF_STATE)
+
+	auto state = gdp_handle_CF_STATE.get(offset(index));
+	return state.toStdString();
+}
+void SIM_Hina_ParticleFluidData::set_gdp_state(size_t index, std::string state)
+{
+	CHECK_CONFIGURED_NO_RETURN(this)
+	CHECK_CUBBY_ARRAY_BOUND_NO_RETURN(InnerPtr, index)
+	CHECK_GDP_HANDLE_VALID_NO_RETURN(gdp_handle_CF_STATE)
+
+	gdp_handle_CF_STATE.set(offset(index), state);
 }

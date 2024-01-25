@@ -44,58 +44,51 @@ NEW_HINA_DATA_CLASS(
 				void configure_init(GU_Detail &gdp); // Call Inside Lock
 				void runtime_init_handles(GU_Detail &gdp); // Call Inside Lock
 				size_t pt_size() const;
-				GA_Offset offset(size_t index);
-				void set_offset(size_t index, GA_Offset pt_off);
-				std::string state(size_t index);
-				void set_state(size_t index, std::string state);
 
 				const CubbyFlow::Vector3D &operator[](size_t index) const;
 				CubbyFlow::Vector3D &operator[](size_t index);
 
 				const CubbyFlow::Vector3D &position(size_t index) const;
 				CubbyFlow::Vector3D &position(size_t index);
-
-				const CubbyFlow::Vector3D &velocity(size_t index) const;
-				CubbyFlow::Vector3D &velocity(size_t index);
-
-				const CubbyFlow::Vector3D &force(size_t index) const;
-				CubbyFlow::Vector3D &force(size_t index);
-
-				const double &density(size_t index) const;
-				double &density(size_t index);
-
-				const double &pressure(size_t index) const;
-				double &pressure(size_t index);
-
-				int neighbor_sum(size_t index) const;
-				CubbyFlow::Array1<size_t> &neighbors(size_t index);
-
-				size_t gdp_index(GA_Offset pt_off); // Call Inside Lock
-				void set_gdp_index(GA_Offset pt_off, size_t index); // Call Inside Lock
-
-				std::string gdp_state(size_t index); // Call Inside Lock
-				void set_gdp_state(size_t index, std::string state); // Call Inside Lock
-
 				UT_Vector3D gdp_position(size_t index); // Call Inside Lock
 				void set_gdp_position(size_t index, UT_Vector3D v3); // Call Inside Lock
 
+				const CubbyFlow::Vector3D &velocity(size_t index) const;
+				CubbyFlow::Vector3D &velocity(size_t index);
 				UT_Vector3D gdp_velocity(size_t index); // Call Inside Lock
 				void set_gdp_velocity(size_t index, UT_Vector3D v3); // Call Inside Lock
 
+				const CubbyFlow::Vector3D &force(size_t index) const;
+				CubbyFlow::Vector3D &force(size_t index);
 				UT_Vector3D gdp_force(size_t index); // Call Inside Lock
 				void set_gdp_force(size_t index, UT_Vector3D v3); // Call Inside Lock
 
+				const double &density(size_t index) const;
+				double &density(size_t index);
 				fpreal gdp_density(size_t index); // Call Inside Lock
 				void set_gdp_density(size_t index, fpreal v); // Call Inside Lock
 
+				const double &pressure(size_t index) const;
+				double &pressure(size_t index);
 				fpreal gdp_pressure(size_t index); // Call Inside Lock
 				void set_gdp_pressure(size_t index, fpreal v); // Call Inside Lock
 
-				size_t gdp_neighbor_sum(size_t index);
-				void set_gdp_neighbor_sum(size_t index, int n);
+				int neighbor_sum(size_t index) const;
+				CubbyFlow::Array1<size_t> &neighbors(size_t index);
+				size_t gdp_neighbor_sum(size_t index); // Call Inside Lock
+				void set_gdp_neighbor_sum(size_t index, int n); // Call Inside Lock
+				UT_Int32Array gdp_neighbors(size_t index); // Call Inside Lock
+				void set_gdp_neighbors(size_t index, UT_Int32Array &array); // Call Inside Lock
 
-				UT_Int32Array gdp_neighbors(size_t index);
-				void set_gdp_neighbors(size_t index, UT_Int32Array &array);
+				GA_Offset offset(size_t index);
+				void set_offset(size_t index, GA_Offset pt_off);
+				size_t gdp_index(GA_Offset pt_off); // Call Inside Lock
+				void set_gdp_index(GA_Offset pt_off, size_t index); // Call Inside Lock
+
+				std::string state(size_t index);
+				void set_state(size_t index, std::string state);
+				std::string gdp_state(size_t index); // Call Inside Lock
+				void set_gdp_state(size_t index, std::string state); // Call Inside Lock
 )
 
 #endif //HINAPE_SIM_HINA_PARTICLEFLUIDDATA_H

@@ -19,17 +19,17 @@ bool GAS_Hina_UpdateDensity::_solve(SIM_Engine &engine, SIM_Object *obj, SIM_Tim
 
 	data->InnerPtr->UpdateDensities();
 
-	size_t pt_size = data->pt_size();
+	// Sync Density
 	{
 		SIM_GeometryAutoWriteLock lock(geo);
 		GU_Detail &gdp = lock.getGdp();
 		data->runtime_init_handles(gdp);
-
-		CubbyFlow::ParallelFor(CubbyFlow::ZERO_SIZE, pt_size, [&](size_t pt_idx)
-		{
-			data->set_gdp_density(pt_idx, data->density(pt_idx));
-		}, CubbyFlow::ExecutionPolicy::Serial);
+		GA_Offset pt_off;
+		GA_FOR_ALL_PTOFF(&gdp, pt_off)
+			{
+				size_t pt_idx = data->gdp_index(pt_off);
+				data->gdp_handle_density.set(pt_off, data->density(pt_idx));
+			}
 	}
-
 	return true;
 }

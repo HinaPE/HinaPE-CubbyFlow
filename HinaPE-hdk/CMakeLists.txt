@@ -1,10 +1,19 @@
-set(TEST_TARGET TEST_CUBBYFLOW)
+set(HINA_TARGET SIM_HinaPE_Cubby)
 
-add_executable(${TEST_TARGET} test_cubbyflow.cpp)
+file(GLOB_RECURSE HINAPE_HEADER *.h)
+file(GLOB_RECURSE HINAPE_SOURCE *.cpp)
+
+
+add_library(
+        ${HINA_TARGET}
+        SHARED
+        ${HINAPE_HEADER}
+        ${HINAPE_SOURCE}
+)
 
 # Link Houdini Toolkit
 target_link_libraries(
-        ${TEST_TARGET}
+        ${HINA_TARGET}
         PUBLIC
         Houdini
         CubbyFlow
@@ -12,22 +21,21 @@ target_link_libraries(
         ${DEFAULT_LIBRARIES}
 )
 target_link_directories(
-        ${TEST_TARGET}
+        ${HINA_TARGET}
         PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_SOURCE_DIR}/install/lib
 )
 target_include_directories(
-        ${TEST_TARGET}
+        ${HINA_TARGET}
         PUBLIC
         ${CMAKE_CURRENT_BINARY_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_SOURCE_DIR}/install/include
-        ../hdk
 )
 target_compile_options(
-        ${TEST_TARGET}
+        ${HINA_TARGET}
         PRIVATE
         -D_LIBCPP_ENABLE_CXX17_REMOVED_UNARY_BINARY_FUNCTION
 )
-houdini_configure_target(${TEST_TARGET})
+houdini_configure_target(${HINA_TARGET})

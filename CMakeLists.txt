@@ -89,10 +89,12 @@ add_library(
 )
 
 
-# Config CubbyFlow
-include(install/cmake/FindTBB.cmake)
-include(install/cmake/TaskingSystemOptions.cmake)
-include(install/cmake/CompileOptions.cmake)
+# Config TBB only for Windows
+if (MSVC)
+    include(install/cmake/FindTBB.cmake)
+    include(install/cmake/TaskingSystemOptions.cmake)
+    include(install/cmake/CompileOptions.cmake)
+endif ()
 
 # Link Houdini Toolkit
 target_link_libraries(

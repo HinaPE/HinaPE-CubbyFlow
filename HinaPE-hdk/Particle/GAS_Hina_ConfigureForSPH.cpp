@@ -5,6 +5,7 @@
 NEW_HINA_MICRPSOLVER_IMPLEMENT(
 		ConfigureForSPH,
 		false,
+		ACTIVATE_GAS_GEOMETRY
 )
 
 void GAS_Hina_ConfigureForSPH::_init() {}
@@ -17,8 +18,7 @@ bool GAS_Hina_ConfigureForSPH::_solve(SIM_Engine &engine, SIM_Object *obj, SIM_T
 	if (data->Configured)
 		return true;
 
-	SIM_GeometryCopy *geo = SIM_DATA_CREATE(*obj, SIM_GEOMETRY_DATANAME, SIM_GeometryCopy,
-											SIM_DATA_RETURN_EXISTING | SIM_DATA_ADOPT_EXISTING_ON_DELETE);
+	SIM_GeometryCopy *geo = getOrCreateGeometry(obj, SIM_GEOMETRY_DATANAME);
 	CHECK_NULL(geo)
 
 	{

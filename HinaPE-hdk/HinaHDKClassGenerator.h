@@ -25,6 +25,8 @@
 #include <PRM/PRM_Utils.h>
 #include <PRM/PRM_SpareData.h>
 
+#include <GEO/GEO_PrimPoly.h>
+
 #include <UT/UT_WorkBuffer.h>
 #include <UT/UT_NetMessage.h>
 

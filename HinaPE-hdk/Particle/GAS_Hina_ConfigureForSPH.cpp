@@ -19,7 +19,6 @@ bool GAS_Hina_ConfigureForSPH::_solve(SIM_Engine &engine, SIM_Object *obj, SIM_T
 {
 	SIM_Hina_ParticleFluidData *data = SIM_DATA_GET(*obj, SIM_Hina_ParticleFluidData::DATANAME, SIM_Hina_ParticleFluidData);
 	CHECK_NULL(data)
-
 	SIM_GeometryCopy *geo = getOrCreateGeometry(obj, GAS_NAME_GEOMETRY);
 	CHECK_NULL(geo)
 

@@ -127,7 +127,7 @@ target_compile_options(
 houdini_configure_target(${TARGET})
 
 # Developing Node
-add_subdirectory(temp_hdk)
+#add_subdirectory(temp_hdk)
 
 # Final Node
 add_subdirectory(HinaPE-hdk)

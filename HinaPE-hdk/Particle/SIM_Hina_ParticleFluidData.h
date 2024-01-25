@@ -1,5 +1,5 @@
-#ifndef HINAPE_CUBBYFLOW_SIM_HINA_PARTICLEFLUIDDATA_H
-#define HINAPE_CUBBYFLOW_SIM_HINA_PARTICLEFLUIDDATA_H
+#ifndef HINAPE_SIM_HINA_PARTICLEFLUIDDATA_H
+#define HINAPE_SIM_HINA_PARTICLEFLUIDDATA_H
 
 #include "HinaHDKClassGenerator.h"
 
@@ -19,13 +19,17 @@ NEW_HINA_DATA_CLASS(
 				GA_RWHandleV3 gdp_handle_position;
 				GA_RWHandleV3 gdp_handle_velocity;
 				GA_RWHandleV3 gdp_handle_force;
+				GA_RWHandleD gdp_handle_mass;
 				GA_RWHandleD gdp_handle_density;
 				GA_RWHandleD gdp_handle_pressure;
+				GA_RWHandleI gdp_handle_n_sum;
+				GA_RWHandleIA gdp_handle_neighbors;
 
 				NEW_GETSET_PARAMETER(CF_IDX_ATTRIBUTE_NAME, GETSET_DATA_FUNCS_S)
 				NEW_GETSET_PARAMETER(CF_STATE_ATTRIBUTE_NAME, GETSET_DATA_FUNCS_S)
 				NEW_GETSET_PARAMETER(VELOCITY_ATTRIBUTE_NAME, GETSET_DATA_FUNCS_S)
 				NEW_GETSET_PARAMETER(FORCE_ATTRIBUTE_NAME, GETSET_DATA_FUNCS_S)
+				NEW_GETSET_PARAMETER(MASS_ATTRIBUTE_NAME, GETSET_DATA_FUNCS_S)
 				NEW_GETSET_PARAMETER(DENSITY_ATTRIBUTE_NAME, GETSET_DATA_FUNCS_S)
 				NEW_GETSET_PARAMETER(PRESSURE_ATTRIBUTE_NAME, GETSET_DATA_FUNCS_S)
 				NEW_GETSET_PARAMETER(NEIGHBORS_ATTRIBUTE_NAME, GETSET_DATA_FUNCS_S)
@@ -62,6 +66,9 @@ NEW_HINA_DATA_CLASS(
 				const double &pressure(size_t index) const;
 				double &pressure(size_t index);
 
+				int neighbor_sum(size_t index) const;
+				CubbyFlow::Array1<size_t> &neighbors(size_t index);
+
 				size_t gdp_index(GA_Offset offset); // Call Inside Lock
 				void set_gdp_index(GA_Offset offset, size_t index); // Call Inside Lock
 
@@ -79,6 +86,12 @@ NEW_HINA_DATA_CLASS(
 
 				fpreal gdp_pressure(size_t index); // Call Inside Lock
 				void set_gdp_pressure(size_t index, fpreal v); // Call Inside Lock
+
+				size_t gdp_neighbor_sum(size_t index);
+				void set_gdp_neighbor_sum(size_t index, int n);
+
+				UT_Int32Array gdp_neighbors(size_t index);
+				void set_gdp_neighbors(size_t index, UT_Int32Array &array);
 )
 
-#endif //HINAPE_CUBBYFLOW_SIM_HINA_PARTICLEFLUIDDATA_H
+#endif //HINAPE_SIM_HINA_PARTICLEFLUIDDATA_H

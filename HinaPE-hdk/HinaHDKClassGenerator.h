@@ -375,5 +375,6 @@ return &DESC; \
 
 
 #define AS_UTVector3D(Vec3) UT_Vector3D(Vec3.x, Vec3.y, Vec3.z)
+#define AS_CFVector3D(Vec3) CubbyFlow::Vector3D(Vec3.x(), Vec3.y(), Vec3.z())
 
 #endif //HINAPE_HDK_CLASS_GENERATOR_H

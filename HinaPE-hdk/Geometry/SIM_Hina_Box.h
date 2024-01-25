@@ -1,5 +1,5 @@
-#ifndef HINAPE_CUBBYFLOW_SIM_HINA_BOX_H
-#define HINAPE_CUBBYFLOW_SIM_HINA_BOX_H
+#ifndef HINAPE_SIM_HINA_BOX_H
+#define HINAPE_SIM_HINA_BOX_H
 
 #include "HinaHDKClassGenerator.h"
 #include "Core/Geometry/Box.hpp"
@@ -12,4 +12,4 @@ NEW_HINA_GEOMETRY_CLASS(
 		NEW_GETSET_PARAMETER(IsNormalFlipped, GETSET_DATA_FUNCS_B)
 )
 
-#endif //HINAPE_CUBBYFLOW_SIM_HINA_BOX_H
+#endif //HINAPE_SIM_HINA_BOX_H

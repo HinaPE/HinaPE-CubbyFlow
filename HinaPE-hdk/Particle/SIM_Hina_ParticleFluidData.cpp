@@ -7,6 +7,7 @@ NEW_HINA_DATA_IMPLEMENT(
         NEW_STRING_PARAMETER(CF_STATE_ATTRIBUTE_NAME, "CF_ST") \
         NEW_STRING_PARAMETER(VELOCITY_ATTRIBUTE_NAME, "vel") \
         NEW_STRING_PARAMETER(FORCE_ATTRIBUTE_NAME, "force") \
+        NEW_STRING_PARAMETER(MASS_ATTRIBUTE_NAME, "mass") \
         NEW_STRING_PARAMETER(DENSITY_ATTRIBUTE_NAME, "dens") \
         NEW_STRING_PARAMETER(PRESSURE_ATTRIBUTE_NAME, "pres") \
         NEW_STRING_PARAMETER(NEIGHBORS_ATTRIBUTE_NAME, "neighbors") \
@@ -23,6 +24,9 @@ namespace ParticleFluidData
 static CubbyFlow::Vector3D ZERO_V3 = CubbyFlow::Vector3D();
 static UT_Vector3D ZERO_V3_HDK = UT_Vector3D(0.);
 static double ZERO = 0;
+static int ZERO_I = 0;
+static CubbyFlow::Array1<size_t> ZERO_Arr{};
+static UT_Int32Array Zero_Arr_HDK{};
 }
 using namespace ParticleFluidData;
 
@@ -31,22 +35,32 @@ void SIM_Hina_ParticleFluidData::_init()
 	this->InnerPtr = nullptr;
 	this->scalar_idx_offset = std::numeric_limits<size_t>::max();
 	this->scalar_idx_state = std::numeric_limits<size_t>::max();
+	this->gdp_handle_CF_IDX.clear();
+	this->gdp_handle_CF_STATE.clear();
 	this->gdp_handle_position.clear();
 	this->gdp_handle_velocity.clear();
 	this->gdp_handle_force.clear();
+	this->gdp_handle_mass.clear();
 	this->gdp_handle_density.clear();
 	this->gdp_handle_pressure.clear();
+	this->gdp_handle_n_sum.clear();
+	this->gdp_handle_neighbors.clear();
 }
 void SIM_Hina_ParticleFluidData::_makeEqual(const SIM_Hina_ParticleFluidData *src)
 {
 	this->InnerPtr = src->InnerPtr;
 	this->scalar_idx_offset = src->scalar_idx_offset;
 	this->scalar_idx_state = src->scalar_idx_state;
+	this->gdp_handle_CF_IDX = src->gdp_handle_CF_IDX;
+	this->gdp_handle_CF_STATE = src->gdp_handle_CF_STATE;
 	this->gdp_handle_position = src->gdp_handle_position;
 	this->gdp_handle_velocity = src->gdp_handle_velocity;
 	this->gdp_handle_force = src->gdp_handle_force;
+	this->gdp_handle_mass = src->gdp_handle_mass;
 	this->gdp_handle_density = src->gdp_handle_density;
 	this->gdp_handle_pressure = src->gdp_handle_pressure;
+	this->gdp_handle_n_sum = src->gdp_handle_n_sum;
+	this->gdp_handle_neighbors = src->gdp_handle_neighbors;
 }
 
 void SIM_Hina_ParticleFluidData::configure_init(GU_Detail &gdp)
@@ -63,6 +77,8 @@ void SIM_Hina_ParticleFluidData::configure_init(GU_Detail &gdp)
 	velocity_ref.setTypeInfo(GA_TYPE_VECTOR);
 	GA_RWAttributeRef force_ref = gdp.addFloatTuple(GA_ATTRIB_POINT, getFORCE_ATTRIBUTE_NAME(), 3, GA_Defaults(0));
 	force_ref.setTypeInfo(GA_TYPE_VECTOR);
+	GA_RWAttributeRef mass_ref = gdp.addFloatTuple(GA_ATTRIB_POINT, getMASS_ATTRIBUTE_NAME(), 1, GA_Defaults(0));
+	mass_ref.setTypeInfo(GA_TYPE_VOID);
 	GA_RWAttributeRef density_ref = gdp.addFloatTuple(GA_ATTRIB_POINT, getDENSITY_ATTRIBUTE_NAME(), 1, GA_Defaults(0));
 	density_ref.setTypeInfo(GA_TYPE_VOID);
 	GA_RWAttributeRef pressure_ref = gdp.addFloatTuple(GA_ATTRIB_POINT, getPRESSURE_ATTRIBUTE_NAME(), 1, GA_Defaults(0));
@@ -96,8 +112,11 @@ void SIM_Hina_ParticleFluidData::runtime_init_handles(GU_Detail &gdp)
 	gdp_handle_position = gdp.getP();
 	gdp_handle_velocity = gdp.findPointAttribute(getVELOCITY_ATTRIBUTE_NAME());
 	gdp_handle_force = gdp.findPointAttribute(getFORCE_ATTRIBUTE_NAME());
+	gdp_handle_mass = gdp.findPointAttribute(getMASS_ATTRIBUTE_NAME());
 	gdp_handle_density = gdp.findPointAttribute(getDENSITY_ATTRIBUTE_NAME());
 	gdp_handle_pressure = gdp.findPointAttribute(getPRESSURE_ATTRIBUTE_NAME());
+	gdp_handle_n_sum = gdp.findPointAttribute(getNEIGHBORS_SUM_ATTRIBUTE_NAME());
+	gdp_handle_neighbors = gdp.findPointAttribute(getNEIGHBORS_ATTRIBUTE_NAME());
 }
 GA_Offset SIM_Hina_ParticleFluidData::offset(size_t index)
 {
@@ -235,6 +254,20 @@ double &SIM_Hina_ParticleFluidData::pressure(size_t index)
 
 	return InnerPtr->Pressures()[index];
 }
+int SIM_Hina_ParticleFluidData::neighbor_sum(size_t index) const
+{
+	CHECK_CONFIGURED_WITH_RETURN(this, ZERO_I)
+	CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, ZERO_I)
+
+	return (int) InnerPtr->NeighborLists()[index].Size().x;
+}
+CubbyFlow::Array1<size_t> &SIM_Hina_ParticleFluidData::neighbors(size_t index)
+{
+	CHECK_CONFIGURED_WITH_RETURN(this, ZERO_Arr)
+	CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, ZERO_Arr)
+
+	return const_cast<CubbyFlow::Array1<size_t> &>(InnerPtr->NeighborLists()[index]);
+}
 size_t SIM_Hina_ParticleFluidData::gdp_index(GA_Offset offset)
 {
 	CHECK_CONFIGURED_WITH_RETURN(this, ZERO)
@@ -332,4 +365,37 @@ void SIM_Hina_ParticleFluidData::set_gdp_pressure(size_t index, fpreal v)
 	CHECK_GDP_HANDLE_VALID_NO_RETURN(gdp_handle_pressure)
 
 	gdp_handle_pressure.set(offset(index), v);
+}
+size_t SIM_Hina_ParticleFluidData::gdp_neighbor_sum(size_t index)
+{
+	CHECK_CONFIGURED_WITH_RETURN(this, ZERO_I)
+	CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, ZERO_I)
+	CHECK_GDP_HANDLE_VALID_WITH_RETURN(gdp_handle_n_sum, ZERO_I)
+
+	gdp_handle_n_sum.get(offset(index));
+}
+void SIM_Hina_ParticleFluidData::set_gdp_neighbor_sum(size_t index, int n)
+{
+	CHECK_CONFIGURED_NO_RETURN(this)
+	CHECK_CUBBY_ARRAY_BOUND_NO_RETURN(InnerPtr, index)
+	CHECK_GDP_HANDLE_VALID_NO_RETURN(gdp_handle_n_sum)
+
+	gdp_handle_n_sum.set(offset(index), n);
+}
+UT_Int32Array SIM_Hina_ParticleFluidData::gdp_neighbors(size_t index)
+{
+	// TODO: Check
+//	CHECK_CONFIGURED_WITH_RETURN(this, Zero_Arr_HDK)
+//	CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, Zero_Arr_HDK)
+//	CHECK_GDP_HANDLE_VALID_WITH_RETURN(gdp_handle_neighbors, Zero_Arr_HDK)
+
+	UT_Int32Array res;
+	gdp_handle_neighbors.get(offset(index), res);
+	return res;
+}
+void SIM_Hina_ParticleFluidData::set_gdp_neighbors(size_t index, UT_Int32Array &array)
+{
+	// TODO: Check
+
+	gdp_handle_neighbors.set(offset(index), array);
 }

@@ -1,0 +1,10 @@
+#ifndef HINAPE_GAS_HINA_CLEARFORCE_H
+#define HINAPE_GAS_HINA_CLEARFORCE_H
+
+#include "HinaHDKClassGenerator.h"
+
+NEW_HINA_MICRPSOLVER_CLASS(
+		ClearForce,
+)
+
+#endif //HINAPE_GAS_HINA_CLEARFORCE_H

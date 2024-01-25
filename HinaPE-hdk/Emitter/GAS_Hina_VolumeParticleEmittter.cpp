@@ -72,6 +72,7 @@ bool GAS_Hina_VolumeParticleEmittter::_solve(SIM_Engine &engine, SIM_Object *obj
 	{
 		SIM_GeometryAutoWriteLock lock(geo);
 		GU_Detail &gdp = lock.getGdp();
+		data->runtime_init_handles(gdp);
 
 		for (int pt_idx = 0; pt_idx < pt_size; ++pt_idx)
 		{

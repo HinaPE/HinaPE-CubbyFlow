@@ -13,6 +13,7 @@
 #include <SIM/SIM_Geometry.h>
 #include <SIM/SIM_GeometryCopy.h>
 #include <SIM/SIM_GuideShared.h>
+#include <SIM/SIM_Collider.h>
 #include <SIM/SIM_ColliderLabel.h>
 #include <SIM/SIM_ForceGravity.h>
 #include <SIM/SIM_Time.h>
@@ -314,6 +315,64 @@ static SIM_DopDescription DESC(true, \
 DESC.setDefaultUniqueDataName(UNIQUE); \
 return &DESC; \
 }
+
+
+#define NEW_HINA_COLLIDER_CLASS(NAME, ...) \
+class SIM_Hina_##NAME : public SIM_Collider \
+{ \
+public: \
+static const char *DATANAME; \
+bool Configured = false; \
+mutable UT_WorkBuffer error_msg; \
+__VA_ARGS__ \
+protected: \
+SIM_Hina_##NAME(const SIM_DataFactory *factory) : SIM_Collider(factory) {} \
+~SIM_Hina_##NAME() override = default; \
+void initializeSubclass() override; \
+void makeEqualSubclass(const SIM_Data *source) override; \
+static const SIM_DopDescription *getDopDescription(); \
+DECLARE_STANDARD_GETCASTTOTYPE(); \
+DECLARE_DATAFACTORY(SIM_Hina_##NAME, SIM_Collider, "Hina_"#NAME, getDopDescription());                    \
+private: \
+void _init(); \
+void _makeEqual(const SIM_Hina_##NAME *src); \
+};
+
+#define NEW_HINA_COLLIDER_IMPLEMENT(NAME, UNIQUE, ...) \
+void SIM_Hina_##NAME::initializeSubclass() \
+{ \
+    SIM_Collider::initializeSubclass(); \
+    this->Configured = false; \
+    this->error_msg.clear(); \
+    _init(); \
+} \
+void SIM_Hina_##NAME::makeEqualSubclass(const SIM_Data *source) \
+{ \
+    SIM_Collider::makeEqualSubclass(source); \
+    const SIM_Hina_##NAME *src = SIM_DATA_CASTCONST(source, SIM_Hina_##NAME); \
+    this->Configured = src->Configured; \
+    this->error_msg = src->error_msg; \
+    _makeEqual(src); \
+} \
+const char *SIM_Hina_##NAME::DATANAME = "Hina_"#NAME; \
+const SIM_DopDescription *SIM_Hina_##NAME::getDopDescription() \
+{ \
+static std::vector<PRM_Template> PRMS;             \
+PRMS.clear(); \
+__VA_ARGS__ \
+PRMS.emplace_back(); \
+static SIM_DopDescription DESC(true, \
+                               "Hina_"#NAME, \
+                               "Hina "#NAME, \
+                               DATANAME, \
+                               classname(), \
+                               PRMS.data()); \
+DESC.setDefaultUniqueDataName(UNIQUE); \
+return &DESC; \
+}
+
+
+
 
 #define AS_UTVector3D(Vec3) UT_Vector3D(Vec3.x, Vec3.y, Vec3.z)
 

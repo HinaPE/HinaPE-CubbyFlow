@@ -15,6 +15,7 @@ NEW_HINA_DATA_IMPLEMENT(
         NEW_FLOAT_PARAMETER(TargetDensity, 1000.) \
         NEW_FLOAT_PARAMETER(TargetSpacing, .02) \
         NEW_FLOAT_PARAMETER(KernelRadiusOverTargetSpacing, 1.8) \
+        NEW_BOOL_PARAMETER(ActivateFluidDomainCollider, true) \
 )
 
 namespace ParticleFluidData

@@ -22,3 +22,6 @@ Stanford CS224W - GNN
 Learn to simulate
 - https://sites.google.com/view/learning-to-simulate/home#h.p_hjnaJ6k8y0wo
 - code: https://github.com/google-deepmind/deepmind-research/tree/master/learning_to_simulate
+
+https://www.sidefx.com/forum/topic/24408/
+

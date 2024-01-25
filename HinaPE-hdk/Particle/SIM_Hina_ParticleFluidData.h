@@ -9,6 +9,18 @@
 #define PARTICLE_STATE_DIRTY "dirty"
 #define PARTICLE_STATE_CLEAN "clean"
 
+#define NEW_HINA_DATA_GETSET_V3(NAME) \
+const CubbyFlow::Vector3D &NAME(size_t index) const;\
+CubbyFlow::Vector3D &NAME(size_t index);\
+UT_Vector3D gdp_##NAME(size_t index); \
+void set_gdp_##NAME(size_t index, UT_Vector3D v3);
+
+#define NEW_HINA_DATA_GETSET_D(NAME) \
+const double &NAME(size_t index) const; \
+double &NAME(size_t index); \
+fpreal gdp_##NAME(size_t index); \
+void set_gdp_##NAME(size_t index, fpreal v);
+
 NEW_HINA_DATA_CLASS(
 		ParticleFluidData,
 		CubbyFlow::SPHSystemData3Ptr InnerPtr;
@@ -48,30 +60,11 @@ NEW_HINA_DATA_CLASS(
 				const CubbyFlow::Vector3D &operator[](size_t index) const;
 				CubbyFlow::Vector3D &operator[](size_t index);
 
-				const CubbyFlow::Vector3D &position(size_t index) const;
-				CubbyFlow::Vector3D &position(size_t index);
-				UT_Vector3D gdp_position(size_t index); // Call Inside Lock
-				void set_gdp_position(size_t index, UT_Vector3D v3); // Call Inside Lock
-
-				const CubbyFlow::Vector3D &velocity(size_t index) const;
-				CubbyFlow::Vector3D &velocity(size_t index);
-				UT_Vector3D gdp_velocity(size_t index); // Call Inside Lock
-				void set_gdp_velocity(size_t index, UT_Vector3D v3); // Call Inside Lock
-
-				const CubbyFlow::Vector3D &force(size_t index) const;
-				CubbyFlow::Vector3D &force(size_t index);
-				UT_Vector3D gdp_force(size_t index); // Call Inside Lock
-				void set_gdp_force(size_t index, UT_Vector3D v3); // Call Inside Lock
-
-				const double &density(size_t index) const;
-				double &density(size_t index);
-				fpreal gdp_density(size_t index); // Call Inside Lock
-				void set_gdp_density(size_t index, fpreal v); // Call Inside Lock
-
-				const double &pressure(size_t index) const;
-				double &pressure(size_t index);
-				fpreal gdp_pressure(size_t index); // Call Inside Lock
-				void set_gdp_pressure(size_t index, fpreal v); // Call Inside Lock
+				NEW_HINA_DATA_GETSET_V3(position)
+				NEW_HINA_DATA_GETSET_V3(velocity)
+				NEW_HINA_DATA_GETSET_V3(force)
+				NEW_HINA_DATA_GETSET_D(density)
+				NEW_HINA_DATA_GETSET_D(pressure)
 
 				int neighbor_sum(size_t index) const;
 				CubbyFlow::Array1<size_t> &neighbors(size_t index);

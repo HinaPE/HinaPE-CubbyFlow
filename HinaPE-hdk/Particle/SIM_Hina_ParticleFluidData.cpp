@@ -209,22 +209,6 @@ size_t SIM_Hina_ParticleFluidData::pt_size() const
 	return InnerPtr->NumberOfParticles();
 }
 
-const CubbyFlow::Vector3D &SIM_Hina_ParticleFluidData::operator[](size_t index) const
-{
-	CHECK_CONFIGURED_WITH_RETURN(this, ZERO_V3)
-	CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, ZERO_V3)
-
-	return InnerPtr->Positions()[index];
-}
-
-CubbyFlow::Vector3D &SIM_Hina_ParticleFluidData::operator[](size_t index)
-{
-	CHECK_CONFIGURED_WITH_RETURN(this, ZERO_V3)
-	CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, ZERO_V3)
-
-	return InnerPtr->Positions()[index];
-}
-
 int SIM_Hina_ParticleFluidData::neighbor_sum(size_t index) const
 {
 	CHECK_CONFIGURED_WITH_RETURN(this, ZERO_I)

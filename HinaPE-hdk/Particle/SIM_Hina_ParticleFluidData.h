@@ -2,7 +2,6 @@
 #define HINAPE_SIM_HINA_PARTICLEFLUIDDATA_H
 
 #include "HinaHDKClassGenerator.h"
-
 #include "Core/Particle/SPHSystemData.hpp"
 
 #define PARTICLE_STATE_NEW_ADDED "new"
@@ -58,9 +57,6 @@ NEW_HINA_DATA_CLASS(
 				void configure_init(GU_Detail &gdp); // Call Inside Lock
 				void runtime_init_handles(GU_Detail &gdp); // Call Inside Lock
 				size_t pt_size() const;
-
-				const CubbyFlow::Vector3D &operator[](size_t index) const;
-				CubbyFlow::Vector3D &operator[](size_t index);
 
 				NEW_HINA_DATA_GETSET_V3(position)
 				NEW_HINA_DATA_GETSET_V3(velocity)

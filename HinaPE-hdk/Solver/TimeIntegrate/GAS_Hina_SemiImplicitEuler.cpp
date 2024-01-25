@@ -25,8 +25,8 @@ bool GAS_Hina_SemiImplicitEuler::_solve(SIM_Engine &engine, SIM_Object *obj, SIM
 		data->velocity(pt_idx) += dt * data->force(pt_idx) / mass;
 		data->position(pt_idx) += dt * data->velocity(pt_idx);
 	});
-	data->sync_position(geo);
-	data->sync_velocity(geo);
+	data->sync_position(geo); // sync gdp
+	data->sync_velocity(geo); // sync gdp
 
 	return true;
 }

@@ -22,7 +22,7 @@
 #include <UT/UT_WorkBuffer.h>
 #include <UT/UT_NetMessage.h>
 
-#include <SIM_CF_FLIPData.h>
+#include <_GroundTruth/FLIP/SIM_CF_FLIPData.h>
 
 #include "Core/Array/ArrayUtils.hpp"
 

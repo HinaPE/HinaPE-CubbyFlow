@@ -88,7 +88,7 @@ PRMS.emplace_back(PRM_FLT, SIZE, &NAME, Default##NAME.data());
 #define CHECK_NULL(ptr) \
 if (!ptr) \
 { \
-error_msg.appendSprintf("%s::NULL POINTER Exception, From %s\n", obj->getDataType().c_str(), DATANAME); \
+error_msg.appendSprintf("%s::NULL POINTER Exception, From %s\n", ptr->getDataType().c_str(), DATANAME); \
 return false; \
 }
 

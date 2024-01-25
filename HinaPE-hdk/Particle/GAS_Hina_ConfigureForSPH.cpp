@@ -15,16 +15,18 @@ bool GAS_Hina_ConfigureForSPH::_solve(SIM_Engine &engine, SIM_Object *obj, SIM_T
 	SIM_Hina_ParticleFluidData *data = SIM_DATA_GET(*obj, SIM_Hina_ParticleFluidData::DATANAME, SIM_Hina_ParticleFluidData);
 	CHECK_NULL(data)
 
-	if (data->Configured)
-		return true;
-
-	SIM_GeometryCopy *geo = getOrCreateGeometry(obj, SIM_GEOMETRY_DATANAME);
+	SIM_GeometryCopy *geo = getOrCreateGeometry(obj, GAS_NAME_GEOMETRY);
 	CHECK_NULL(geo)
 
 	{
 		SIM_GeometryAutoWriteLock lock(geo);
 		GU_Detail &gdp = lock.getGdp();
-		data->configure_init(gdp);
+		if (!data->Configured)
+		{
+			data->configure_init(gdp);
+			data->Configured = true;
+		}
+		data->runtime_init_handles(gdp);
 	}
 
 	return true;

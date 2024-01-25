@@ -81,6 +81,59 @@ static PRM_Name NAME(#NAME, #NAME); \
 static std::array<PRM_Default, SIZE> Default##NAME{__VA_ARGS__};  \
 PRMS.emplace_back(PRM_FLT, SIZE, &NAME, Default##NAME.data());
 
+#define CHECK_NULL(ptr) \
+if (!ptr) \
+{ \
+error_msg.appendSprintf("%s::NULL POINTER Exception, From %s\n", obj->getDataType().c_str(), DATANAME); \
+return false; \
+}
+
+#define CHECK_CONFIGURED(dataptr) \
+if (!dataptr->Configured) \
+{ \
+error_msg.appendSprintf("%s::DATA NOT CONFIGURED Exception, From %s\n", dataptr->getDataType().c_str(), DATANAME); \
+return false; \
+}
+
+#define CHECK_CONFIGURED_NO_RETURN(data_ptr) \
+if (!data_ptr->Configured) \
+{ \
+error_msg.appendSprintf("%s::DATA NOT CONFIGURED Exception, From %s\n", data_ptr->getDataType().c_str(), DATANAME); \
+}
+
+#define CHECK_CONFIGURED_WITH_RETURN(data_ptr, return_value) \
+if (!data_ptr->Configured) \
+{ \
+error_msg.appendSprintf("%s::DATA NOT CONFIGURED Exception, From %s\n", data_ptr->getDataType().c_str(), DATANAME); \
+return return_value; \
+}
+
+#define CHECK_CUBBY_ARRAY_BOUND_NO_RETURN(InnerPtr, index) \
+if (index >= InnerPtr->NumberOfParticles()) \
+{ \
+error_msg.appendSprintf("Index > Array Bound, From %s\n", DATANAME); \
+}
+
+#define CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, return_value) \
+if (index >= InnerPtr->NumberOfParticles()) \
+{ \
+error_msg.appendSprintf("Index > Array Bound, From %s\n", DATANAME); \
+return return_value; \
+}
+
+#define CHECK_GDP_HANDLE_VALID_NO_RETURN(handle) \
+if (handle.isValid())                                           \
+{ \
+error_msg.appendSprintf("HANDLE INVALID, PLEASE ENSURE YOU HAVE INIT THIS ATTRIBUTE::%s, From %s\n", handle->getName().c_str(), DATANAME); \
+}
+
+#define CHECK_GDP_HANDLE_VALID_WITH_RETURN(handle, return_value) \
+if (handle.isValid())                                           \
+{ \
+error_msg.appendSprintf("HANDLE INVALID, PLEASE ENSURE YOU HAVE INIT THIS ATTRIBUTE::%s, From %s\n", handle->getName().c_str(), DATANAME); \
+return return_value; \
+}
+
 #define NEW_HINA_MICRPSOLVER_CLASS(NAME, ...) \
 class GAS_Hina_##NAME : public GAS_SubSolver \
 { \
@@ -106,6 +159,7 @@ bool _solve(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timeste
 #define NEW_HINA_MICRPSOLVER_IMPLEMENT(NAME, UNIQUE, ...) \
 bool GAS_Hina_##NAME::solveGasSubclass(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep) \
 { \
+	CHECK_NULL(obj) \
     if (!_solve(engine, obj, time, timestep, this->error_msg) || UTisstring(this->error_msg.buffer())) \
     { \
         SIM_Data::addError(obj, SIM_MESSAGE, error_msg.buffer(), UT_ERROR_ABORT); \
@@ -130,6 +184,7 @@ const char *GAS_Hina_##NAME::DATANAME = "Hina_"#NAME; \
 const SIM_DopDescription *GAS_Hina_##NAME::getDopDescription() \
 { \
 static std::vector<PRM_Template> PRMS; \
+PRMS.clear(); \
 __VA_ARGS__ \
 PRMS.emplace_back(); \
 static SIM_DopDescription DESC(true, \
@@ -183,7 +238,8 @@ void SIM_Hina_##NAME::makeEqualSubclass(const SIM_Data *source) \
 const char *SIM_Hina_##NAME::DATANAME = "Hina_"#NAME; \
 const SIM_DopDescription *SIM_Hina_##NAME::getDopDescription() \
 { \
-static std::vector<PRM_Template> PRMS; \
+static std::vector<PRM_Template> PRMS;             \
+PRMS.clear(); \
 __VA_ARGS__ \
 PRMS.emplace_back(); \
 static SIM_DopDescription DESC(true, \
@@ -194,59 +250,6 @@ static SIM_DopDescription DESC(true, \
                                PRMS.data()); \
 DESC.setDefaultUniqueDataName(UNIQUE); \
 return &DESC; \
-}
-
-#define CHECK_NULL(ptr) \
-if (!ptr) \
-{ \
-error_msg.appendSprintf("%s::NULL POINTER Exception, From %s\n", obj->getDataType().c_str(), DATANAME); \
-return false; \
-}
-
-#define CHECK_CONFIGURED(dataptr) \
-if (!dataptr->Configured) \
-{ \
-error_msg.appendSprintf("%s::DATA NOT CONFIGURED Exception, From %s\n", dataptr->getDataType().c_str(), DATANAME); \
-return false; \
-}
-
-#define CHECK_CONFIGURED_NO_RETURN(data_ptr) \
-if (!data_ptr->Configured) \
-{ \
-error_msg.appendSprintf("%s::DATA NOT CONFIGURED Exception, From %s\n", data_ptr->getDataType().c_str(), DATANAME); \
-}
-
-#define CHECK_CONFIGURED_WITH_RETURN(data_ptr, return_value) \
-if (!data_ptr->Configured) \
-{ \
-error_msg.appendSprintf("%s::DATA NOT CONFIGURED Exception, From %s\n", data_ptr->getDataType().c_str(), DATANAME); \
-return return_value; \
-}
-
-#define CHECK_CUBBY_ARRAY_BOUND_NO_RETURN(InnerPtr, index) \
-if (index >= InnerPtr->NumberOfParticles()) \
-{ \
-error_msg.appendSprintf("Index > Array Bound, From %s\n", DATANAME); \
-}
-
-#define CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, return_value) \
-if (index >= InnerPtr->NumberOfParticles()) \
-{ \
-error_msg.appendSprintf("Index > Array Bound, From %s\n", DATANAME); \
-return return_value; \
-}
-
-#define CHECK_GDP_HANDLE_VALID_NO_RETURN(handle) \
-if (handle.isValid())                                           \
-{ \
-error_msg.appendSprintf("HANDLE INVALID, PLEASE ENSURE YOU HAVE INIT THIS ATTRIBUTE::%s, From %s\n", handle->getName().c_str(), DATANAME); \
-}
-
-#define CHECK_GDP_HANDLE_VALID_WITH_RETURN(handle, return_value) \
-if (handle.isValid())                                           \
-{ \
-error_msg.appendSprintf("HANDLE INVALID, PLEASE ENSURE YOU HAVE INIT THIS ATTRIBUTE::%s, From %s\n", handle->getName().c_str(), DATANAME); \
-return return_value; \
 }
 
 #define AS_UTVector3D(Vec3) UT_Vector3D(Vec3.x, Vec3.y, Vec3.z)

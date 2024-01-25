@@ -4,15 +4,24 @@ NEW_HINA_DATA_IMPLEMENT(
 		ParticleFluidData,
 		false,
 		NEW_STRING_PARAMETER(CF_IDX_ATTRIBUTE_NAME, "CF_IDX") \
-		NEW_STRING_PARAMETER(VELOCITY_ATTRIBUTE_NAME, "vel") \
+        NEW_STRING_PARAMETER(VELOCITY_ATTRIBUTE_NAME, "vel") \
         NEW_STRING_PARAMETER(FORCE_ATTRIBUTE_NAME, "force") \
         NEW_STRING_PARAMETER(DENSITY_ATTRIBUTE_NAME, "dens") \
         NEW_STRING_PARAMETER(PRESSURE_ATTRIBUTE_NAME, "pres") \
+        NEW_STRING_PARAMETER(NEIGHBORS_ATTRIBUTE_NAME, "neighbors") \
+        NEW_STRING_PARAMETER(NEIGHBORS_SUM_ATTRIBUTE_NAME, "n_sums") \
+        NEW_FLOAT_PARAMETER(TargetDensity, 1000.) \
+        NEW_FLOAT_PARAMETER(TargetSpacing, .02) \
+        NEW_FLOAT_PARAMETER(KernelRadiusOverTargetSpacing, 1.8) \
 )
 
+namespace ParticleFluidData
+{
 static CubbyFlow::Vector3D ZERO_V3 = CubbyFlow::Vector3D();
 static UT_Vector3D ZERO_V3_HDK = UT_Vector3D(0.);
 static double ZERO = 0;
+}
+using namespace ParticleFluidData;
 
 void SIM_Hina_ParticleFluidData::_init()
 {
@@ -34,8 +43,42 @@ void SIM_Hina_ParticleFluidData::_makeEqual(const SIM_Hina_ParticleFluidData *sr
 	this->gdp_handle_pressure = src->gdp_handle_pressure;
 }
 
+void SIM_Hina_ParticleFluidData::configure_init(GU_Detail &gdp)
+{
+	if (this->Configured)
+		return;
+
+	// Init GDP Attributes
+	GA_RWAttributeRef CF_IDX_ref = gdp.addIntTuple(GA_ATTRIB_POINT, getCF_IDX_ATTRIBUTE_NAME(), 1, GA_Defaults(0));
+	CF_IDX_ref.setTypeInfo(GA_TYPE_VECTOR);
+	GA_RWAttributeRef velocity_ref = gdp.addFloatTuple(GA_ATTRIB_POINT, getVELOCITY_ATTRIBUTE_NAME(), 3, GA_Defaults(0));
+	velocity_ref.setTypeInfo(GA_TYPE_VECTOR);
+	GA_RWAttributeRef force_ref = gdp.addFloatTuple(GA_ATTRIB_POINT, getFORCE_ATTRIBUTE_NAME(), 3, GA_Defaults(0));
+	force_ref.setTypeInfo(GA_TYPE_VECTOR);
+	GA_RWAttributeRef density_ref = gdp.addFloatTuple(GA_ATTRIB_POINT, getDENSITY_ATTRIBUTE_NAME(), 1, GA_Defaults(0));
+	density_ref.setTypeInfo(GA_TYPE_VOID);
+	GA_RWAttributeRef pressure_ref = gdp.addFloatTuple(GA_ATTRIB_POINT, getPRESSURE_ATTRIBUTE_NAME(), 1, GA_Defaults(0));
+	pressure_ref.setTypeInfo(GA_TYPE_VOID);
+	GA_RWAttributeRef neighbor_list_ref = gdp.addIntArray(GA_ATTRIB_POINT, getNEIGHBORS_ATTRIBUTE_NAME());
+	neighbor_list_ref.setTypeInfo(GA_TYPE_VOID);
+	GA_RWAttributeRef neighbor_sum_ref = gdp.addIntTuple(GA_ATTRIB_POINT, getNEIGHBORS_SUM_ATTRIBUTE_NAME(), 1, GA_Defaults(0));
+	neighbor_sum_ref.setTypeInfo(GA_TYPE_VOID);
+
+	// Init InnerPtr
+	double TargetDensity = getTargetDensity();
+	double TargetSpacing = getTargetSpacing();
+	double KernelRadiusOverTargetSpacing = getKernelRadiusOverTargetSpacing();
+	InnerPtr = std::make_shared<CubbyFlow::SPHSystemData3>();
+	InnerPtr->SetTargetDensity(TargetDensity);
+	InnerPtr->SetTargetSpacing(TargetSpacing);
+	InnerPtr->SetRelativeKernelRadius(KernelRadiusOverTargetSpacing);
+
+	this->Configured = true;
+}
 void SIM_Hina_ParticleFluidData::runtime_init_handles(GU_Detail &gdp)
 {
+	CHECK_CONFIGURED_NO_RETURN(this)
+
 	gdp_handle_CF_IDX = gdp.findPointAttribute(getCF_IDX_ATTRIBUTE_NAME());
 	gdp_handle_position = gdp.getP();
 	gdp_handle_velocity = gdp.findPointAttribute(getVELOCITY_ATTRIBUTE_NAME());

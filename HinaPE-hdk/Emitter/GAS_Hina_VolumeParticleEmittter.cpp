@@ -21,7 +21,6 @@ bool GAS_Hina_VolumeParticleEmittter::_init_runtime()
 }
 bool GAS_Hina_VolumeParticleEmittter::_solve(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep, UT_WorkBuffer &error_msg)
 {
-	CHECK_NULL(obj)
 	_init_runtime();
 	SIM_GeometryCopy *geo = getGeometryCopy(obj, GAS_NAME_GEOMETRY);
 	CHECK_NULL(geo)

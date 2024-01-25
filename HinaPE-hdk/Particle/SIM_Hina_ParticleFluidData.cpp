@@ -148,7 +148,7 @@ std::string SIM_Hina_ParticleFluidData::state(size_t index)
 		case 2:
 			return PARTICLE_STATE_CLEAN;
 		default:
-			return "";
+			return "ERROR";
 	}
 }
 void SIM_Hina_ParticleFluidData::set_state(size_t index, std::string state)
@@ -158,12 +158,12 @@ void SIM_Hina_ParticleFluidData::set_state(size_t index, std::string state)
 
 	if (state == PARTICLE_STATE_NEW_ADDED)
 		InnerPtr->ScalarDataAt(scalar_idx_state)[index] = 0;
-	if (state == PARTICLE_STATE_DIRTY)
+	else if (state == PARTICLE_STATE_DIRTY)
 		InnerPtr->ScalarDataAt(scalar_idx_state)[index] = 1;
-	if (state == PARTICLE_STATE_CLEAN)
+	else if (state == PARTICLE_STATE_CLEAN)
 		InnerPtr->ScalarDataAt(scalar_idx_state)[index] = 2;
-
-	InnerPtr->ScalarDataAt(scalar_idx_state)[index] = 9999999;
+	else
+		InnerPtr->ScalarDataAt(scalar_idx_state)[index] = 99999;
 }
 size_t SIM_Hina_ParticleFluidData::pt_size() const
 {
@@ -279,13 +279,30 @@ size_t SIM_Hina_ParticleFluidData::gdp_index(GA_Offset offset)
 
 	return index;
 }
-void SIM_Hina_ParticleFluidData::set_gdp_index(GA_Offset offset, size_t index)
+void SIM_Hina_ParticleFluidData::set_gdp_index(GA_Offset pt_off, size_t index)
 {
 	CHECK_CONFIGURED_NO_RETURN(this)
 	CHECK_CUBBY_ARRAY_BOUND_NO_RETURN(InnerPtr, index)
 	CHECK_GDP_HANDLE_VALID_NO_RETURN(gdp_handle_position)
 
-	gdp_handle_CF_IDX.set(offset, index);
+	gdp_handle_CF_IDX.set(pt_off, index);
+}
+std::string SIM_Hina_ParticleFluidData::gdp_state(size_t index)
+{
+	CHECK_CONFIGURED_WITH_RETURN(this, "")
+	CHECK_CUBBY_ARRAY_BOUND_WITH_RETURN(InnerPtr, index, "")
+	CHECK_GDP_HANDLE_VALID_NO_RETURN(gdp_handle_CF_STATE)
+
+	auto state = gdp_handle_CF_STATE.get(offset(index));
+	return state.toStdString();
+}
+void SIM_Hina_ParticleFluidData::set_gdp_state(size_t index, std::string state)
+{
+	CHECK_CONFIGURED_NO_RETURN(this)
+	CHECK_CUBBY_ARRAY_BOUND_NO_RETURN(InnerPtr, index)
+	CHECK_GDP_HANDLE_VALID_NO_RETURN(gdp_handle_CF_STATE)
+
+	gdp_handle_CF_STATE.set(offset(index), state);
 }
 UT_Vector3D SIM_Hina_ParticleFluidData::gdp_position(size_t index)
 {

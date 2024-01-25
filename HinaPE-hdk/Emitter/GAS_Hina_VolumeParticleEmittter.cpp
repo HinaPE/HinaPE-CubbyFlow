@@ -80,12 +80,13 @@ bool GAS_Hina_VolumeParticleEmittter::_solve(SIM_Engine &engine, SIM_Object *obj
 			{
 				GA_Offset pt_off = gdp.appendPoint();
 				data->set_offset(pt_idx, pt_off);
-				data->set_gdp_index(pt_off, pt_idx);
 				data->set_state(pt_idx, PARTICLE_STATE_CLEAN);
+				data->set_gdp_index(pt_off, pt_idx);
 			}
 			data->set_gdp_position(pt_idx, AS_UTVector3D(data->position(pt_idx)));
 			data->set_gdp_velocity(pt_idx, AS_UTVector3D(data->velocity(pt_idx)));
 			data->set_gdp_force(pt_idx, AS_UTVector3D(data->force(pt_idx)));
+			data->set_gdp_state(pt_idx, data->state(pt_idx));
 		}
 	}
 

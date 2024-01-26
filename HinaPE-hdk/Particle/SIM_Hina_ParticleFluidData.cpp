@@ -111,7 +111,14 @@ NEW_HINA_DATA_IMPLEMENT(
         NEW_FLOAT_PARAMETER(TargetSpacing, .02) \
         NEW_FLOAT_PARAMETER(KernelRadiusOverTargetSpacing, 1.8) \
         NEW_FLOAT_PARAMETER(RestitutionCoefficient, .1) \
+        NEW_FLOAT_PARAMETER(EosExponent, 7.) \
+        NEW_FLOAT_PARAMETER(NegativePressureScale, 0.) \
+        NEW_FLOAT_PARAMETER(ViscosityCoefficient, 0.01) \
+        NEW_FLOAT_PARAMETER(PseudoViscosityCoefficient, 10) \
+        NEW_FLOAT_PARAMETER(SpeedOfSound, 100) \
         NEW_FLOAT_PARAMETER(TimeStepLimitScale, 1.) \
+        NEW_FLOAT_PARAMETER(MaxDensityErrorRatio, 0.01) \
+        NEW_FLOAT_PARAMETER(MaxNumberOfIterations, 5) \
         NEW_BOOL_PARAMETER(ActivateFluidDomainCollider, true) \
         static std::array<PRM_Name, 3> DataTypeList = {\
                     PRM_Name("0", "SPH"), \
@@ -182,7 +189,7 @@ double SIM_Hina_ParticleFluidData::calculate_dynamic_dt()
 	CHECK_CONFIGURED_NO_RETURN(this)
 
 	using namespace CubbyFlow;
-	double m_speedOfSound = 100.0;
+	double m_speedOfSound = getSpeedOfSound();
 	double m_timeStepLimitScale = getTimeStepLimitScale();
 	SPHSystemData3Ptr particles = InnerPtr;
 	const size_t numberOfParticles = particles->NumberOfParticles();

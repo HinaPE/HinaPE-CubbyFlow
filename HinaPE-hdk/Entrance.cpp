@@ -14,6 +14,7 @@
 #include <Solver/Density/GAS_Hina_UpdateDensity.h>
 #include <Solver/Force/GAS_Hina_ClearForce.h>
 #include <Solver/Force/GAS_Hina_GravityForce.h>
+#include <Solver/Neighbor/GAS_Hina_ReadNeighbor.h>
 #include <Solver/Neighbor/GAS_Hina_UpdateNeighbor.h>
 #include <Solver/Pressure/GAS_Hina_PCISPHPressure.h>
 #include <Solver/Pressure/GAS_Hina_SPHPressure.h>
@@ -51,6 +52,7 @@ void initializeSIM(void *)
 	IMPLEMENT_DATAFACTORY(GAS_Hina_UpdateDensity)
 	IMPLEMENT_DATAFACTORY(GAS_Hina_ClearForce)
 	IMPLEMENT_DATAFACTORY(GAS_Hina_GravityForce)
+	IMPLEMENT_DATAFACTORY(GAS_Hina_ReadNeighbor)
 	IMPLEMENT_DATAFACTORY(GAS_Hina_UpdateNeighbor)
 	IMPLEMENT_DATAFACTORY(GAS_Hina_PCISPHPressure)
 	IMPLEMENT_DATAFACTORY(GAS_Hina_SPHPressure)

@@ -6,7 +6,7 @@
 #include <Geometry/SIM_Hina_Plane.h>
 #include <Geometry/SIM_Hina_Sphere.h>
 #include <Particle/GAS_Hina_CommitAllCaches.h>
-#include <Particle/GAS_Hina_ConfigureForSPH.h>
+#include <Particle/SIM_Hina_ConfigureForSPH.h>
 #include <Particle/SIM_Hina_ParticleFluidData.h>
 #include <Particle/SIM_Hina_PCISPHCaches.h>
 #include <Particle/SIM_Hina_SPHCaches.h>
@@ -19,6 +19,8 @@
 #include <Solver/Pressure/GAS_Hina_SPHPressure.h>
 #include <Solver/TimeIntegrate/GAS_Hina_SemiImplicitEuler.h>
 #include <Solver/TimeIntegrate/GAS_Hina_SubStep.h>
+#include <Solver/Viscosity/GAS_Hina_PseudoViscosity.h>
+#include <Solver/Viscosity/GAS_Hina_Viscosity.h>
 
 // Just for test
 #include <_GroundTruth/PCISPH/GAS_GT_PCISPHSolver.h>
@@ -39,7 +41,7 @@ void initializeSIM(void *)
 
 	// Particle Data
 	IMPLEMENT_DATAFACTORY(GAS_Hina_CommitAllCaches)
-	IMPLEMENT_DATAFACTORY(GAS_Hina_ConfigureForSPH)
+	IMPLEMENT_DATAFACTORY(SIM_Hina_ConfigureForSPH)
 	IMPLEMENT_DATAFACTORY(SIM_Hina_ParticleFluidData)
 	IMPLEMENT_DATAFACTORY(SIM_Hina_PCISPHCaches)
 	IMPLEMENT_DATAFACTORY(SIM_Hina_SPHCaches)
@@ -54,6 +56,8 @@ void initializeSIM(void *)
 	IMPLEMENT_DATAFACTORY(GAS_Hina_SPHPressure)
 	IMPLEMENT_DATAFACTORY(GAS_Hina_SemiImplicitEuler)
 	IMPLEMENT_DATAFACTORY(GAS_Hina_SubStep)
+	IMPLEMENT_DATAFACTORY(GAS_Hina_PseudoViscosity)
+	IMPLEMENT_DATAFACTORY(GAS_Hina_Viscosity)
 
 	// _GroundTruth
 	IMPLEMENT_DATAFACTORY(GAS_Hina_GT_PCISPHSolver)

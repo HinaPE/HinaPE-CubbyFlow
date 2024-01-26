@@ -16,5 +16,5 @@ void GAS_Hina_PseudoViscosity::_makeEqual(const GAS_Hina_PseudoViscosity *src)
 }
 bool GAS_Hina_PseudoViscosity::_solve(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep)
 {
-	return false;
+	return true;
 }

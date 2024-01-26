@@ -95,6 +95,12 @@ error_msg.appendSprintf("%s::NULL POINTER Exception, From %s\n", ptr->getDataTyp
 return false; \
 }
 
+#define CHECK_NULL_NO_RETURN(ptr) \
+if (!ptr) \
+{ \
+error_msg.appendSprintf("%s::NULL POINTER Exception, From %s\n", ptr->getDataType().c_str(), DATANAME); \
+}
+
 #define CHECK_CONFIGURED(dataptr) \
 if (!dataptr->Configured) \
 { \
@@ -195,6 +201,48 @@ PRMS.clear(); \
 __VA_ARGS__ \
 PRMS.emplace_back(); \
 static SIM_DopDescription DESC(true, \
+                               "Hina_"#NAME, \
+                               "Hina "#NAME, \
+                               DATANAME, \
+                               classname(), \
+                               PRMS.data()); \
+DESC.setDefaultUniqueDataName(UNIQUE); \
+setGasDescription(DESC); \
+return &DESC; \
+}
+
+#define NEW_HINA_MICROSOLVER_IMPLEMENT_NO_NODE(NAME, UNIQUE, ...) \
+bool GAS_Hina_##NAME::solveGasSubclass(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep) \
+{ \
+    CHECK_NULL(obj) \
+    if (!_solve(engine, obj, time, timestep) || UTisstring(this->error_msg.buffer())) \
+    { \
+        SIM_Data::addError(obj, SIM_MESSAGE, this->error_msg.buffer(), UT_ERROR_ABORT); \
+        return false; \
+    } \
+    return true; \
+} \
+void GAS_Hina_##NAME::initializeSubclass() \
+{ \
+    SIM_Data::initializeSubclass(); \
+    this->error_msg.clear(); \
+    _init(); \
+} \
+void GAS_Hina_##NAME::makeEqualSubclass(const SIM_Data *source) \
+{ \
+    SIM_Data::makeEqualSubclass(source); \
+    const GAS_Hina_##NAME *src = SIM_DATA_CASTCONST(source, GAS_Hina_##NAME); \
+    this->error_msg = src->error_msg; \
+    _makeEqual(src); \
+} \
+const char *GAS_Hina_##NAME::DATANAME = "Hina_"#NAME; \
+const SIM_DopDescription *GAS_Hina_##NAME::getDopDescription() \
+{ \
+static std::vector<PRM_Template> PRMS; \
+PRMS.clear(); \
+__VA_ARGS__ \
+PRMS.emplace_back(); \
+static SIM_DopDescription DESC(false, \
                                "Hina_"#NAME, \
                                "Hina "#NAME, \
                                DATANAME, \

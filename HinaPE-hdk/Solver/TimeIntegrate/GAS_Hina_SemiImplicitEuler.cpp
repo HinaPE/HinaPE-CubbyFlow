@@ -9,7 +9,7 @@ NEW_HINA_MICROSOLVER_IMPLEMENT(
 
 void GAS_Hina_SemiImplicitEuler::_init() {}
 void GAS_Hina_SemiImplicitEuler::_makeEqual(const GAS_Hina_SemiImplicitEuler *src) {}
-bool GAS_Hina_SemiImplicitEuler::_solve(SIM_Engine &, SIM_Object *obj, SIM_Time time, SIM_Time timestep)
+bool GAS_Hina_SemiImplicitEuler::_solve(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep)
 {
 	CubbyFlow::Logging::Mute();
 
@@ -30,7 +30,7 @@ bool GAS_Hina_SemiImplicitEuler::_solve(SIM_Engine &, SIM_Object *obj, SIM_Time 
 	data->sync_position(geo); // sync gdp
 	data->sync_velocity(geo); // sync gdp
 
-	std::cout << "Solved" << "time:" << time << "timestep" << timestep << std::endl;
+//	std::cout << "time" << time << "timestep: " << timestep << "\n";
 
 	return true;
 }

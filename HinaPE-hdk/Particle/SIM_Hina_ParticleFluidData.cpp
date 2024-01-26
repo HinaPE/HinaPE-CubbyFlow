@@ -1,5 +1,8 @@
 #include "SIM_Hina_ParticleFluidData.h"
+#include <Particle/SIM_Hina_ConfigureForSPH.h>
 
+static double TIME_STEP_LIMIT_BY_SPEED_FACTOR = 0.4;
+static double TIME_STEP_LIMIT_BY_FORCE_FACTOR = 0.25;
 namespace ParticleFluidData
 {
 static CubbyFlow::Vector3D ZERO_V3 = CubbyFlow::Vector3D();
@@ -108,7 +111,17 @@ NEW_HINA_DATA_IMPLEMENT(
         NEW_FLOAT_PARAMETER(TargetSpacing, .02) \
         NEW_FLOAT_PARAMETER(KernelRadiusOverTargetSpacing, 1.8) \
         NEW_FLOAT_PARAMETER(RestitutionCoefficient, .1) \
+        NEW_FLOAT_PARAMETER(TimeStepLimitScale, 1.) \
         NEW_BOOL_PARAMETER(ActivateFluidDomainCollider, true) \
+        static std::array<PRM_Name, 3> DataTypeList = {\
+                    PRM_Name("0", "SPH"), \
+                    PRM_Name("1", "PCISPH"), \
+                    PRM_Name(nullptr), \
+}; \
+        static PRM_Name DataTypeName("FluidDataType", "Fluid Data Type"); \
+        static PRM_Default DataTypeDefault(1, "PCISPH"); \
+        static PRM_ChoiceList CL(PRM_CHOICELIST_SINGLE, DataTypeList.data()); \
+        PRMS.emplace_back(PRM_ORD, 1, &DataTypeName, &DataTypeDefault, &CL); \
 )
 NEW_HINA_DATA_GETSET_V3_IMPL(position, InnerPtr->Positions(), gdp_handle_position)
 NEW_HINA_DATA_GETSET_V3_IMPL(velocity, InnerPtr->Velocities(), gdp_handle_velocity)
@@ -149,46 +162,6 @@ void SIM_Hina_ParticleFluidData::_makeEqual(const SIM_Hina_ParticleFluidData *sr
 	this->gdp_handle_neighbors = src->gdp_handle_neighbors;
 }
 
-void SIM_Hina_ParticleFluidData::configure_init(GU_Detail &gdp)
-{
-	if (this->Configured)
-		return;
-
-	// Init GDP Attributes
-	GA_RWAttributeRef CF_IDX_ref = gdp.addIntTuple(GA_ATTRIB_POINT, getCF_IDX_ATTRIBUTE_NAME(), 1, GA_Defaults(0));
-	CF_IDX_ref.setTypeInfo(GA_TYPE_VECTOR);
-	GA_RWAttributeRef CF_STATE_ref = gdp.addStringTuple(GA_ATTRIB_POINT, getCF_STATE_ATTRIBUTE_NAME(), 1);
-	CF_STATE_ref.setTypeInfo(GA_TYPE_VOID);
-	GA_RWAttributeRef velocity_ref = gdp.addFloatTuple(GA_ATTRIB_POINT, getVELOCITY_ATTRIBUTE_NAME(), 3, GA_Defaults(0));
-	velocity_ref.setTypeInfo(GA_TYPE_VECTOR);
-	GA_RWAttributeRef force_ref = gdp.addFloatTuple(GA_ATTRIB_POINT, getFORCE_ATTRIBUTE_NAME(), 3, GA_Defaults(0));
-	force_ref.setTypeInfo(GA_TYPE_VECTOR);
-	GA_RWAttributeRef mass_ref = gdp.addFloatTuple(GA_ATTRIB_POINT, getMASS_ATTRIBUTE_NAME(), 1, GA_Defaults(0));
-	mass_ref.setTypeInfo(GA_TYPE_VOID);
-	GA_RWAttributeRef density_ref = gdp.addFloatTuple(GA_ATTRIB_POINT, getDENSITY_ATTRIBUTE_NAME(), 1, GA_Defaults(0));
-	density_ref.setTypeInfo(GA_TYPE_VOID);
-	GA_RWAttributeRef pressure_ref = gdp.addFloatTuple(GA_ATTRIB_POINT, getPRESSURE_ATTRIBUTE_NAME(), 1, GA_Defaults(0));
-	pressure_ref.setTypeInfo(GA_TYPE_VOID);
-	GA_RWAttributeRef neighbor_list_ref = gdp.addIntArray(GA_ATTRIB_POINT, getNEIGHBORS_ATTRIBUTE_NAME());
-	neighbor_list_ref.setTypeInfo(GA_TYPE_VOID);
-	GA_RWAttributeRef neighbor_sum_ref = gdp.addIntTuple(GA_ATTRIB_POINT, getNEIGHBORS_SUM_ATTRIBUTE_NAME(), 1, GA_Defaults(0));
-	neighbor_sum_ref.setTypeInfo(GA_TYPE_VOID);
-
-	// Init InnerPtr
-	double TargetDensity = getTargetDensity();
-	double TargetSpacing = getTargetSpacing();
-	double KernelRadiusOverTargetSpacing = getKernelRadiusOverTargetSpacing();
-	InnerPtr = std::make_shared<CubbyFlow::SPHSystemData3>();
-	InnerPtr->SetTargetDensity(TargetDensity);
-	InnerPtr->SetTargetSpacing(TargetSpacing);
-	InnerPtr->SetRelativeKernelRadius(KernelRadiusOverTargetSpacing);
-
-	// Init Custom Variable
-	scalar_idx_offset = InnerPtr->AddScalarData();
-	scalar_idx_state = InnerPtr->AddScalarData();
-
-	this->Configured = true;
-}
 void SIM_Hina_ParticleFluidData::runtime_init_handles(GU_Detail &gdp)
 {
 	CHECK_CONFIGURED_NO_RETURN(this)
@@ -204,11 +177,41 @@ void SIM_Hina_ParticleFluidData::runtime_init_handles(GU_Detail &gdp)
 	gdp_handle_n_sum = gdp.findPointAttribute(getNEIGHBORS_SUM_ATTRIBUTE_NAME());
 	gdp_handle_neighbors = gdp.findPointAttribute(getNEIGHBORS_ATTRIBUTE_NAME());
 }
-void SIM_Hina_ParticleFluidData::update_dynamic_dt()
+double SIM_Hina_ParticleFluidData::calculate_dynamic_dt()
 {
 	CHECK_CONFIGURED_NO_RETURN(this)
 
+	using namespace CubbyFlow;
+	double m_speedOfSound = 100.0;
+	double m_timeStepLimitScale = getTimeStepLimitScale();
+	SPHSystemData3Ptr particles = InnerPtr;
+	const size_t numberOfParticles = particles->NumberOfParticles();
+	ArrayView1<Vector3D> f = particles->Forces();
 
+	const double kernelRadius = particles->KernelRadius();
+	const double mass = particles->Mass();
+
+	double maxForceMagnitude = 0.0;
+
+	for (size_t i = 0; i<numberOfParticles; ++i)
+	{
+		maxForceMagnitude = std::max(maxForceMagnitude, f[i].Length());
+	}
+
+	if (maxForceMagnitude < 0.1)
+		maxForceMagnitude = 0.1;
+
+	const double timeStepLimitBySpeed =
+			TIME_STEP_LIMIT_BY_SPEED_FACTOR * kernelRadius / m_speedOfSound;
+	const double timeStepLimitByForce =
+			TIME_STEP_LIMIT_BY_FORCE_FACTOR *
+			std::sqrt(kernelRadius * mass / maxForceMagnitude);
+
+	const double desiredTimeStep =
+			m_timeStepLimitScale *
+			std::min(timeStepLimitBySpeed, timeStepLimitByForce);
+
+	return desiredTimeStep;
 }
 size_t SIM_Hina_ParticleFluidData::pt_size() const
 {

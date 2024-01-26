@@ -24,7 +24,6 @@ void sync_##NAME(SIM_GeometryCopy *geo);
 
 NEW_HINA_DATA_CLASS(
 		ParticleFluidData,
-		double dynamic_dt = 1e-3; // update every frame
 		CubbyFlow::SPHSystemData3Ptr InnerPtr;
 				size_t scalar_idx_offset = std::numeric_limits<size_t>::max();
 				size_t scalar_idx_state = std::numeric_limits<size_t>::max();
@@ -53,11 +52,13 @@ NEW_HINA_DATA_CLASS(
 				NEW_GETSET_PARAMETER(TargetSpacing, GETSET_DATA_FUNCS_F)
 				NEW_GETSET_PARAMETER(KernelRadiusOverTargetSpacing, GETSET_DATA_FUNCS_F)
 				NEW_GETSET_PARAMETER(RestitutionCoefficient, GETSET_DATA_FUNCS_F)
+				NEW_GETSET_PARAMETER(TimeStepLimitScale, GETSET_DATA_FUNCS_F)
 				NEW_GETSET_PARAMETER(ActivateFluidDomainCollider, GETSET_DATA_FUNCS_B)
+				NEW_GETSET_PARAMETER(FluidDataType, GETSET_DATA_FUNCS_I)
 
-				void configure_init(GU_Detail &gdp); // Call Inside Lock
+				size_t substep_num = 0; // update every frame
 				void runtime_init_handles(GU_Detail &gdp); // Call Inside Lock
-				void update_dynamic_dt();
+				double calculate_dynamic_dt();
 				size_t pt_size() const;
 
 				NEW_HINA_DATA_GETSET_V3(position)

@@ -19,9 +19,6 @@ add_library(
         ${TARGET}
         SHARED
         hdk/Entrance.cpp
-        hdk/CubbyHDKClassGenerator.h
-        hdk/HOW_TO_USE_GENERATOR.cpp
-        hdk/HOW_TO_USE_GENERATOR.h
 
         hdk/Collider/GAS_CF_ConfigureRigidBodyCollider.cpp
         hdk/Collider/GAS_CF_ConfigureRigidBodyCollider.h

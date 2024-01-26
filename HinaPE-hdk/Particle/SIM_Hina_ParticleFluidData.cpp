@@ -204,6 +204,12 @@ void SIM_Hina_ParticleFluidData::runtime_init_handles(GU_Detail &gdp)
 	gdp_handle_n_sum = gdp.findPointAttribute(getNEIGHBORS_SUM_ATTRIBUTE_NAME());
 	gdp_handle_neighbors = gdp.findPointAttribute(getNEIGHBORS_ATTRIBUTE_NAME());
 }
+void SIM_Hina_ParticleFluidData::update_dynamic_dt()
+{
+	CHECK_CONFIGURED_NO_RETURN(this)
+
+
+}
 size_t SIM_Hina_ParticleFluidData::pt_size() const
 {
 	return InnerPtr->NumberOfParticles();

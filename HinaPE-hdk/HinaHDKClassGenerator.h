@@ -33,6 +33,8 @@
 #include <UT/UT_WorkBuffer.h>
 #include <UT/UT_NetMessage.h>
 
+#include "Core/Utils/Logging.hpp"
+
 #define NEW_GETSET_PARAMETER(NAME, GETSET_TYPE) \
 GETSET_TYPE(#NAME, NAME)
 
@@ -158,16 +160,16 @@ DECLARE_DATAFACTORY(GAS_Hina_##NAME, GAS_SubSolver, "Hina_"#NAME, getDopDescript
 private: \
 void _init(); \
 void _makeEqual(const GAS_Hina_##NAME *src); \
-bool _solve(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep, UT_WorkBuffer &error_msg); \
+bool _solve(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep); \
 };
 
-#define NEW_HINA_MICRPSOLVER_IMPLEMENT(NAME, UNIQUE, ...) \
+#define NEW_HINA_MICROSOLVER_IMPLEMENT(NAME, UNIQUE, ...) \
 bool GAS_Hina_##NAME::solveGasSubclass(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep) \
 { \
     CHECK_NULL(obj) \
-    if (!_solve(engine, obj, time, timestep, this->error_msg) || UTisstring(this->error_msg.buffer())) \
+    if (!_solve(engine, obj, time, timestep) || UTisstring(this->error_msg.buffer())) \
     { \
-        SIM_Data::addError(obj, SIM_MESSAGE, error_msg.buffer(), UT_ERROR_ABORT); \
+        SIM_Data::addError(obj, SIM_MESSAGE, this->error_msg.buffer(), UT_ERROR_ABORT); \
         return false; \
     } \
     return true; \

@@ -1,7 +1,7 @@
 #include "GAS_Hina_SPHPressure.h"
 #include <Particle/SIM_Hina_ParticleFluidData.h>
 
-NEW_HINA_MICRPSOLVER_IMPLEMENT(
+NEW_HINA_MICROSOLVER_IMPLEMENT(
 		SPHPressure,
 		false,
 		ACTIVATE_GAS_GEOMETRY
@@ -9,8 +9,10 @@ NEW_HINA_MICRPSOLVER_IMPLEMENT(
 
 void GAS_Hina_SPHPressure::_init() {}
 void GAS_Hina_SPHPressure::_makeEqual(const GAS_Hina_SPHPressure *src) {}
-bool GAS_Hina_SPHPressure::_solve(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep, UT_WorkBuffer &error_msg)
+bool GAS_Hina_SPHPressure::_solve(SIM_Engine &, SIM_Object *obj, SIM_Time, SIM_Time)
 {
+	CubbyFlow::Logging::Mute();
+
 	SIM_Hina_ParticleFluidData *data = SIM_DATA_GET(*obj, SIM_Hina_ParticleFluidData::DATANAME, SIM_Hina_ParticleFluidData);
 	CHECK_NULL(data)
 	CHECK_CONFIGURED(data)

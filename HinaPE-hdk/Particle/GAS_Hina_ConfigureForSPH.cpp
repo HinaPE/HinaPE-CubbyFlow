@@ -7,7 +7,7 @@
 #include "Core/Geometry/TriangleMesh3.hpp"
 #include "Core/Geometry/Box.hpp"
 
-NEW_HINA_MICRPSOLVER_IMPLEMENT(
+NEW_HINA_MICROSOLVER_IMPLEMENT(
 		ConfigureForSPH,
 		false,
 		ACTIVATE_GAS_GEOMETRY
@@ -15,8 +15,10 @@ NEW_HINA_MICRPSOLVER_IMPLEMENT(
 
 void GAS_Hina_ConfigureForSPH::_init() {}
 void GAS_Hina_ConfigureForSPH::_makeEqual(const GAS_Hina_ConfigureForSPH *src) {}
-bool GAS_Hina_ConfigureForSPH::_solve(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep, UT_WorkBuffer &error_msg)
+bool GAS_Hina_ConfigureForSPH::_solve(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep)
 {
+	CubbyFlow::Logging::Mute();
+
 	SIM_Hina_ParticleFluidData *data = SIM_DATA_GET(*obj, SIM_Hina_ParticleFluidData::DATANAME, SIM_Hina_ParticleFluidData);
 	CHECK_NULL(data)
 	SIM_GeometryCopy *geo = getOrCreateGeometry(obj, GAS_NAME_GEOMETRY);
@@ -110,6 +112,7 @@ bool GAS_Hina_ConfigureForSPH::_solve(SIM_Engine &engine, SIM_Object *obj, SIM_T
 			}
 		}
 		data->runtime_init_handles(gdp);
+		data->update_dynamic_dt(); // Compute desired time step
 
 		// Update Collider
 		for (exint i = 0; i < num_affectors; ++i)

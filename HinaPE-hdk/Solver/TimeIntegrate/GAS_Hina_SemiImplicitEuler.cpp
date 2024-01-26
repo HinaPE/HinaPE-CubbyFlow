@@ -1,7 +1,7 @@
 #include "GAS_Hina_SemiImplicitEuler.h"
 #include <Particle/SIM_Hina_ParticleFluidData.h>
 
-NEW_HINA_MICRPSOLVER_IMPLEMENT(
+NEW_HINA_MICROSOLVER_IMPLEMENT(
 		SemiImplicitEuler,
 		false,
 		ACTIVATE_GAS_GEOMETRY
@@ -9,8 +9,10 @@ NEW_HINA_MICRPSOLVER_IMPLEMENT(
 
 void GAS_Hina_SemiImplicitEuler::_init() {}
 void GAS_Hina_SemiImplicitEuler::_makeEqual(const GAS_Hina_SemiImplicitEuler *src) {}
-bool GAS_Hina_SemiImplicitEuler::_solve(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep, UT_WorkBuffer &error_msg)
+bool GAS_Hina_SemiImplicitEuler::_solve(SIM_Engine &, SIM_Object *obj, SIM_Time time, SIM_Time timestep)
 {
+	CubbyFlow::Logging::Mute();
+
 	SIM_Hina_ParticleFluidData *data = SIM_DATA_GET(*obj, SIM_Hina_ParticleFluidData::DATANAME, SIM_Hina_ParticleFluidData);
 	CHECK_NULL(data)
 	CHECK_CONFIGURED(data)
@@ -27,6 +29,8 @@ bool GAS_Hina_SemiImplicitEuler::_solve(SIM_Engine &engine, SIM_Object *obj, SIM
 	});
 	data->sync_position(geo); // sync gdp
 	data->sync_velocity(geo); // sync gdp
+
+	std::cout << "Solved" << "time:" << time << "timestep" << timestep << std::endl;
 
 	return true;
 }

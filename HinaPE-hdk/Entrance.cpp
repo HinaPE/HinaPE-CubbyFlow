@@ -15,6 +15,11 @@
 #include <Solver/Pressure/GAS_Hina_PCISPHPressure.h>
 #include <Solver/Pressure/GAS_Hina_SPHPressure.h>
 #include <Solver/TimeIntegrate/GAS_Hina_SemiImplicitEuler.h>
+#include <Solver/TimeIntegrate/GAS_Hina_SubStep.h>
+
+// Just for test
+#include <_GroundTruth/PCISPH/GAS_GT_PCISPHSolver.h>
+#include <_GroundTruth/SPH/GAS_GT_SPHSolver.h>
 
 void initializeSIM(void *)
 {
@@ -42,4 +47,9 @@ void initializeSIM(void *)
 	IMPLEMENT_DATAFACTORY(GAS_Hina_PCISPHPressure)
 	IMPLEMENT_DATAFACTORY(GAS_Hina_SPHPressure)
 	IMPLEMENT_DATAFACTORY(GAS_Hina_SemiImplicitEuler)
+	IMPLEMENT_DATAFACTORY(GAS_Hina_SubStep)
+
+	// _GroundTruth
+	IMPLEMENT_DATAFACTORY(GAS_Hina_GT_PCISPHSolver)
+	IMPLEMENT_DATAFACTORY(GAS_Hina_GT_SPHSolver)
 }

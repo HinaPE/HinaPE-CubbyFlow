@@ -8,7 +8,7 @@
 #include "Core/Geometry/TriangleMesh3.hpp"
 #include "Core/Geometry/ImplicitSurfaceSet.hpp"
 
-NEW_HINA_MICRPSOLVER_IMPLEMENT(
+NEW_HINA_MICROSOLVER_IMPLEMENT(
 		VolumeParticleEmittter,
 		false,
 		ACTIVATE_GAS_GEOMETRY \
@@ -24,8 +24,10 @@ void GAS_Hina_VolumeParticleEmittter::_makeEqual(const GAS_Hina_VolumeParticleEm
 {
 	this->InnerPtr = src->InnerPtr;
 }
-bool GAS_Hina_VolumeParticleEmittter::_solve(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep, UT_WorkBuffer &error_msg)
+bool GAS_Hina_VolumeParticleEmittter::_solve(SIM_Engine &, SIM_Object *obj, SIM_Time time, SIM_Time timestep)
 {
+	CubbyFlow::Logging::Mute();
+
 	// Init Phase
 	if (!InnerPtr)
 	{

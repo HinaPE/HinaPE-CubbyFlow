@@ -5,8 +5,11 @@
 #include <Geometry/SIM_Hina_Box.h>
 #include <Geometry/SIM_Hina_Plane.h>
 #include <Geometry/SIM_Hina_Sphere.h>
+#include <Particle/GAS_Hina_CommitAllCaches.h>
 #include <Particle/GAS_Hina_ConfigureForSPH.h>
 #include <Particle/SIM_Hina_ParticleFluidData.h>
+#include <Particle/SIM_Hina_PCISPHCaches.h>
+#include <Particle/SIM_Hina_SPHCaches.h>
 #include <Solver/Collision/GAS_Hina_CollisionSolve.h>
 #include <Solver/Density/GAS_Hina_UpdateDensity.h>
 #include <Solver/Force/GAS_Hina_ClearForce.h>
@@ -35,8 +38,11 @@ void initializeSIM(void *)
 	IMPLEMENT_DATAFACTORY(SIM_Hina_Sphere)
 
 	// Particle Data
+	IMPLEMENT_DATAFACTORY(GAS_Hina_CommitAllCaches)
 	IMPLEMENT_DATAFACTORY(GAS_Hina_ConfigureForSPH)
 	IMPLEMENT_DATAFACTORY(SIM_Hina_ParticleFluidData)
+	IMPLEMENT_DATAFACTORY(SIM_Hina_PCISPHCaches)
+	IMPLEMENT_DATAFACTORY(SIM_Hina_SPHCaches)
 
 	// Solver
 	IMPLEMENT_DATAFACTORY(GAS_Hina_CollisionSolve)

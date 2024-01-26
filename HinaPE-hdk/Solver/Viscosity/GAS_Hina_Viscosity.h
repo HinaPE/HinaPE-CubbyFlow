@@ -1,0 +1,10 @@
+#ifndef HINAPE_GAS_HINA_VISCOSITY_H
+#define HINAPE_GAS_HINA_VISCOSITY_H
+
+#include "HinaHDKClassGenerator.h"
+
+NEW_HINA_MICRPSOLVER_CLASS(
+		Viscosity,
+)
+
+#endif //HINAPE_GAS_HINA_VISCOSITY_H

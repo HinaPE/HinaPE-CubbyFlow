@@ -259,6 +259,40 @@ DESC.setDefaultUniqueDataName(UNIQUE); \
 return &DESC; \
 }
 
+#define NEW_HINA_DATA_IMPLEMENT_NO_NODE(NAME, UNIQUE, ...) \
+void SIM_Hina_##NAME::initializeSubclass() \
+{ \
+    SIM_Data::initializeSubclass(); \
+    this->Configured = false; \
+    this->error_msg.clear(); \
+    _init(); \
+} \
+void SIM_Hina_##NAME::makeEqualSubclass(const SIM_Data *source) \
+{ \
+    SIM_Data::makeEqualSubclass(source); \
+    const SIM_Hina_##NAME *src = SIM_DATA_CASTCONST(source, SIM_Hina_##NAME); \
+    this->Configured = src->Configured; \
+    this->error_msg = src->error_msg; \
+    _makeEqual(src); \
+} \
+const char *SIM_Hina_##NAME::DATANAME = "Hina_"#NAME; \
+const SIM_DopDescription *SIM_Hina_##NAME::getDopDescription() \
+{ \
+static std::vector<PRM_Template> PRMS;             \
+PRMS.clear(); \
+__VA_ARGS__ \
+PRMS.emplace_back(); \
+static SIM_DopDescription DESC(false, \
+                               "Hina_"#NAME, \
+                               "Hina "#NAME, \
+                               DATANAME, \
+                               classname(), \
+                               PRMS.data()); \
+DESC.setDefaultUniqueDataName(UNIQUE); \
+return &DESC; \
+}
+
+
 #define NEW_HINA_GEOMETRY_CLASS(NAME, InnerTypePtr, ...) \
 class SIM_Hina_##NAME : public SIM_Geometry \
 { \

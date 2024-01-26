@@ -17,14 +17,14 @@ void SIM_Hina_ConfigureForSPH::_init() {}
 void SIM_Hina_ConfigureForSPH::_makeEqual(const SIM_Hina_ConfigureForSPH *src) {}
 bool SIM_Hina_ConfigureForSPH::InitConfigure(SIM_Object *obj, SIM_Hina_ParticleFluidData *data)
 {
-	CHECK_NULL(obj);
-	CHECK_NULL(data);
+	CHECK_NULL(obj)
+	CHECK_NULL(data)
 
 	CubbyFlow::Logging::Mute();
 
 	SIM_GeometryCopy *geo = SIM_DATA_CREATE(*obj, SIM_GEOMETRY_DATANAME, SIM_GeometryCopy,
 											SIM_DATA_RETURN_EXISTING | SIM_DATA_ADOPT_EXISTING_ON_DELETE);
-	CHECK_NULL(geo);
+	CHECK_NULL(geo)
 
 	SIM_ObjectArray affectors;
 	obj->getAffectors(affectors, "SIM_RelationshipCollide");
@@ -68,12 +68,11 @@ bool SIM_Hina_ConfigureForSPH::InitConfigure(SIM_Object *obj, SIM_Hina_ParticleF
 			data->scalar_idx_state = data->InnerPtr->AddScalarData();
 
 			// Add Caches
-			int data_type = data->getFluidDataType();
-			if (data_type == 0)
-				SIM_DATA_CREATE(*this, SIM_Hina_SPHCaches::DATANAME, SIM_Hina_SPHCaches, SIM_DATA_RETURN_EXISTING |
+			if (data->getFluidDataType() == 0)
+				SIM_DATA_CREATE(*data, SIM_Hina_SPHCaches::DATANAME, SIM_Hina_SPHCaches, SIM_DATA_RETURN_EXISTING |
 																						 SIM_DATA_ADOPT_EXISTING_ON_DELETE); // maybe we need just to delete the old and create new
-			else
-				SIM_DATA_CREATE(*this, SIM_Hina_PCISPHCaches::DATANAME, SIM_Hina_PCISPHCaches, SIM_DATA_RETURN_EXISTING |
+			else if (data->getFluidDataType() == 1)
+				SIM_DATA_CREATE(*data, SIM_Hina_PCISPHCaches::DATANAME, SIM_Hina_PCISPHCaches, SIM_DATA_RETURN_EXISTING |
 																							   SIM_DATA_ADOPT_EXISTING_ON_DELETE); // maybe we need just to delete the old and create new
 
 
@@ -139,9 +138,9 @@ bool SIM_Hina_ConfigureForSPH::InitConfigure(SIM_Object *obj, SIM_Hina_ParticleF
 							std::vector<size_t> polyIndices;
 							for (int vi = 0; vi < poly->getVertexCount(); ++vi)
 								polyIndices.push_back(poly->getPointIndex(vi));
-							for (size_t i = 1; i < polyIndices.size() - 1; ++i)
-								point_indices.Append({polyIndices[0], polyIndices[i +
-																				  1], polyIndices[i]}); // notice the normal
+							for (size_t ii = 1; ii < polyIndices.size() - 1; ++ii)
+								point_indices.Append({polyIndices[0], polyIndices[ii +
+																				  1], polyIndices[ii]}); // notice the normal
 						}
 					}
 					CubbyFlow::TriangleMesh3Ptr mesh = CubbyFlow::TriangleMesh3::GetBuilder().WithPoints(points).WithPointIndices(point_indices).MakeShared();
@@ -162,14 +161,13 @@ bool SIM_Hina_ConfigureForSPH::InitConfigure(SIM_Object *obj, SIM_Hina_ParticleF
 }
 bool SIM_Hina_ConfigureForSPH::UpdateConfigure(SIM_Object *obj, SIM_Hina_ParticleFluidData *data, SIM_Time current_time, SIM_Time timestep)
 {
-	CHECK_NULL(obj);
-	CHECK_NULL(data);
+	CHECK_NULL(obj)
+	CHECK_NULL(data)
 
 	CubbyFlow::Logging::Mute();
 
-	SIM_GeometryCopy *geo = SIM_DATA_CREATE(*obj, SIM_GEOMETRY_DATANAME, SIM_GeometryCopy,
-											SIM_DATA_RETURN_EXISTING | SIM_DATA_ADOPT_EXISTING_ON_DELETE);
-	CHECK_NULL(geo);
+	SIM_GeometryCopy *geo = SIM_DATA_GET(*obj, SIM_GEOMETRY_DATANAME, SIM_GeometryCopy);
+	CHECK_NULL(geo)
 
 	SIM_ObjectArray affectors;
 	obj->getAffectors(affectors, "SIM_RelationshipCollide");

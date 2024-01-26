@@ -84,6 +84,9 @@ NEW_HINA_DATA_CLASS(
 				void set_state(size_t index, std::string state);
 				std::string gdp_state(size_t index); // Call Inside Lock
 				void set_gdp_state(size_t index, std::string state); // Call Inside Lock
+
+				SIM_Guide *createGuideObjectSubclass() const override;
+				void buildGuideGeometrySubclass(const SIM_RootData &root, const SIM_Options &options, const GU_DetailHandle &gdh, UT_DMatrix4 *xform, const SIM_Time &t) const override;
 )
 
 #endif //HINAPE_SIM_HINA_PARTICLEFLUIDDATA_H

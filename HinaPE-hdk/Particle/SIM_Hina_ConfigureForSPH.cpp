@@ -112,8 +112,8 @@ bool SIM_Hina_ConfigureForSPH::InitConfigure(SIM_Object *obj, SIM_Hina_ParticleF
 					SIM_Geometry *collider_geo = SIM_DATA_GET(*affector, SIM_GEOMETRY_DATANAME, SIM_Geometry);
 					CHECK_NULL(collider_geo)
 
-					SIM_GeometryAutoReadLock lock(collider_geo);
-					const GU_Detail *gdp_source = lock.getGdp();
+					SIM_GeometryAutoReadLock collider_lock(collider_geo);
+					const GU_Detail *gdp_source = collider_lock.getGdp();
 					CubbyFlow::TriangleMesh3::PointArray points;
 					CubbyFlow::TriangleMesh3::IndexArray point_indices;
 					{
@@ -151,7 +151,6 @@ bool SIM_Hina_ConfigureForSPH::InitConfigure(SIM_Object *obj, SIM_Hina_ParticleF
 					collider_data->Configured = true;
 				}
 			}
-
 			data->Configured = true;
 		}
 		data->runtime_init_handles(gdp);
@@ -161,10 +160,10 @@ bool SIM_Hina_ConfigureForSPH::InitConfigure(SIM_Object *obj, SIM_Hina_ParticleF
 }
 bool SIM_Hina_ConfigureForSPH::UpdateConfigure(SIM_Object *obj, SIM_Hina_ParticleFluidData *data, SIM_Time current_time, SIM_Time timestep)
 {
+	CubbyFlow::Logging::Mute();
+
 	CHECK_NULL(obj)
 	CHECK_NULL(data)
-
-	CubbyFlow::Logging::Mute();
 
 	SIM_GeometryCopy *geo = SIM_DATA_GET(*obj, SIM_GEOMETRY_DATANAME, SIM_GeometryCopy);
 	CHECK_NULL(geo)

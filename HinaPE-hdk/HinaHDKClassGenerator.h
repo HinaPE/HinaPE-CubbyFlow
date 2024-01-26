@@ -261,6 +261,8 @@ static const char *DATANAME; \
 bool Configured = false; \
 mutable UT_WorkBuffer error_msg; \
 __VA_ARGS__ \
+GET_GUIDE_FUNC_B(SIM_NAME_SHOWGUIDE, ShowGuideGeometry, true); \
+GET_GUIDE_FUNC_V3("DomainColor", DomainColor, (.0156356, 0, .5))                                       \
 protected: \
 SIM_Hina_##NAME(const SIM_DataFactory *factory) : SIM_Data(factory), SIM_OptionsUser(this) {} \
 ~SIM_Hina_##NAME() override = default; \
@@ -293,7 +295,7 @@ void SIM_Hina_##NAME::makeEqualSubclass(const SIM_Data *source) \
 const char *SIM_Hina_##NAME::DATANAME = "Hina_"#NAME; \
 const SIM_DopDescription *SIM_Hina_##NAME::getDopDescription() \
 { \
-static std::vector<PRM_Template> PRMS;             \
+static std::vector<PRM_Template> PRMS; \
 PRMS.clear(); \
 __VA_ARGS__ \
 PRMS.emplace_back(); \
@@ -303,6 +305,15 @@ static SIM_DopDescription DESC(true, \
                                DATANAME, \
                                classname(), \
                                PRMS.data()); \
+static PRM_Name ShowGuideGeometry(SIM_NAME_SHOWGUIDE, "ShowGuideGeometry"); \
+static PRM_Name DomainColor("DomainColor", "DomainColor"); \
+static std::array<PRM_Default, 3> DomainColorDefault{.0156356, 0, .5}; \
+static std::array<PRM_Template, 3> PRMS_GUIDE{ \
+PRM_Template(PRM_TOGGLE, 1, &ShowGuideGeometry, PRMoneDefaults), \
+PRM_Template(PRM_RGBA, 3, &DomainColor, DomainColorDefault.data()), \
+PRM_Template() \
+}; \
+DESC.setGuideTemplates(PRMS_GUIDE.data()); \
 DESC.setDefaultUniqueDataName(UNIQUE); \
 return &DESC; \
 }
@@ -336,6 +347,15 @@ static SIM_DopDescription DESC(false, \
                                DATANAME, \
                                classname(), \
                                PRMS.data()); \
+static PRM_Name ShowGuideGeometry(SIM_NAME_SHOWGUIDE, "ShowGuideGeometry"); \
+static PRM_Name DomainColor("DomainColor", "DomainColor"); \
+static std::array<PRM_Default, 3> DomainColorDefault{.0156356, 0, .5}; \
+static std::array<PRM_Template, 3> PRMS_GUIDE{ \
+PRM_Template(PRM_TOGGLE, 1, &ShowGuideGeometry, PRMoneDefaults), \
+PRM_Template(PRM_RGBA, 3, &DomainColor, DomainColorDefault.data()), \
+PRM_Template() \
+}; \
+DESC.setGuideTemplates(PRMS_GUIDE.data()); \
 DESC.setDefaultUniqueDataName(UNIQUE); \
 return &DESC; \
 }

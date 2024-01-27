@@ -10,6 +10,8 @@ SIM_Solver::SIM_Result GAS_Hina_SubStep::solveObjectsSubclass(SIM_Engine &engine
 	SIM_Hina_ConfigureForSPH *configure = nullptr;
 
 	double sub_time = timestep;
+
+	// Find Fluid Data (ONLY [ONE] SUPPORTED)
 	auto obj_size = objects.entries();
 	for (int obj_idx = 0; obj_idx < obj_size; ++obj_idx)
 	{
@@ -23,7 +25,7 @@ SIM_Solver::SIM_Result GAS_Hina_SubStep::solveObjectsSubclass(SIM_Engine &engine
 		return SIM_Result::SIM_SOLVER_FAIL;
 
 	configure = SIM_DATA_GET(*data, SIM_Hina_ConfigureForSPH::DATANAME, SIM_Hina_ConfigureForSPH);
-	// Attach Configure
+	// If not Found, then Attach Configure
 	if (!configure)
 		configure = SIM_DATA_CREATE(*data, SIM_Hina_ConfigureForSPH::DATANAME, SIM_Hina_ConfigureForSPH,
 									SIM_DATA_RETURN_EXISTING | SIM_DATA_ADOPT_EXISTING_ON_DELETE);
@@ -33,6 +35,7 @@ SIM_Solver::SIM_Result GAS_Hina_SubStep::solveObjectsSubclass(SIM_Engine &engine
 	sub_time = data->calculate_dynamic_dt();
 	int sub_step = std::ceil(timestep / sub_time);
 
+	// Limit Max substeps
 	int max_substeps = getMAX_SUBSTEP();
 	if (sub_step > max_substeps)
 	{

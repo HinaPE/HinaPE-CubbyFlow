@@ -5,6 +5,7 @@
 #include <Geometry/SIM_Hina_Box.h>
 #include <Geometry/SIM_Hina_Plane.h>
 #include <Geometry/SIM_Hina_Sphere.h>
+#include <Grid/SIM_Hina_Grid.h>
 #include <Particle/GAS_Hina_CommitAllCaches.h>
 #include <Particle/SIM_Hina_ConfigureForSPH.h>
 #include <Particle/SIM_Hina_ParticleFluidData.h>
@@ -25,6 +26,7 @@
 
 // Just for test
 #include <_GroundTruth/PCISPH/GAS_GT_PCISPHSolver.h>
+#include <_GroundTruth/SMOKE/GAS_GT_SmokeSolver.h>
 #include <_GroundTruth/SPH/GAS_GT_SPHSolver.h>
 
 void initializeSIM(void *)
@@ -39,6 +41,9 @@ void initializeSIM(void *)
 	IMPLEMENT_DATAFACTORY(SIM_Hina_Box)
 	IMPLEMENT_DATAFACTORY(SIM_Hina_Plane)
 	IMPLEMENT_DATAFACTORY(SIM_Hina_Sphere)
+
+	// Grid
+	IMPLEMENT_DATAFACTORY(SIM_Hina_Grid)
 
 	// Particle Data
 	IMPLEMENT_DATAFACTORY(GAS_Hina_CommitAllCaches)
@@ -63,5 +68,6 @@ void initializeSIM(void *)
 
 	// _GroundTruth
 	IMPLEMENT_DATAFACTORY(GAS_Hina_GT_PCISPHSolver)
+	IMPLEMENT_DATAFACTORY(GAS_Hina_GT_SmokeSolver)
 	IMPLEMENT_DATAFACTORY(GAS_Hina_GT_SPHSolver)
 }

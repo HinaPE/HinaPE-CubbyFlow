@@ -57,4 +57,6 @@ void SIM_Hina_GridFluidData::_makeEqual(const SIM_Hina_GridFluidData *src)
 	this->InnerPtr = src->InnerPtr;
 	this->scalar_density_offset = src->scalar_density_offset;
 	this->scalar_temperature_offset = src->scalar_temperature_offset;
+
+	SIM_VectorField *vf;
 }

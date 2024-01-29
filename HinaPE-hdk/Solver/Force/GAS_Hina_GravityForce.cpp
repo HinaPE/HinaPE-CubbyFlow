@@ -26,9 +26,8 @@ bool GAS_Hina_GravityForce::_solve(SIM_Engine &, SIM_Object *obj, SIM_Time, SIM_
 	CubbyFlow::ParallelFor(CubbyFlow::ZERO_SIZE, pt_size, [&](size_t pt_idx)
 	{
 		data->force(pt_idx) += mass * Gravity;
-		data->set_gdp_force(pt_idx, AS_UTVector3D(data->force(pt_idx)));
 	});
-	data->sync_force(geo);
+	data->sync_force(geo); // sync gdp
 
 	return true;
 }

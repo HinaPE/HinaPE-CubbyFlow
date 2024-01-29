@@ -12,6 +12,8 @@
 #include <Particle/SIM_Hina_ParticleFluidData.h>
 #include <Particle/SIM_Hina_PCISPHCaches.h>
 #include <Particle/SIM_Hina_SPHCaches.h>
+#include <Solver/Advection/GAS_Hina_CubicSemiLagrangian.h>
+#include <Solver/Advection/GAS_Hina_SemiLagrangian.h>
 #include <Solver/Collision/GAS_Hina_CollisionSolve.h>
 #include <Solver/Density/GAS_Hina_UpdateDensity.h>
 #include <Solver/Force/GAS_Hina_ClearForce.h>
@@ -55,6 +57,8 @@ void initializeSIM(void *)
 	IMPLEMENT_DATAFACTORY(SIM_Hina_SPHCaches)
 
 	// Solver
+	IMPLEMENT_DATAFACTORY(GAS_Hina_CubicSemiLagrangian)
+	IMPLEMENT_DATAFACTORY(GAS_Hina_SemiLagrangian)
 	IMPLEMENT_DATAFACTORY(GAS_Hina_CollisionSolve)
 	IMPLEMENT_DATAFACTORY(GAS_Hina_UpdateDensity)
 	IMPLEMENT_DATAFACTORY(GAS_Hina_ClearForce)

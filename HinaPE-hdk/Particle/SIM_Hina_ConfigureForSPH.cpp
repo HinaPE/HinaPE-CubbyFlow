@@ -17,10 +17,10 @@ void SIM_Hina_ConfigureForSPH::_init() {}
 void SIM_Hina_ConfigureForSPH::_makeEqual(const SIM_Hina_ConfigureForSPH *src) {}
 bool SIM_Hina_ConfigureForSPH::InitConfigure(SIM_Object *obj, SIM_Hina_ParticleFluidData *data)
 {
+	CubbyFlow::Logging::Mute();
+
 	CHECK_NULL(obj)
 	CHECK_NULL(data)
-
-	CubbyFlow::Logging::Mute();
 
 	SIM_GeometryCopy *geo = SIM_DATA_CREATE(*obj, SIM_GEOMETRY_DATANAME, SIM_GeometryCopy,
 											SIM_DATA_RETURN_EXISTING | SIM_DATA_ADOPT_EXISTING_ON_DELETE);

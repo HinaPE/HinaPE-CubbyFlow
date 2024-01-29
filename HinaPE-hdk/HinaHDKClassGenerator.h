@@ -53,6 +53,11 @@ static PRM_Name    theDensityName(GAS_NAME_DENSITY, "Density"); \
 static PRM_Default    theDensityNameDefault(0, "Density"); \
 PRMS.emplace_back(PRM_STRING, 1, &theDensityName, &theDensityNameDefault);
 
+#define ACTIVATE_GAS_TEMPERATURE \
+static PRM_Name    theTemperatureName(GAS_NAME_TEMPERATURE, "Temperature"); \
+static PRM_Default    theTemperatureNameDefault(0, "Temperature"); \
+PRMS.emplace_back(PRM_STRING, 1, &theTemperatureName, &theTemperatureNameDefault);
+
 #define ACTIVATE_GAS_PRESSURE \
 static PRM_Name    thePressureName(GAS_NAME_PRESSURE, "Pressure"); \
 static PRM_Default    thePressureNameDefault(0, "Pressure"); \

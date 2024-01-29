@@ -5,7 +5,8 @@
 #include <Geometry/SIM_Hina_Box.h>
 #include <Geometry/SIM_Hina_Plane.h>
 #include <Geometry/SIM_Hina_Sphere.h>
-#include <Grid/SIM_Hina_Grid.h>
+#include <Grid/SIM_Hina_ConfigureForSmoke.h>
+#include <Grid/SIM_Hina_GridFluidData.h>
 #include <Particle/GAS_Hina_CommitAllCaches.h>
 #include <Particle/SIM_Hina_ConfigureForSPH.h>
 #include <Particle/SIM_Hina_ParticleFluidData.h>
@@ -43,7 +44,8 @@ void initializeSIM(void *)
 	IMPLEMENT_DATAFACTORY(SIM_Hina_Sphere)
 
 	// Grid
-	IMPLEMENT_DATAFACTORY(SIM_Hina_Grid)
+	IMPLEMENT_DATAFACTORY(SIM_Hina_ConfigureForSmoke)
+	IMPLEMENT_DATAFACTORY(SIM_Hina_GridFluidData)
 
 	// Particle Data
 	IMPLEMENT_DATAFACTORY(GAS_Hina_CommitAllCaches)

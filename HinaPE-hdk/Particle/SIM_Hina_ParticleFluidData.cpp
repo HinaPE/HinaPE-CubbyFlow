@@ -124,7 +124,7 @@ NEW_HINA_DATA_IMPLEMENT(
                     PRM_Name("0", "SPH"), \
                     PRM_Name("1", "PCISPH"), \
                     PRM_Name(nullptr), \
-}; \
+		}; \
         static PRM_Name DataTypeName("FluidDataType", "Fluid Data Type"); \
         static PRM_Default DataTypeDefault(0, "SPH"); \
         static PRM_ChoiceList CL(PRM_CHOICELIST_SINGLE, DataTypeList.data()); \

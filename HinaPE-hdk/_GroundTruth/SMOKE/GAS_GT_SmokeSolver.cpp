@@ -43,6 +43,8 @@ void GAS_Hina_GT_SmokeSolver::_makeEqual(const GAS_Hina_GT_SmokeSolver *src)
 }
 bool GAS_Hina_GT_SmokeSolver::_solve(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep)
 {
+	CubbyFlow::Logging::Mute();
+
 	// Update to HDK Scalar Field
 	SIM_ScalarField *density_SF = getScalarField(obj, GAS_NAME_DENSITY);
 	SIM_RawField *field = density_SF->getField();
@@ -91,20 +93,17 @@ bool GAS_Hina_GT_SmokeSolver::_solve(SIM_Engine &engine, SIM_Object *obj, SIM_Ti
 		emitter->AddStepFunctionTarget(solver->GetTemperature(), 0, 1);
 
 		// Build collider
-//		const auto sphere = Sphere3::Builder()
-//				.WithCenter({0.5, 0.3, 0.5})
-//				.WithRadius(0.075 * domain.Width())
-//				.MakeShared();
-//
-//		const auto collider =
-//				RigidBodyCollider3::Builder().WithSurface(sphere).MakeShared();
-//
-//		solver->SetCollider(collider);
+		const auto c_sphere = Sphere3::Builder()
+				.WithCenter(Center + Vector3D(0, DomainSizeX / 4, 0))
+				.WithRadius(DomainSizeX / 4)
+				.MakeShared();
+
+		const auto collider =
+				RigidBodyCollider3::Builder().WithSurface(c_sphere).MakeShared();
+
+		solver->SetCollider(collider);
 
 		this->InnerPtr = solver;
-
-		// Print simulation info
-		printf("Running example 1 (rising smoke with cubic-spline advection)\n");
 	}
 
 	this->InnerPtr->Update(++frame);

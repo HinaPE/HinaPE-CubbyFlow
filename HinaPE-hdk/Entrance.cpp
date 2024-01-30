@@ -13,20 +13,21 @@
 #include <Particle/SIM_Hina_ParticleFluidData.h>
 #include <Particle/SIM_Hina_PCISPHCaches.h>
 #include <Particle/SIM_Hina_SPHCaches.h>
-#include <Solver/Advection/GAS_Hina_CubicSemiLagrangian.h>
-#include <Solver/Advection/GAS_Hina_SemiLagrangian.h>
-#include <Solver/Collision/GAS_Hina_CollisionSolve.h>
-#include <Solver/Density/GAS_Hina_UpdateDensity.h>
-#include <Solver/Force/GAS_Hina_ClearForce.h>
-#include <Solver/Force/GAS_Hina_GravityForce.h>
-#include <Solver/Neighbor/GAS_Hina_ReadNeighbor.h>
-#include <Solver/Neighbor/GAS_Hina_UpdateNeighbor.h>
-#include <Solver/Pressure/GAS_Hina_PCISPHPressure.h>
-#include <Solver/Pressure/GAS_Hina_SPHPressure.h>
-#include <Solver/TimeIntegrate/GAS_Hina_SemiImplicitEuler.h>
-#include <Solver/TimeIntegrate/GAS_Hina_SubStep.h>
-#include <Solver/Viscosity/GAS_Hina_PseudoViscosity.h>
-#include <Solver/Viscosity/GAS_Hina_Viscosity.h>
+#include <Solver/Euler/Common/Advection/GAS_Hina_CubicSemiLagrangian.h>
+#include <Solver/Euler/Common/Advection/GAS_Hina_SemiLagrangian.h>
+#include <Solver/Lagrangian/Common/Collision/GAS_Hina_CollisionSolve.h>
+#include <Solver/Lagrangian/Common/Density/GAS_Hina_UpdateDensity.h>
+#include <Solver/Lagrangian/Common/Force/GAS_Hina_ClearForce.h>
+#include <Solver/Lagrangian/Common/Force/GAS_Hina_GravityForce.h>
+#include <Solver/Lagrangian/Common/Neighbor/GAS_Hina_ReadNeighbor.h>
+#include <Solver/Lagrangian/Common/Neighbor/GAS_Hina_UpdateNeighbor.h>
+#include <Solver/Lagrangian/Common/Pressure/GAS_Hina_PCISPHPressure.h>
+#include <Solver/Lagrangian/Common/Pressure/GAS_Hina_SPHPressure.h>
+#include <Solver/Lagrangian/Common/TimeIntegrate/GAS_Hina_SemiImplicitEuler.h>
+#include <Solver/Lagrangian/Common/TimeIntegrate/GAS_Hina_SubStep.h>
+#include <Solver/Lagrangian/Common/Viscosity/GAS_Hina_PseudoViscosity.h>
+#include <Solver/Lagrangian/Common/Viscosity/GAS_Hina_Viscosity.h>
+#include <Solver/Lagrangian/DFSPH/GAS_Hina_DFSPHSolver.h>
 
 // Just for test
 #include <_GroundTruth/PCISPH/GAS_GT_PCISPHSolver.h>
@@ -74,6 +75,7 @@ void initializeSIM(void *)
 	IMPLEMENT_DATAFACTORY(GAS_Hina_SubStep)
 	IMPLEMENT_DATAFACTORY(GAS_Hina_PseudoViscosity)
 	IMPLEMENT_DATAFACTORY(GAS_Hina_Viscosity)
+	IMPLEMENT_DATAFACTORY(GAS_Hina_DFSPHSolver)
 
 	// _GroundTruth
 	IMPLEMENT_DATAFACTORY(GAS_Hina_GT_PICSolver)

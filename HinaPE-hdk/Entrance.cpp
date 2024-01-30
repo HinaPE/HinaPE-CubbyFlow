@@ -1,6 +1,7 @@
 #include <UT/UT_DSOVersion.h> // Very Important!!! Include this!!!
 
 #include <Collider/SIM_Hina_RigidBodyCollider.h>
+#include <Emitter/GAS_Hina_VolumeGridEmitter.h>
 #include <Emitter/GAS_Hina_VolumeParticleEmittter.h>
 #include <Geometry/SIM_Hina_Box.h>
 #include <Geometry/SIM_Hina_Plane.h>
@@ -29,6 +30,7 @@
 
 // Just for test
 #include <_GroundTruth/PCISPH/GAS_GT_PCISPHSolver.h>
+#include <_GroundTruth/PIC/GAS_GT_PICSolver.h>
 #include <_GroundTruth/SMOKE/GAS_GT_SmokeSolver.h>
 #include <_GroundTruth/SPH/GAS_GT_SPHSolver.h>
 
@@ -38,6 +40,7 @@ void initializeSIM(void *)
 	IMPLEMENT_DATAFACTORY(SIM_Hina_RigidBodyCollider)
 
 	// Emitter
+	IMPLEMENT_DATAFACTORY(GAS_Hina_VolumeGridEmitter)
 	IMPLEMENT_DATAFACTORY(GAS_Hina_VolumeParticleEmittter)
 
 	// Geometry
@@ -73,6 +76,7 @@ void initializeSIM(void *)
 	IMPLEMENT_DATAFACTORY(GAS_Hina_Viscosity)
 
 	// _GroundTruth
+	IMPLEMENT_DATAFACTORY(GAS_Hina_GT_PICSolver)
 	IMPLEMENT_DATAFACTORY(GAS_Hina_GT_PCISPHSolver)
 	IMPLEMENT_DATAFACTORY(GAS_Hina_GT_SmokeSolver)
 	IMPLEMENT_DATAFACTORY(GAS_Hina_GT_SPHSolver)

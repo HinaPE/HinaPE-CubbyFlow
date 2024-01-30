@@ -1,4 +1,4 @@
-#include "GAS_Hina_VolumeParticleEmittter.h"
+#include "GAS_Hina_VolumeGridEmitter.h"
 
 #include <Particle/SIM_Hina_ParticleFluidData.h>
 #include <Geometry/SIM_Hina_Box.h>
@@ -9,22 +9,21 @@
 #include "Core/Geometry/ImplicitSurfaceSet.hpp"
 
 NEW_HINA_MICROSOLVER_IMPLEMENT(
-		VolumeParticleEmittter,
+		VolumeGridEmitter,
 		false,
-		ACTIVATE_GAS_GEOMETRY \
+		ACTIVATE_GAS_DENSITY \
         NEW_BOOL_PARAMETER(IsOneShot, true) \
-        NEW_FLOAT_PARAMETER(MaxNumOfParticles, 100000) \
 )
 
-void GAS_Hina_VolumeParticleEmittter::_init()
+void GAS_Hina_VolumeGridEmitter::_init()
 {
 	this->InnerPtr = nullptr;
 }
-void GAS_Hina_VolumeParticleEmittter::_makeEqual(const GAS_Hina_VolumeParticleEmittter *src)
+void GAS_Hina_VolumeGridEmitter::_makeEqual(const GAS_Hina_VolumeGridEmitter *src)
 {
 	this->InnerPtr = src->InnerPtr;
 }
-bool GAS_Hina_VolumeParticleEmittter::_solve(SIM_Engine &, SIM_Object *obj, SIM_Time time, SIM_Time timestep)
+bool GAS_Hina_VolumeGridEmitter::_solve(SIM_Engine &engine, SIM_Object *obj, SIM_Time time, SIM_Time timestep)
 {
 	CubbyFlow::Logging::Mute();
 
@@ -44,59 +43,17 @@ bool GAS_Hina_VolumeParticleEmittter::_solve(SIM_Engine &, SIM_Object *obj, SIM_
 		}
 		CubbyFlow::ImplicitSurfaceSet3Ptr implicit = CubbyFlow::ImplicitSurfaceSet3::GetBuilder().WithExplicitSurfaces(_AllSurfaces).MakeShared();
 		bool IsOneShot = getIsOneShot();
-		size_t MaxNumberOfParticles = getMaxNumOfParticles();
-		this->InnerPtr = CubbyFlow::VolumeParticleEmitter3::GetBuilder()
-				.WithImplicitSurface(implicit)
+		this->InnerPtr = CubbyFlow::VolumeGridEmitter3::GetBuilder()
+				.WithSourceRegion(implicit)
 				.WithIsOneShot(IsOneShot)
-				.WithMaxNumberOfParticles(MaxNumberOfParticles)
 				.MakeShared();
 	}
 
-
 	// Solver Phase
-	SIM_Hina_ParticleFluidData *data = SIM_DATA_GET(*obj, SIM_Hina_ParticleFluidData::DATANAME, SIM_Hina_ParticleFluidData);
-	CHECK_NULL(data)
-	CHECK_CONFIGURED(data)
-	SIM_GeometryCopy *geo = getGeometryCopy(obj, GAS_NAME_GEOMETRY);
-	CHECK_NULL(geo)
-
-	UT_Vector3D MaxRegion = data->getFluidDomainD();
-	CubbyFlow::BoundingBox3D FluidDomain(
-			CubbyFlow::Vector3D(-MaxRegion.x() / 2, -MaxRegion.y() / 2, -MaxRegion.z() / 2),
-			CubbyFlow::Vector3D(MaxRegion.x() / 2, MaxRegion.y() / 2, MaxRegion.z() / 2)
-	);
-	this->InnerPtr->SetTarget(data->InnerPtr);
-	this->InnerPtr->SetSpacing(data->getTargetSpacing());
-	this->InnerPtr->SetMaxRegion(FluidDomain);
-	this->InnerPtr->Update(time, timestep);
-
-	size_t pt_size = data->pt_size();
-	// Sync To Geometry Spread Sheet
-	{
-		SIM_GeometryAutoWriteLock lock(geo);
-		GU_Detail &gdp = lock.getGdp();
-		data->runtime_init_handles(gdp);
-
-		for (int pt_idx = 0; pt_idx < pt_size; ++pt_idx)
-		{
-			if (data->state(pt_idx) == PARTICLE_STATE_NEW_ADDED)
-			{
-				GA_Offset pt_off = gdp.appendPoint();
-				data->set_offset(pt_idx, pt_off);
-				data->set_state(pt_idx, PARTICLE_STATE_CLEAN);
-				data->set_gdp_index(pt_off, pt_idx);
-			}
-			data->set_gdp_state(pt_idx, data->state(pt_idx));
-		}
-	}
-	data->sync_position(geo);
-	data->sync_velocity(geo);
-	data->sync_force(geo);
 
 	return true;
 }
-
-void GAS_Hina_VolumeParticleEmittter::_search_and_add_all_box()
+void GAS_Hina_VolumeGridEmitter::_search_and_add_all_box()
 {
 	SIM_ConstDataArray Hina_Boxes;
 	filterConstSubData(Hina_Boxes, nullptr, SIM_DataFilterByType("SIM_Hina_Box"), nullptr, SIM_DataFilterNone());
@@ -107,7 +64,7 @@ void GAS_Hina_VolumeParticleEmittter::_search_and_add_all_box()
 		_AllSurfaces.Append(suface_ptr);
 	}
 }
-void GAS_Hina_VolumeParticleEmittter::_search_and_add_all_sphere()
+void GAS_Hina_VolumeGridEmitter::_search_and_add_all_sphere()
 {
 	SIM_ConstDataArray Hina_Spheres;
 	filterConstSubData(Hina_Spheres, nullptr, SIM_DataFilterByType("SIM_Hina_Sphere"), nullptr, SIM_DataFilterNone());
@@ -118,7 +75,7 @@ void GAS_Hina_VolumeParticleEmittter::_search_and_add_all_sphere()
 		_AllSurfaces.Append(suface_ptr);
 	}
 }
-void GAS_Hina_VolumeParticleEmittter::_search_and_add_all_plane()
+void GAS_Hina_VolumeGridEmitter::_search_and_add_all_plane()
 {
 	SIM_ConstDataArray Hina_Planes;
 	filterConstSubData(Hina_Planes, nullptr, SIM_DataFilterByType("SIM_Hina_Plane"), nullptr, SIM_DataFilterNone());
@@ -129,7 +86,7 @@ void GAS_Hina_VolumeParticleEmittter::_search_and_add_all_plane()
 		_AllSurfaces.Append(suface_ptr);
 	}
 }
-void GAS_Hina_VolumeParticleEmittter::_search_and_add_geometry()
+void GAS_Hina_VolumeGridEmitter::_search_and_add_geometry()
 {
 	// For performance, We only support upto 1 external SIM_Geometry
 	SIM_Geometry *src_geo = SIM_DATA_GET(*this, SIM_GEOMETRY_DATANAME, SIM_Geometry);
